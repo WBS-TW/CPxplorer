@@ -1,10 +1,12 @@
 library(nnls)
 library(tidyverse)
-library(tidymodels)
+#library(tidymodels)
 library(readxl)
 library(openxlsx)
 
+
 ## Setup automatic nnls deconvolution process from excel sheet
+
 
 #### TODO ####
 #filter(rsquared > 0.7) #cannot do this as some are still false positive and need to replace formula later with 0 for nnls
@@ -17,24 +19,13 @@ library(openxlsx)
 ##############
 
 # reading data from excel
-Skyline_output <- readxl::read_excel(skyline_output) |>
-    dplyr::mutate(`Analyte Concentration` = as.numeric(`Analyte Concentration`)) |>
-    dplyr::mutate(Area = as.numeric(Area)) |>
-    dplyr::mutate(Area = replace_na(Area, 0)) |>  # Replace missing values in the Response_factor column with 0
-#mutate(RatioQuanToQual = as.numeric(RatioQuanToQual)) |> #--< convert to numeric #-->
-#mutate(RatioQualToQuan = as.numeric(RatioQualToQuan)) #--< convert to numeric #-->
-    dplyr::mutate(C_part = stringr::str_extract(Molecule, "C\\d+"),
+Skyline_output <- read_excel(skyline_file) |>
+    mutate(`Analyte Concentration` = as.numeric(`Analyte Concentration`)) |>
+    mutate(Area = as.numeric(Area)) |>
+    mutate(Area = replace_na(Area, 0)) # Replace missing values in the Response_factor column with 0
+    #mutate(RatioQuanToQual = as.numeric(RatioQuanToQual)) |> #--< convert to numeric #-->
+    #mutate(RatioQualToQuan = as.numeric(RatioQualToQuan)) #--< convert to numeric #-->
 
-                  # Extract "Cl" followed by numbers
-                  Cl_part = stringr::str_extract(Molecule, "Cl\\d+"),
-
-                  # Extract numeric values for sorting
-                  C_number = as.numeric(stringr::str_extract(C_part, "\\d+")),
-                  Cl_number = as.numeric(stringr::str_extract(Cl_part, "\\d+")),
-
-                  # Combine them into SimplifiedMolecule
-                  SimplifiedMolecule = stringr::str_c(C_part, Cl_part, sep = "")
-    )
 
 CPs_standards <- Skyline_output |>
     filter(`Sample Type` == "Standard",
@@ -200,6 +191,8 @@ deconv_coef_df <- Deconvolution |>
     select(`Replicate Name`, deconv_coef) |>
     unnest_wider(deconv_coef, names_sep = "_")
 
+# View the result
+print(deconv_coef_df)
 
 
 
@@ -310,19 +303,6 @@ cat("Excel file saved:", excel_file, "\n")
 #Samples_Concentration<- Samples_Concentration |>
 #       mutate(Molecule = CPs_samples_input$Molecule)|>
 #      relocate(Molecule, .before = everything())
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

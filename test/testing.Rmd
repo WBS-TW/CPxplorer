@@ -8,7 +8,7 @@ Test CPquant
 
 
 #skyline_output <- "~/CPxplorer/data/Test_File.xlsx"
-skyline_output <- "~/CPxplorer/data/20241126_PCAs_OrebroDustIOFjos.xlsx"
+skyline_file <- "~/CPxplorer/data/20241126_PCAs_OrebroDustIOFjos.xlsx"
 
 
 includeISOnly <- "Yes"
