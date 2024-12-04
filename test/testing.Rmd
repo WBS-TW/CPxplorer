@@ -1,0 +1,20 @@
+---
+title: "Testing"
+output: html_notebook
+---
+
+Test CPquant
+```{r}
+
+
+#skyline_output <- "~/CPxplorer/data/Test_File.xlsx"
+skyline_output <- "~/CPxplorer/data/20241126_PCAs_OrebroDustIOFjos.xlsx"
+
+
+includeISOnly <- "Yes"
+blankSubtraction <- "Yes"
+
+
+
+```
+

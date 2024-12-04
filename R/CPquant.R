@@ -261,23 +261,7 @@ server <- function(input, output, session) {
         )
     })
 
-    #output$CalibrationSCCPs <- plotly::renderPlotly({
-    # data <- Skyline_output() |>
-    #  dplyr::filter(`Isotope Label Type` == "Quan") |>
-    # dplyr::filter(stringr::str_detect(Note, "S-")) |>
-    #dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
-    #dplyr::group_by(Note) |>
-    #dplyr::group_by(Molecule)
 
-    #  plotly::plot_ly(data, x = ~ `Analyte Concentration`, y = ~ Area, z = ~ Note, color = ~ Molecule, type = "scatter", mode = "lines+markers",
-    #                 text = ~ paste("Homologue:", Molecule, "<br>Area:", Area, "<br>Analyte Concentration (ug/g):", `Analyte Concentration`, "<br>Standard:", `Note`),
-    #                hoverinfo = "text") |>
-    # plotly::layout(
-    #  title = "Calibration PCAs-C10-13",
-    # xaxis = list(title = "Analyte Concentration"),
-    #yaxis = list(title = "Area")
-    #)
-    #})
 
     output$CalibrationSCCPs <- plotly::renderPlotly({
         data <- Skyline_output() |>
@@ -336,25 +320,6 @@ server <- function(input, output, session) {
     })
 
 
-
-
-    # output$CalibrationMCCPs <- plotly::renderPlotly({
-    #  data <- Skyline_output() |>
-    #   dplyr::filter(`Isotope Label Type` == "Quan") |>
-    #  dplyr::filter(stringr::str_detect(Note, "M-")) |>
-    # dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
-    #  dplyr::group_by(Note) |>
-    # dplyr::group_by(Molecule)
-
-    #  plotly::plot_ly(data, x = ~ `Analyte Concentration`, y = ~ Area, color = ~ Molecule, type = "scatter", mode = "lines+markers",
-    #                 text = ~ paste("Homologue:", Molecule, "<br>Area:", Area, "<br>Analyte Concentration (ug/g):", `Analyte Concentration`, "<br>Standard:", `Note`),
-    #                hoverinfo = "text") |>
-    # plotly::layout(
-    #  title = "Calibration PCAs-C14-17",
-    # xaxis = list(title = "Analyte Concentration"),
-    #yaxis = list(title = "Area")
-    #)
-    #})
     output$CalibrationMCCPs <- plotly::renderPlotly({
         # Filter and group the data
         data <- Skyline_output() |>
@@ -413,23 +378,6 @@ server <- function(input, output, session) {
     })
 
 
-    #output$CalibrationLCCPs <- plotly::renderPlotly({
-    # data <- Skyline_output() |>
-    #  dplyr::filter(`Isotope Label Type` == "Quan") |>
-    # dplyr::filter(stringr::str_detect(Note, "L-")) |>
-    #dplyr::filter(`Molecule List` %in% c("PCA-C18", "PCA-C19", "PCA-C20", "PCA-C21", "PCA-C22", "PCA-C23", "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
-    #dplyr::group_by(Note) |>
-    #dplyr::group_by(Molecule)
-
-    #plotly::plot_ly(data, x = ~ `Analyte Concentration`, y = ~ Area, color = ~ Molecule, type = "scatter", mode = "lines+markers",
-    #               text = ~ paste("Homologue:", Molecule, "<br>Area:", Area, "<br>Analyte Concentration (ug/g):", `Analyte Concentration`, "<br>Standard:", `Note`),
-    #              hoverinfo = "text") |>
-    #plotly::layout(
-    # title = "Calibration PCAs-C18-30",
-    #xaxis = list(title = "Analyte Concentration"),
-    #yaxis = list(title = "Area")
-    #)
-    #})
 
     output$CalibrationLCCPs <- plotly::renderPlotly({
         # Filter and group the data
@@ -708,8 +656,7 @@ server <- function(input, output, session) {
             Calculated_RF = sum_results
         )
 
-        # View the resulting data frame
-        print(sum_results_df)
+
 
         #Calculate the sum of the area in the samples
         #Sum the area of the samples
@@ -735,8 +682,6 @@ server <- function(input, output, session) {
         Final_results <- merged_df |>
             dplyr::mutate(ConcentrationDetailed = Relative_distribution * Concentration)
 
-        # View the result
-        print(Final_results)
 
 
         ################################################### FINAL RESULTS ####################################################################
