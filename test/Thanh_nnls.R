@@ -31,7 +31,7 @@ df <- readxl::read_excel(fileInput) |>
            PCA = str_c(C_part, Cl_part, sep = "")
     )
 
-if (correctWithRS == "Yes" & any(df$`Molecule List` == "RS")){
+if (correctWithRS == "Yes" & any(df$`Molecule List` == "RS")){ #input$correctWithRS
 df <- df |>
     group_by(`Replicate Name`) |>
     mutate(Area = Area / first(Area[`Molecule List`== "RS" & `Isotope Label Type` == "Quan"])) |>

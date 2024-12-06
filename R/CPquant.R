@@ -8,8 +8,8 @@
 
 CPquant <- function(...){
 
-options(shiny.maxRequestSize = 500 * 1024^2)
-# UI
+    options(shiny.maxRequestSize = 500 * 1024^2)
+    # UI
     # UI
     ui <- shiny::navbarPage("Quantification by deconvolution from Skyline output",
                             shiny::tabPanel("Quantification Inputs",
@@ -96,63 +96,53 @@ options(shiny.maxRequestSize = 500 * 1024^2)
                 mutate(Area = replace_na(Area, 0)) |>  # Replace missing values with 0
                 #mutate(RatioQuanToQual = as.numeric(RatioQuanToQual)) |>
                 #mutate(RatioQualToQuan = as.numeric(RatioQualToQuan)) |>
-                # Extract significant parts from the 'Molecule' column
-                # Extract "C" followed by numbers
-                mutate(C_part = str_extract(Molecule, "C\\d+"),
-
-                       # Extract "Cl" followed by numbers
-                       Cl_part = str_extract(Molecule, "Cl\\d+"),
-
-                       # Extract numeric values for sorting
-                       C_number = as.numeric(str_extract(C_part, "\\d+")),
+                mutate(C_part = str_extract(Molecule, "C\\d+"),  # Extract "C" followed by numbers
+                       Cl_part = str_extract(Molecule, "Cl\\d+"), # Extract "Cl" followed by numbers
+                       C_number = as.numeric(str_extract(C_part, "\\d+")), # Extract numeric values for sorting
                        Cl_number = as.numeric(str_extract(Cl_part, "\\d+")),
-
-                       # Combine them into SimplifiedMolecule
-                       SimplifiedMolecule = str_c(C_part, Cl_part, sep = "")
+                       PCA = str_c(C_part, Cl_part, sep = "") # Combine them into simplified annotation for PCAs
                 )
 
 
 
-            #  Normalize data based on 'Include IS only' input using case_when
-            df <- df |>
-                group_by(`Replicate Name`) |>
-                filter(`Isotope Label Type` == "Quan") |>
-                mutate(Area = case_when(
-                    input$correctWithRS == "Yes" & any(Molecule == "RS") ~ Area / first(Area[Molecule == "RS"]), #change Molecule to Molecule List
-                    TRUE ~ Area
-                )) |>
-                ungroup()
+            #  Normalize data based on 'Correct with RS' input
+            if (input$correctWithRS == "Yes" & any(df$`Molecule List` == "RS")){
+                df <- df |>
+                    group_by(`Replicate Name`) |>
+                    mutate(Area = Area / first(Area[`Molecule List`== "RS" & `Isotope Label Type` == "Quan"])) |>
+                    ungroup()
+            }
 
 
+            # Calculate the average blank value, should be based on each homologue
+            if (input$blankSubtraction == "Yes"){
 
+                #creating a df_blank with average of all blanks for each CxCly group
+                df_blank <- df |>
+                    filter(`Sample Type` == "Blank") |>
+                    #filter(`Isotope Label Type` == "Quan") |>
+                    group_by(Molecule, `Molecule List`, `Isotope Label Type`) |>
+                    summarize(AverageBlank = mean(Area, na.rm = TRUE)) |>
+                    ungroup() |>
+                    filter(!`Molecule List` %in% c("IS", "RS", "VS")) #dont include internal standards
 
+                # joining with the original df to get the AverageBlank column for all samples and homologues
+                df <- df |>
+                    full_join(df_blank) |>
+                    mutate(AverageBlank = replace_na(AverageBlank, 0)) |>
+                    mutate(Area =  case_when(`Sample Type` == "Unknown" ~ Area - AverageBlank, .default = Area)) |> #subtract only when Sample Type == Unknown otherwise also subtract standards and others with blank
+                    mutate(Area = ifelse(Area <0, 0, Area)) #remove negative areas after blank subtraction
 
-            # Calculate the average blank value
-            dfb <- df |>
-                filter(`Sample Type` == "Blank") |>
-                filter(`Isotope Label Type` == "Quan") |>
-                summarize(AverageBlank = mean(Area, na.rm = TRUE)) %>%
-                pull(AverageBlank)  # Convert to a single value
-
-            # Create a logical vector for the condition
-            apply_blank_subtraction <- input$blankSubtraction == "Yes"
-
-            # Mutate the DataFrame with blank subtraction and handle negative values
-            df <- df |>
-                mutate(
-                    Area = pmax(0, Area - if (apply_blank_subtraction) dfb else 0)
-                ) |>
-                ungroup()
-
-
-
+            } else {
+                df
+            }
         })
 
 
 
-        ###START: Define input variables
+        ###START: Define UI components
         output$defineVariables <- shiny::renderUI({
-            data <- Skyline_output()
+            #data <- Skyline_output()
 
 
             # Create the UI components
@@ -180,7 +170,6 @@ options(shiny.maxRequestSize = 500 * 1024^2)
                 # )
                 #),
                 shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
                 shiny::column(
                     6,
                     shiny::selectInput(
@@ -191,7 +180,6 @@ options(shiny.maxRequestSize = 500 * 1024^2)
                     )
                 ),
                 # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                #  shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
                 # shiny::column(
                 # 6,
                 #shiny::sliderInput(
@@ -200,10 +188,9 @@ options(shiny.maxRequestSize = 500 * 1024^2)
                 #     min = min(Skyline_output()$Area),
                 #    max = max(Skyline_output()$Area),
                 #   value = 0,
-                #  step = 100
+                #  step = 10
                 # )
                 #),
-                shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
                 shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
                 shiny::column(
                     6,
@@ -212,25 +199,20 @@ options(shiny.maxRequestSize = 500 * 1024^2)
                         label = 'Keep the the calibration curves that show rsquared above this threshold (0 means keep everything)',
                         min = 0,
                         max = 1,
-                        value = 0,
+                        value = 0.75,
                         step = 0.05
                     )
-                ),
-                #shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                #shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                #shiny::column(
-                #       6,
-                #      shiny::radioButtons("ISRS", label = "Included IS and RS?",
-                #                         choices = c("None", "IS only", "RS only", "Both IS and RS"))
-                #  )
+                )
             )
         })
+
         ### END: Define input variables
 
         # Set reactive values from user input
         # removeAreas <- eventReactive(input$go, {as.numeric(input$removeAreas)})
         removeRsquared <- eventReactive(input$go, {as.numeric(input$removeRsquared)})
-
+        standardAnnoColumn <- eventReactive(input$go, {as.character(input$standardAnnoColumn)})
+        removeSamples <- eventReactive(input$go, {as.character(input$removeSamples)})
 
         #Render raw table
         output$table1 <- DT::renderDT({
@@ -240,7 +222,6 @@ options(shiny.maxRequestSize = 500 * 1024^2)
                               pageLength = 50
                           )
             )
-
         })
 
 
@@ -258,15 +239,7 @@ options(shiny.maxRequestSize = 500 * 1024^2)
         output$plotSummary1 <- plotly::renderPlotly({
             data <- Skyline_output() |>
                 dplyr::filter(`Isotope Label Type` == "Quan") |>
-                # Extract numeric parts for C and Cl
-                dplyr::mutate(
-                    C_number = as.numeric(stringr::str_extract(Molecule, "(?<=C)\\d+")),
-                    Cl_number = as.numeric(stringr::str_extract(Molecule, "(?<=Cl)\\d+"))
-                ) |>
-                # Create a composite ordering factor
-                dplyr::mutate(
-                    OrderedMolecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))
-                )
+                dplyr::mutate(OrderedMolecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))) # Create a composite ordering factor
 
             plotly::plot_ly(
                 data,
@@ -277,23 +250,6 @@ options(shiny.maxRequestSize = 500 * 1024^2)
             )
         })
 
-        #output$CalibrationSCCPs <- plotly::renderPlotly({
-        # data <- Skyline_output() |>
-        #  dplyr::filter(`Isotope Label Type` == "Quan") |>
-        # dplyr::filter(stringr::str_detect(Note, "S-")) |>
-        #dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
-        #dplyr::group_by(Note) |>
-        #dplyr::group_by(Molecule)
-
-        #  plotly::plot_ly(data, x = ~ `Analyte Concentration`, y = ~ Area, z = ~ Note, color = ~ Molecule, type = "scatter", mode = "lines+markers",
-        #                 text = ~ paste("Homologue:", Molecule, "<br>Area:", Area, "<br>Analyte Concentration (ug/g):", `Analyte Concentration`, "<br>Standard:", `Note`),
-        #                hoverinfo = "text") |>
-        # plotly::layout(
-        #  title = "Calibration PCAs-C10-13",
-        # xaxis = list(title = "Analyte Concentration"),
-        #yaxis = list(title = "Area")
-        #)
-        #})
 
         output$CalibrationSCCPs <- plotly::renderPlotly({
             data <- Skyline_output() |>
@@ -352,25 +308,6 @@ options(shiny.maxRequestSize = 500 * 1024^2)
         })
 
 
-
-
-        # output$CalibrationMCCPs <- plotly::renderPlotly({
-        #  data <- Skyline_output() |>
-        #   dplyr::filter(`Isotope Label Type` == "Quan") |>
-        #  dplyr::filter(stringr::str_detect(Note, "M-")) |>
-        # dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
-        #  dplyr::group_by(Note) |>
-        # dplyr::group_by(Molecule)
-
-        #  plotly::plot_ly(data, x = ~ `Analyte Concentration`, y = ~ Area, color = ~ Molecule, type = "scatter", mode = "lines+markers",
-        #                 text = ~ paste("Homologue:", Molecule, "<br>Area:", Area, "<br>Analyte Concentration (ug/g):", `Analyte Concentration`, "<br>Standard:", `Note`),
-        #                hoverinfo = "text") |>
-        # plotly::layout(
-        #  title = "Calibration PCAs-C14-17",
-        # xaxis = list(title = "Analyte Concentration"),
-        #yaxis = list(title = "Area")
-        #)
-        #})
         output$CalibrationMCCPs <- plotly::renderPlotly({
             # Filter and group the data
             data <- Skyline_output() |>
@@ -429,25 +366,7 @@ options(shiny.maxRequestSize = 500 * 1024^2)
         })
 
 
-        #output$CalibrationLCCPs <- plotly::renderPlotly({
-        # data <- Skyline_output() |>
-        #  dplyr::filter(`Isotope Label Type` == "Quan") |>
-        # dplyr::filter(stringr::str_detect(Note, "L-")) |>
-        #dplyr::filter(`Molecule List` %in% c("PCA-C18", "PCA-C19", "PCA-C20", "PCA-C21", "PCA-C22", "PCA-C23", "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
-        #dplyr::group_by(Note) |>
-        #dplyr::group_by(Molecule)
-
-        #plotly::plot_ly(data, x = ~ `Analyte Concentration`, y = ~ Area, color = ~ Molecule, type = "scatter", mode = "lines+markers",
-        #               text = ~ paste("Homologue:", Molecule, "<br>Area:", Area, "<br>Analyte Concentration (ug/g):", `Analyte Concentration`, "<br>Standard:", `Note`),
-        #              hoverinfo = "text") |>
-        #plotly::layout(
-        # title = "Calibration PCAs-C18-30",
-        #xaxis = list(title = "Analyte Concentration"),
-        #yaxis = list(title = "Area")
-        #)
-        #})
-
-        output$CalibrationLCCPs <- plotly::renderPlotly({
+         output$CalibrationLCCPs <- plotly::renderPlotly({
             # Filter and group the data
             data <- Skyline_output() |>
                 dplyr::filter(`Isotope Label Type` == "Quan") |>
@@ -511,71 +430,72 @@ options(shiny.maxRequestSize = 500 * 1024^2)
 
         shiny::observeEvent(input$go, {
 
-            Skyline_output_filt <- Skyline_output() #|>
-            #filter(Area >= removeAreas())
-            #mutate(Area = if_else(Area <= removeAreas(), 0, Area))
 
-            CPs_standards <- Skyline_output_filt |>
-                filter(`Sample Type` == "Standard",
-                       Molecule != "IS",
-                       Molecule != "RS",
-                       `Isotope Label Type` == "Quan",
-                       Note != "NA") |>
-                group_by(!!input$standardAnnoColumn, Molecule) |>
-                mutate(rel_int = Area/sum(Area)) |> #why is it needed? Maybe can be removed
+
+            ##### PREPARE FOR DECONVOLUTION #######
+            CPs_standards <- Skyline_output |>
+                filter(`Sample Type` == "Standard", #the stds are not blank corrected
+                       !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
+                       `Isotope Label Type` == "Quan", # use only Quant ions
+                       !!sym(standardAnnoColumn) != "NA") |>
+                group_by(!!sym(standardAnnoColumn()), Molecule, `Molecule List`, C_number, Cl_number, PCA) |> #"Note" is default. !!sym(standardAnnoColumn) unquotes the string variable and converts it to a symbol that dplyr can understand within the group_by() function
                 nest() |>
                 mutate(models = map(data, ~lm(Area ~ `Analyte Concentration`, data = .x))) |>
                 mutate(coef = map(models, coef)) |>
                 mutate(Response_factor = map_dbl(models, ~ coef(.x)["`Analyte Concentration`"]))|> #get the slope
                 mutate(intercept = map(coef, pluck("(Intercept)"))) |>
-                mutate(rsquared = map(models, summary)) |>
-                mutate(rsquared = map(rsquared, pluck("r.squared"))) |>
+                mutate(rsquared = map(models, summary)) |> #first creat a data frame list with the model
+                mutate(rsquared = map(rsquared, pluck("r.squared"))) |> # then pluck only the r.squared value
                 select(-coef) |>  # remove coef variable since it has already been plucked
                 unnest(c(Response_factor, intercept, rsquared)) |>  #removing the list type for these variables
                 mutate(Response_factor = if_else(Response_factor < 0, 0, Response_factor)) |> # replace negative RF with 0
                 mutate(rsquared = ifelse(is.nan(rsquared), 0, rsquared)) |>
-                #filter(rsquared >= removeRsquared()) |>
-                mutate(Response_factor = if_else(rsquared < removeRsquared(), 0, Response_factor)) |>
-                mutate(Chain_length = paste0("C", str_extract(Molecule, "(?<=C)[^H]+"))) |>
-                #filter(Chain_length == "C10" | Chain_length == "C11" | Chain_length == "C12" | Chain_length == "C13") |> #this will be remove later or added as arg in fn
+                mutate(Response_factor = if_else(rsquared < removeRsquared(), 0, Response_factor)) |> #keep RF only if rsquared is above removeRsquared input
                 ungroup() |>
-                group_by(!!input$standardAnnoColumn, Chain_length) |> #grouping by the selected Note
+                group_by(!!sym(standardAnnoColumn()), C_number) |> #grouping by the selected Note, #input$standardAnnoColumn
                 mutate(Sum_response_factor_chainlength = sum(Response_factor, na.rm = TRUE)) |>
                 ungroup()
-            # For SCCPs
-            CPs_standardsS <- CPs_standards |>
-                filter(str_detect(Note, "S-")) |>
-                mutate(Response_factor = if_else(Chain_length %in% c("C14", "C15", "C16", "C17", "C18", "C19", "C20", "C21", "C22", "C23", "C24", "C25", "C26", "C27", "C28", "C29", "C30"), 0, Response_factor))
-
-            # For MCCPs
-            CPs_standardsM <- CPs_standards |>
-                filter(str_detect(Note, "M-")) |>
-                mutate(Response_factor = if_else(Chain_length %in% c("C10", "C11", "C12", "C13", "C18", "C19", "C20", "C21", "C22", "C23", "C24", "C25", "C26", "C27", "C28", "C29", "C30"), 0, Response_factor))
-
-            # For LCCPs
-            CPs_standardsL <- CPs_standards |>
-                filter(str_detect(Note, "L-")) |>
-                mutate(Response_factor = if_else(Chain_length %in% c("C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17"), 0, Response_factor))
-
-            # Combine groups, only including those that have data
-            CPs_standards_list <- list(CPs_standardsS, CPs_standardsM, CPs_standardsL)
-
-            # Filter out empty data frames before binding
-            CPs_standards <- bind_rows(Filter(function(x) nrow(x) > 0, CPs_standards_list))
 
 
 
-            CPs_samples <- Skyline_output() |>  # Call the reactive with ()
+            # This is for mixtures, single chain stds will be added later
+
+            if(standardTypes =="Mixtures"){
+                # For SCCPs
+                CPs_standards_S <- CPs_standards |>
+                    filter(str_detect(!!sym(standardAnnoColumn()), "S-")) |>
+                    mutate(Response_factor = if_else(C_number < 14, Response_factor, 0)) #Need to restrict to C10-C13, if <C10 then vSCCPs?
+
+                # For MCCPs
+                CPs_standards_M <- CPs_standards |>
+                    filter(str_detect(!!sym(standardAnnoColumn()), "M-")) |>
+                    mutate(Response_factor = if_else(C_number >= 14 & C_number <= 17, Response_factor, 0))
+
+                # For LCCPs
+                CPs_standards_L <- CPs_standards |>
+                    filter(str_detect(!!sym(standardAnnoColumn()), "L-")) |>
+                    mutate(Response_factor = if_else(C_number >= 18, Response_factor, 0)) #Need to restrict to C18-C30, if >C30 then vLCCPs?
+
+                # Combine groups, only including those that have data
+                CPs_standards_list <- list(CPs_standards_S, CPs_standards_M, CPs_standards_L)
+
+                # Filter out empty data frames before binding
+                CPs_standards <- bind_rows(Filter(function(x) nrow(x) > 0, CPs_standards_list))
+            }
+
+
+
+            CPs_samples <- Skyline_output() |>  #-> Skyline_output()
                 filter(`Sample Type` == "Unknown",
-                       Molecule != "IS",
-                       Molecule != "RS",
+                       !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
                        `Isotope Label Type` == "Quan") |>
-                mutate(Chain_length = str_extract(Molecule, "(?<=C)[^H]+") |> as.numeric()) |>  # Extract number after "C"
                 #mutate(Group = case_when(
+                #       Chain_length <10 ~ "vS",  # Group vS <10
                 #       Chain_length >= 10 & Chain_length <= 13 ~ "S",  # Group S for 10-13
                 #       Chain_length >= 14 & Chain_length <= 17 ~ "M",  # Group M for 14-17
                 #      Chain_length >= 18 & Chain_length <= 30 ~ "L",  # Group L for 18-30
-                #     TRUE ~ "Unknown"  # Default case
+                #       Chain_length >30 ~ "vL",  # Group vL >30
+                #     .default = "Unknown" # Default case
                 #)) |>
                 group_by(`Replicate Name`) |>  # Group by Replicate Name and Group
                 mutate(Relative_distribution = Area / sum(Area, na.rm = TRUE)) |>
@@ -586,8 +506,8 @@ options(shiny.maxRequestSize = 500 * 1024^2)
 
 
             CPs_standards_input <- CPs_standards |>
-                select(Molecule, !!input$standardAnnoColumn, Response_factor) |>
-                pivot_wider(names_from = !!input$standardAnnoColumn, values_from = "Response_factor")
+                select(Molecule, !!sym(standardAnnoColumn()), Response_factor) |> #-> !!sym(input$standardAnnoColumn)
+                pivot_wider(names_from = !!sym(standardAnnoColumn()), values_from = "Response_factor") #-> !!sym(input$standardAnnoColumn)
 
 
             CPs_samples_input <- CPs_samples |>
@@ -596,12 +516,28 @@ options(shiny.maxRequestSize = 500 * 1024^2)
 
 
             # This step ensures that all values are corresponding to the same molecule for std and sample
-            combined <- CPs_samples_input |>
-                right_join(CPs_standards_input, by = "Molecule")
+            problems_inputs <- tryCatch({
+                CPs_samples_input |> right_join(CPs_standards_input, by = "Molecule")
+            }, warning = function(w) {
+                message("A warning occurred: ", conditionMessage(w))
+                NULL
+            }, error = function(e) {
+                message("An error occurred: ", conditionMessage(e))
+                NULL
+            })
+            # Check if result is NULL to handle the case where an error or warning occurred
+            if (is.null(problems_inputs)) {
+                message("The operation did not complete successfully.")
+            } else {
+                message("No problems! Standard and samples corresponds to each other.")
+            }
+
 
             ############################################################################### DECONVOLUTION #############################################################################
 
             # Ensure combined_matrix is correctly defined as a matrix prior to the deconvolution
+
+            # First populate combined_matrix with CPs_standards_input
             combined_matrix <- CPs_standards_input  |>
                 select(-Molecule) |>
                 as.matrix()
@@ -683,9 +619,6 @@ options(shiny.maxRequestSize = 500 * 1024^2)
                 select(`Replicate Name`, deconv_coef) |>
                 unnest_wider(deconv_coef, names_sep = "_")
 
-            #Remove the replicate name to generate vectors:
-            deconv_coef_df_matrix<- deconv_coef_df |>
-                select(-`Replicate Name`)
 
             ########################################################## Calculate the concentration in ng/uL ###############################################################
 
@@ -693,7 +626,8 @@ options(shiny.maxRequestSize = 500 * 1024^2)
 
             #Remove the replicate name to generate vectors:
             deconv_coef_df_matrix<- deconv_coef_df |>
-                select(-`Replicate Name`)
+                column_to_rownames(var = "Replicate Name")
+            #select(-`Replicate Name`)
 
             # Initialize an empty vector to store the summed results
             sum_results <- numeric(nrow(deconv_coef_df_matrix))
@@ -764,6 +698,7 @@ options(shiny.maxRequestSize = 500 * 1024^2)
                     names_from = Replicate.Name,  # Use values from Replicate.Name as new column names
                     values_from = ConcentrationDetailed  # Use values from ConcentrationDetailed to fill the new columns
                 )
+
 
             #reorganized_data <- Concentration  |>
             #       unnest(c(data)) |>
