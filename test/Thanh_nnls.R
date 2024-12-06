@@ -2,7 +2,8 @@ library(nnls)
 library(tidyverse)
 #library(tidymodels)
 library(readxl)
-library(openxlsx)
+#library(openxlsx)
+
 
 
 ## Setup automatic nnls deconvolution process from excel sheet
@@ -11,83 +12,121 @@ library(openxlsx)
 #### TODO ####
 #filter(rsquared > 0.7) #cannot do this as some are still false positive and need to replace formula later with 0 for nnls
 
-# NEED TO ADD using case_when or elseif..
-# if (sum(!is.na(filtered_dataA$Area)) == 0 || sum(!is.na(filtered_dataA$`Analyte Concentration`)) == 0) {
-#       cat("No valid cases for fitting the model for molecule:", molecule_name, "\n")
-# OR add a filter to remove those rsquared that are very low (perhaps below 0.7?)
 
 ##############
 
-# reading data from excel
-Skyline_output <- read_excel(skyline_file) |>
+# Read the skyline output and convert some variables and mutate new
+df <- readxl::read_excel(fileInput) |>
     mutate(`Analyte Concentration` = as.numeric(`Analyte Concentration`)) |>
     mutate(Area = as.numeric(Area)) |>
-    mutate(Area = replace_na(Area, 0)) # Replace missing values in the Response_factor column with 0
-    #mutate(RatioQuanToQual = as.numeric(RatioQuanToQual)) |> #--< convert to numeric #-->
-    #mutate(RatioQualToQuan = as.numeric(RatioQualToQuan)) #--< convert to numeric #-->
+    mutate(Area = replace_na(Area, 0)) |>  # Replace missing values with 0
+    #mutate(RatioQuanToQual = as.numeric(RatioQuanToQual)) |>
+    #mutate(RatioQualToQuan = as.numeric(RatioQualToQuan)) |>
+    mutate(C_part = str_extract(Molecule, "C\\d+"),  # Extract "C" followed by numbers
+           Cl_part = str_extract(Molecule, "Cl\\d+"), # Extract "Cl" followed by numbers
+           C_number = as.numeric(str_extract(C_part, "\\d+")), # Extract numeric values for sorting
+           Cl_number = as.numeric(str_extract(Cl_part, "\\d+")),
+
+           # Combine them into simpliefied annotation for PCAs
+           PCA = str_c(C_part, Cl_part, sep = "")
+    )
+
+if (correctWithRS == "Yes" & any(df$`Molecule List` == "RS")){
+df <- df |>
+    group_by(`Replicate Name`) |>
+    mutate(Area = Area / first(Area[`Molecule List`== "RS" & `Isotope Label Type` == "Quan"])) |>
+    ungroup()
+}
+
+# Calculate the average blank value, should be based on each homologue
+if (blankSubtraction == "Yes"){ #input$blankSubtraction == "Yes"
+
+#creating a df_blank with average of all blanks for each CxCly group
+df_blank <- df |>
+    filter(`Sample Type` == "Blank") |>
+    #filter(`Isotope Label Type` == "Quan") |>
+    group_by(Molecule, `Molecule List`, `Isotope Label Type`) |>
+    summarize(AverageBlank = mean(Area, na.rm = TRUE)) |>
+    ungroup() |>
+    filter(!`Molecule List` %in% c("IS", "RS", "VS")) #dont include internal standards
+
+# joining with the original df to get the AverageBlank column for all samples and homologues
+Skyline_output <- df |>
+    full_join(df_blank) |>
+    mutate(AverageBlank = replace_na(AverageBlank, 0)) |>
+    mutate(Area =  case_when(`Sample Type` == "Unknown" ~ Area - AverageBlank, .default = Area)) |> #mutate only when Sample Type == Unknown otherwise also subtract standards and others with blank
+    mutate(Area = ifelse(Area <0, 0, Area))
+
+} else {
+    Skyline_output <- df
+}
 
 
+##### PREPARE FOR DECONVOLUTION #######
 CPs_standards <- Skyline_output |>
-    filter(`Sample Type` == "Standard",
-           Molecule != "IS",
-           Molecule != "RS",
-           `Isotope Label Type` == "Quan",
-           Note != "NA") |>
-    group_by(Note, Molecule) |>
-    mutate(rel_int = Area/sum(Area)) |> #why ius it needed? Maybe can be removed
+    filter(`Sample Type` == "Standard", #the stds are not blank corrected
+           !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
+           `Isotope Label Type` == "Quan", # use only Quant ions
+           !!sym(standardAnnoColumn) != "NA") |>
+    group_by(!!sym(standardAnnoColumn), Molecule, `Molecule List`, C_number, Cl_number, PCA) |> #input$standardAnnoColumn, "Note" is default. !!sym(standardAnnoColumn) unquotes the string variable and converts it to a symbol that dplyr can understand within the group_by() function
     nest() |>
     mutate(models = map(data, ~lm(Area ~ `Analyte Concentration`, data = .x))) |>
     mutate(coef = map(models, coef)) |>
-    mutate(Response_factor = map(coef, pluck("`Analyte Concentration`"))) |>
+    mutate(Response_factor = map_dbl(models, ~ coef(.x)["`Analyte Concentration`"]))|> #get the slope
     mutate(intercept = map(coef, pluck("(Intercept)"))) |>
-    mutate(rsquared = map(models, summary)) |>
-    mutate(rsquared = map(rsquared, pluck("r.squared"))) |>
+    mutate(rsquared = map(models, summary)) |> #first creat a data frame list with the model
+    mutate(rsquared = map(rsquared, pluck("r.squared"))) |> # then pluck only the r.squared value
     select(-coef) |>  # remove coef variable since it has already been plucked
     unnest(c(Response_factor, intercept, rsquared)) |>  #removing the list type for these variables
     mutate(Response_factor = if_else(Response_factor < 0, 0, Response_factor)) |> # replace negative RF with 0
     mutate(rsquared = ifelse(is.nan(rsquared), 0, rsquared)) |>
-    mutate(Chain_length = paste0("C", str_extract(Molecule, "(?<=C)[^H]+"))) |>
+    mutate(Response_factor = if_else(rsquared < removeRsquared, 0, Response_factor)) |> #keep RF only if rsquared is above removeRsquared input
     ungroup() |>
-    group_by(Note, Chain_length) |>
+    #rename(Chain_length = C_part) |>
+    group_by(!!sym(standardAnnoColumn), C_number) |> #grouping by the selected Note, #input$standardAnnoColumn
     mutate(Sum_response_factor_chainlength = sum(Response_factor, na.rm = TRUE)) |>
     ungroup()
 
+
+# This is for mixtures, single chain stds will be added later
+
+if(standardTypes =="Mixtures"){
 # For SCCPs
-CPs_standardsS <- CPs_standards |>
-    filter(str_detect(Note, "S-")) |>
-    mutate(Response_factor = if_else(Chain_length %in% c("C14", "C15", "C16", "C17", "C18", "C19", "C20", "C21", "C22", "C23", "C24", "C25", "C26", "C27", "C28", "C29", "C30"), 0, Response_factor))
+CPs_standards_S <- CPs_standards |>
+    filter(str_detect(!!sym(standardAnnoColumn), "S-")) |>
+    mutate(Response_factor = if_else(C_number < 14, Response_factor, 0)) #Need to restrict to C10-C13, if <C10 then vSCCPs?
 
 # For MCCPs
-CPs_standardsM <- CPs_standards |>
-    filter(str_detect(Note, "M-")) |>
-    mutate(Response_factor = if_else(Chain_length %in% c("C10", "C11", "C12", "C13", "C18", "C19", "C20", "C21", "C22", "C23", "C24", "C25", "C26", "C27", "C28", "C29", "C30"), 0, Response_factor))
+CPs_standards_M <- CPs_standards |>
+    filter(str_detect(!!sym(standardAnnoColumn), "M-")) |>
+    mutate(Response_factor = if_else(C_number >= 14 & C_number <= 17, Response_factor, 0))
 
 # For LCCPs
-CPs_standardsL <- CPs_standards |>
-    filter(str_detect(Note, "L-")) |>
-    mutate(Response_factor = if_else(Chain_length %in% c("C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17"), 0, Response_factor))
+CPs_standards_L <- CPs_standards |>
+    filter(str_detect(!!sym(standardAnnoColumn), "L-")) |>
+    mutate(Response_factor = if_else(C_number >= 18, Response_factor, 0)) #Need to restrict to C18-C30, if >C30 then vLCCPs?
 
 # Combine groups, only including those that have data
-CPs_standards_list <- list(CPs_standardsS, CPs_standardsM, CPs_standardsL)
+CPs_standards_list <- list(CPs_standards_S, CPs_standards_M, CPs_standards_L)
 
 # Filter out empty data frames before binding
 CPs_standards <- bind_rows(Filter(function(x) nrow(x) > 0, CPs_standards_list))
+}
 
 
-CPs_samples <- Skyline_output |>
+CPs_samples <- Skyline_output |>  #-> Skyline_output()
     filter(`Sample Type` == "Unknown",
-           Molecule != "IS",
-           Molecule != "RS",
+           !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
            `Isotope Label Type` == "Quan") |>
-    mutate(Chain_length = str_extract(Molecule, "(?<=C)[^H]+") |> as.numeric()) |>  # Extract number after "C"
     #mutate(Group = case_when(
-    #Chain_length >= 10 & Chain_length <= 13 ~ "S",  # Group S for 10-13
-    #Chain_length >= 14 & Chain_length <= 17 ~ "M",  # Group M for 14-17
-    #Chain_length >= 18 & Chain_length <= 30 ~ "L",  # Group L for 18-30
-    #TRUE ~ "Unknown"  # Default case
+    #       Chain_length <10 ~ "vS",  # Group vS <10
+    #       Chain_length >= 10 & Chain_length <= 13 ~ "S",  # Group S for 10-13
+    #       Chain_length >= 14 & Chain_length <= 17 ~ "M",  # Group M for 14-17
+    #      Chain_length >= 18 & Chain_length <= 30 ~ "L",  # Group L for 18-30
+    #       Chain_length >30 ~ "vL",  # Group vL >30
+    #     .default = "Unknown" # Default case
     #)) |>
-    #group_by(`Replicate Name`, Group) |>  # Group by Replicate Name and Group
-    group_by(`Replicate Name`) |>
+    group_by(`Replicate Name`) |>  # Group by Replicate Name and Group
     mutate(Relative_distribution = Area / sum(Area, na.rm = TRUE)) |>
     ungroup() |>  # Ungroup before dropping the Group column
     #select(-Group) |>  # Explicitly remove Group column
@@ -95,34 +134,50 @@ CPs_samples <- Skyline_output |>
     mutate(across(Relative_distribution, ~replace(., is.nan(.), 0)))  # Replace NaN with zero
 
 
-
-
 CPs_standards_input <- CPs_standards |>
-    select(Molecule, Note, Response_factor) |>
-    pivot_wider(names_from = "Note", values_from = "Response_factor")
+    select(Molecule, !!sym(standardAnnoColumn), Response_factor) |> #-> !!sym(input$standardAnnoColumn)
+    pivot_wider(names_from = !!sym(standardAnnoColumn), values_from = "Response_factor") #-> !!sym(input$standardAnnoColumn)
+
 
 CPs_samples_input <- CPs_samples |>
     select(Molecule, `Replicate Name`, Relative_distribution) |>
     pivot_wider(names_from = "Replicate Name", values_from = "Relative_distribution")
 
-# This step ensures that all values are corresponding to the same molecule for std and sample
-combined <- CPs_samples_input |>
-    right_join(CPs_standards_input, by = "Molecule")
 
+# This step ensures that all values are corresponding to the same molecule for std and sample
+problems_inputs <- tryCatch({
+    CPs_samples_input |> right_join(CPs_standards_input, by = "Molecule")
+}, warning = function(w) {
+    message("A warning occurred: ", conditionMessage(w))
+    NULL
+}, error = function(e) {
+    message("An error occurred: ", conditionMessage(e))
+    NULL
+})
+# Check if result is NULL to handle the case where an error or warning occurred
+if (is.null(problems_inputs)) {
+    message("The operation did not complete successfully.")
+} else {
+    message("No problems! Standard and samples corresponds to each other.")
+}
 
 ############################################################################### DECONVOLUTION #############################################################################
 
 # Ensure combined_matrix is correctly defined as a matrix prior to the deconvolution
-combined_matrix <- CPs_standards_input |>
+
+# First populate combined_matrix with CPs_standards_input
+combined_matrix <- CPs_standards_input  |>
     select(-Molecule) |>
     as.matrix()
 
+
 # Ensure combined_sample is correctly defined with nested data frames prior to the deconvolution
-combined_sample <- CPs_samples |>
+combined_sample <- CPs_samples  |>
     group_by(`Replicate Name`) |>
     select(-Molecule, -Area) |>
     nest() |>
     ungroup()
+
 
 # Function to perform deconvolution on a single data frame
 perform_deconvolution <- function(df, combined_matrix) {
@@ -181,6 +236,7 @@ perform_deconvolution <- function(df, combined_matrix) {
 }
 
 
+
 # Apply the perform_deconvolution function to each nested data frame
 Deconvolution <- combined_sample |>
     mutate(result = map(data, ~ perform_deconvolution(.x, combined_matrix)))
@@ -191,17 +247,16 @@ deconv_coef_df <- Deconvolution |>
     select(`Replicate Name`, deconv_coef) |>
     unnest_wider(deconv_coef, names_sep = "_")
 
-# View the result
-print(deconv_coef_df)
-
 
 
 ########################################################## Calculate the concentration in ng/uL ###############################################################
+
 #Calculate the response of the standards
 
 #Remove the replicate name to generate vectors:
 deconv_coef_df_matrix<- deconv_coef_df |>
-    select(-`Replicate Name`)
+    column_to_rownames(var = "Replicate Name")
+    #select(-`Replicate Name`)
 
 # Initialize an empty vector to store the summed results
 sum_results <- numeric(nrow(deconv_coef_df_matrix))
@@ -255,42 +310,26 @@ merged_df <- CPs_samples |>
 
 # Multiply the column Relative_distribution by the corresponding value in Final_results
 # Assuming the column in Final_results to multiply is named 'value_column' (replace with actual column name)
-merged_df <- merged_df |>
+Final_results <- merged_df |>
     mutate(ConcentrationDetailed = Relative_distribution * Concentration)
 
 # View the result
-print(merged_df)
+print(Final_results)
 
-
-######################################################### SAVE RESULTS ###################################################################
-
-# Specify the file path where you want to save the Excel file
-excel_file <- "F:/LINKOPING/Manuscripts/Skyline/Skyline/Samples_Concentration_Not100.xlsx"
-
-# Write 'Samples_Concentration' to Excel
-write.xlsx(merged_df, excel_file, rowNames = FALSE)
-
-# Confirm message that the file has been saved
-cat("Excel file saved:", excel_file, "\n")
 
 ################################################### FINAL RESULTS ####################################################################
-#CPs_samples<-CPs_samples |>
-#       rename(`Replicate.Name` = `Replicate Name`)
 
-# Merge total_sums_df into CPs_samples based on Replicate Name
-#Concentration <- CPs_samples  |>
-#       left_join(total_sums_df, by = "Replicate.Name")  |>
-#      mutate(Concentration = `Relative_distribution` * `Total.Sum`)
-
-#print(Concentration)
-#Concentration<-Concentration |>
-#       group_by(Replicate.Name) |>
-#      distinct( `Molecule`, Concentration) |>
-#     nest()
 
 # Perform operations to reorganize data
+Final_results <- Final_results |>
+    select(-Area, -Relative_distribution, -Calculated_RF, -Measured_Signal, -Concentration) |> # Remove unwanted columns
+    pivot_wider(
+        names_from = Replicate.Name,  # Use values from Replicate.Name as new column names
+        values_from = ConcentrationDetailed  # Use values from ConcentrationDetailed to fill the new columns
+    )
+
 #reorganized_data <- Concentration  |>
-#       unnest() |>
+#       unnest(c(data)) |>
 #      distinct(`Replicate.Name`, `Molecule`, .keep_all = TRUE)  |>
 #     pivot_wider(names_from = `Molecule`, values_from = `Concentration`)
 #reorganized_data <- t(reorganized_data) #transpose
@@ -300,12 +339,10 @@ cat("Excel file saved:", excel_file, "\n")
 #Samples_Concentration <- reorganized_data[-1, ]
 # Convert the result back to a data frame
 #Samples_Concentration <- as.data.frame(Samples_Concentration)
-#Samples_Concentration<- Samples_Concentration |>
+#Samples_Concentration2 <- Samples_Concentration |>
 #       mutate(Molecule = CPs_samples_input$Molecule)|>
 #      relocate(Molecule, .before = everything())
 
-
-
-
+### END: Deconvolution script
 
 

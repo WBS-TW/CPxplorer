@@ -1755,10 +1755,32 @@ display: none;
 <p>Test CPquant</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5cbiNza3lsaW5lX291dHB1dCA8LSBcIn4vQ1B4cGxvcmVyL2RhdGEvVGVzdF9GaWxlLnhsc3hcIlxuc2t5bGluZV9maWxlIDwtIFwifi9DUHhwbG9yZXIvZGF0YS8yMDI0MTEyNl9QQ0FzX09yZWJyb0R1c3RJT0Zqb3MueGxzeFwiXG5cblxuaW5jbHVkZUlTT25seSA8LSBcIlllc1wiXG5ibGFua1N1YnRyYWN0aW9uIDwtIFwiWWVzXCJcblxuXG5cbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KG5ubHMpXG5saWJyYXJ5KHRpZHl2ZXJzZSlcbmBgYCJ9 -->
 <pre class="r"><code>
-
-#skyline_output &lt;- &quot;~/CPxplorer/data/Test_File.xlsx&quot;
+library(nnls)
+library(tidyverse)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhnZ3Bsb3Qy4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4zLjPilIDilIAgQXR0YWNoaW5nIGNvcmUgdGlkeXZlcnNlIHBhY2thZ2VzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgCB0aWR5dmVyc2UgMi4wLjAg4pSA4pSAXG7inJQgZHBseXIgICAgIDEuMS40ICAgICDinJQgcmVhZHIgICAgIDIuMS41XG7inJQgZm9yY2F0cyAgIDEuMC4wICAgICDinJQgc3RyaW5nciAgIDEuNS4xXG7inJQgZ2dwbG90MiAgIDMuNS4xICAgICDinJQgdGliYmxlICAgIDMuMi4xXG7inJQgbHVicmlkYXRlIDEuOS4zICAgICDinJQgdGlkeXIgICAgIDEuMy4xXG7inJQgcHVycnIgICAgIDEuMC4yICAgICDilIDilIAgQ29uZmxpY3RzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgCB0aWR5dmVyc2VfY29uZmxpY3RzKCkg4pSA4pSAXG7inJYgZHBseXI6OmZpbHRlcigpIG1hc2tzIHN0YXRzOjpmaWx0ZXIoKVxu4pyWIGRwbHlyOjpsYWcoKSAgICBtYXNrcyBzdGF0czo6bGFnKClcbuKEuSBVc2UgdGhlIFx1MDAxYl04OztodHRwOi8vY29uZmxpY3RlZC5yLWxpYi5vcmcvXHUwMDA3Y29uZmxpY3RlZCBwYWNrYWdlXHUwMDFiXTg7O1x1MDAwNyB0byBmb3JjZSBhbGwgY29uZmxpY3RzIHRvIGJlY29tZSBlcnJvcnNcbiJ9 -->
+<pre><code>Warning: package ‘ggplot2’ was built under R version 4.3.3── Attaching core tidyverse packages ───────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the ]8;;http://conflicted.r-lib.org/conflicted package]8;; to force all conflicts to become errors</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2xpYnJhcnkodGlkeW1vZGVscylcbmxpYnJhcnkocmVhZHhsKVxubGlicmFyeShvcGVueGxzeClcbmBgYCJ9 -->
+<pre class="r"><code>#library(tidymodels)
+library(readxl)
+library(openxlsx)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhvcGVueGxzeOKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMy4zXG4ifQ== -->
+<pre><code>Warning: package ‘openxlsx’ was built under R version 4.3.3</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3NreWxpbmVfb3V0cHV0IDwtIFwifi9DUHhwbG9yZXIvZGF0YS9UZXN0X0ZpbGUueGxzeFwiXG5za3lsaW5lX2ZpbGUgPC0gXCJ+L0NQeHBsb3Jlci9kYXRhLzIwMjQxMTI2X1BDQXNfT3JlYnJvRHVzdElPRmpvcy54bHN4XCJcblxuXG5pbmNsdWRlSVNPbmx5IDwtIFwiWWVzXCJcbmJsYW5rU3VidHJhY3Rpb24gPC0gXCJZZXNcIlxuXG5cblxuYGBgIn0= -->
+<pre class="r"><code>#skyline_output &lt;- &quot;~/CPxplorer/data/Test_File.xlsx&quot;
 skyline_file &lt;- &quot;~/CPxplorer/data/20241126_PCAs_OrebroDustIOFjos.xlsx&quot;
 
 
@@ -1770,7 +1792,7 @@ blankSubtraction &lt;- &quot;Yes&quot;
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdGluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKVGVzdCBDUHF1YW50CmBgYHtyfQoKCiNza3lsaW5lX291dHB1dCA8LSAifi9DUHhwbG9yZXIvZGF0YS9UZXN0X0ZpbGUueGxzeCIKc2t5bGluZV9maWxlIDwtICJ+L0NQeHBsb3Jlci9kYXRhLzIwMjQxMTI2X1BDQXNfT3JlYnJvRHVzdElPRmpvcy54bHN4IgoKCmluY2x1ZGVJU09ubHkgPC0gIlllcyIKYmxhbmtTdWJ0cmFjdGlvbiA8LSAiWWVzIgoKCgpgYGAKCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiVGVzdGluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKVGVzdCBDUHF1YW50CmBgYHtyfQoKbGlicmFyeShubmxzKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKI2xpYnJhcnkodGlkeW1vZGVscykKbGlicmFyeShyZWFkeGwpCmxpYnJhcnkob3Blbnhsc3gpCgojc2t5bGluZV9vdXRwdXQgPC0gIn4vQ1B4cGxvcmVyL2RhdGEvVGVzdF9GaWxlLnhsc3giCnNreWxpbmVfZmlsZSA8LSAifi9DUHhwbG9yZXIvZGF0YS8yMDI0MTEyNl9QQ0FzX09yZWJyb0R1c3RJT0Zqb3MueGxzeCIKCgppbmNsdWRlSVNPbmx5IDwtICJZZXMiCmJsYW5rU3VidHJhY3Rpb24gPC0gIlllcyIKCgoKYGBgCgo=</div>
 
 
 

@@ -8,7 +8,7 @@
 
 CPquant <- function(...){
 
-options(shiny.maxRequestSize = 1500 * 1024^2)
+options(shiny.maxRequestSize = 500 * 1024^2)
 # UI
     # UI
     ui <- shiny::navbarPage("Quantification by deconvolution from Skyline output",
@@ -23,15 +23,18 @@ options(shiny.maxRequestSize = 1500 * 1024^2)
                                                     #                              "Mixture",
                                                     #                             "Both")),
                                                     shiny::radioButtons("blankSubtraction",
-                                                                        label = "Blank signal subtraction",
+                                                                        label = "Subtraction with blank?",
                                                                         choices = c("Yes", "No"), selected = "No") ,
                                                     # shiny::selectInput("includedCPs", "Include which CPs for quantification?",
                                                     #                   choices = c("vSCCPs", "SCCPs", "MCCPs", "LCCPs", "vLCCPs"),
                                                     #                  selected = c("vSCCPs", "SCCPs", "MCCPs", "LCCPs", "vLCCPs"),
                                                     #                 multiple = TRUE),
                                                     # New radio button to select "IS only"
-                                                    shiny::radioButtons("includeISOnly", label = "Correct the signal with RS?",
+                                                    shiny::radioButtons("correctWithRS", label = "Correct with RS?",
                                                                         choices = c("Yes", "No"), selected = "No") ,
+
+                                                    shiny::radioButtons("standardTypes", label = "Types of standards",
+                                                                        choices = c("Mixtures"), selected = "Mixtures"), #will add single chain std later
 
                                                     shiny::actionButton('go', 'Proceed', width = "100%"),
                                                     shiny::uiOutput("defineVariables")
@@ -64,6 +67,16 @@ options(shiny.maxRequestSize = 1500 * 1024^2)
                                     DT::DTOutput("table2"),   # First table output (Skyline recovery data)
                                     br(),                     # Optional line break to add space between the tables
                                     DT::DTOutput("LOD")        # Second table output (LOD table)
+                                )
+                            ),
+                            shiny::tabPanel(
+                                "Instructions",
+                                shiny::sidebarLayout(
+                                    shiny::sidebarPanel(shiny::h3("Manual"),
+                                                        width = 3),
+                                    shiny::mainPanel(
+                                        shiny::includeMarkdown("R/instructions_CPquant.md")
+                                    )
                                 )
                             )
 
@@ -105,12 +118,12 @@ options(shiny.maxRequestSize = 1500 * 1024^2)
                 group_by(`Replicate Name`) |>
                 filter(`Isotope Label Type` == "Quan") |>
                 mutate(Area = case_when(
-                    input$includeISOnly == "Yes" & any(Molecule == "RS") ~ Area / first(Area[Molecule == "RS"]),
+                    input$correctWithRS == "Yes" & any(Molecule == "RS") ~ Area / first(Area[Molecule == "RS"]), #change Molecule to Molecule List
                     TRUE ~ Area
                 )) |>
                 ungroup()
 
-            df
+
 
 
 
@@ -502,7 +515,6 @@ options(shiny.maxRequestSize = 1500 * 1024^2)
             #filter(Area >= removeAreas())
             #mutate(Area = if_else(Area <= removeAreas(), 0, Area))
 
-            #browser()
             CPs_standards <- Skyline_output_filt |>
                 filter(`Sample Type` == "Standard",
                        Molecule != "IS",

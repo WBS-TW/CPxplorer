@@ -1,18 +1,50 @@
 ---
 title: "Testing"
 output: html_notebook
+editor_options: 
+  chunk_output_type: console
 ---
 
 Test CPquant
 ```{r}
 
+library(nnls)
+library(tidyverse)
+library(readxl)
+#library(tidymodels)
+#library(openxlsx)
 
-#skyline_output <- "~/CPxplorer/data/Test_File.xlsx"
-skyline_file <- "~/CPxplorer/data/20241126_PCAs_OrebroDustIOFjos.xlsx"
 
+#fileInput <- "~/CPxplorer/data/20241126_PCAs_OrebroDustIOFjos_forTESTING.xlsx"
+fileInput <- "~/CPxplorer/data/20241126_PCAs_OrebroDustIOFjos.xlsx"
 
-includeISOnly <- "Yes"
 blankSubtraction <- "Yes"
+correctWithRS <- "Yes"
+standardAnnoColumn <- "Note"
+removeRsquared <- 0.7
+standardTypes <- "Mixtures"
+
+```
+
+
+```{r}
+
+correctWithRS <- "Yes"
+
+df <- structure(list(`Replicate Name` = c("240617_O1TF.d", "240617_O1TF.d", 
+"240617_O1TF.d", "240617_O1TF.d", "Blank1"), `Sample Type` = c("Unknown", 
+"Unknown", "Unknown", "Unknown", "Blank"), `Molecule List` = c("IS", "RS", 
+"VS", "PCA-C10", "RS"), Molecule = c("[13C]10H16Cl6", "e-HCH", "[13C]HBCD", 
+"C10H19Cl3", "e-HCH"), Area = c(14013, 961, 28193, 0, 1200), `Mass Error PPM` = c(-1.6, 
+-2, 0.8, NA, 1), `Isotope Label Type` = c("Quan", "Quan", "Quan", 
+"Quan", "Qual"), `Chromatogram Precursor M/Z` = c(392.9383, 324.8265, 
+688.6542, 281.0217, 324.8265), `Analyte Concentration` = c(NA_real_, NA_real_, 
+NA_real_, NA_real_, NA_real_), Note = c(NA, NA, NA, NA, NA), C_part = c(NA, 
+NA, NA, "C10", NA), Cl_part = c("Cl6", NA, NA, "Cl3", NA), C_number = c(NA, 
+NA, NA, 10, NA), Cl_number = c(6, NA, NA, 3, NA), SimplifiedMolecule = c(NA, 
+NA, NA, "C10Cl3", NA)), row.names = c(NA, -5L), class = c("tbl_df", 
+"tbl", "data.frame"))
+
 
 
 

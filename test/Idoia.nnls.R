@@ -1,17 +1,16 @@
 ---
-        title: "R Notebook"
+    title: "R Notebook"
 output: html_notebook
 editor_options:
-        chunk_output_type: console
+    chunk_output_type: console
 ---
 
 
-        library(nnls)
+    library(nnls)
 library(tidyverse)
 library(tidymodels)
 library(readxl)
 library(openxlsx)
-
 
 
 
@@ -318,11 +317,6 @@ cat("Excel file saved:", excel_file, "\n")
 #Samples_Concentration<- Samples_Concentration |>
 #       mutate(Molecule = CPs_samples_input$Molecule)|>
 #      relocate(Molecule, .before = everything())
-
-
-
-
-
 
 
 

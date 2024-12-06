@@ -151,7 +151,7 @@ ui <- shiny::navbarPage(
             shiny::sidebarPanel(shiny::h3("Manual"),
                                 width = 3),
             shiny::mainPanel(
-                shiny::includeMarkdown("instructions.md")
+                shiny::includeMarkdown("R/instructions_CPxplorer.md")
             )
         )
     )
