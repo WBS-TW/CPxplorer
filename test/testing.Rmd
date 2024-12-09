@@ -20,16 +20,14 @@ fileInput <- "~/CPxplorer/data/20241126_PCAs_OrebroDustIOFjos.xlsx"
 
 blankSubtraction <- "Yes"
 correctWithRS <- "Yes"
-standardAnnoColumn <- "Note"
-removeRsquared <- 0.7
+standardAnnoColumn <- "Batch Name"
+removeRsquared <- 0.8
 standardTypes <- "Mixtures"
 
 ```
 
 
 ```{r}
-
-correctWithRS <- "Yes"
 
 df <- structure(list(`Replicate Name` = c("240617_O1TF.d", "240617_O1TF.d", 
 "240617_O1TF.d", "240617_O1TF.d", "Blank1"), `Sample Type` = c("Unknown", 
