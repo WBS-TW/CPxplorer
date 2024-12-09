@@ -137,7 +137,7 @@ CPquant <- function(...){
 
         ###START: Define UI components
         output$defineVariables <- shiny::renderUI({
-            #data <- Skyline_output()
+
 
 
             # Create the UI components
@@ -171,6 +171,7 @@ CPquant <- function(...){
                         inputId = "removeSamples", #select if some samples will be removed from quantification
                         label = 'Samples to remove from quantification?',
                         choices = unique(Skyline_output()$`Replicate Name`),
+                        selected = NULL,
                         multiple = TRUE
                     )
                 ),
@@ -255,10 +256,17 @@ CPquant <- function(...){
 
         shiny::observeEvent(input$go, {
 
+            if(!is.null(removeSamples()) && length(removeSamples()) > 0){
+                Skyline_output_filt <- Skyline_output() |>
+                    dplyr::filter(!`Replicate Name` %in% removeSamples())
+            } else{
+                Skyline_output_filt <- Skyline_output()
+            }
 
 
             ##### PREPARE FOR DECONVOLUTION #######
-            CPs_standards <- Skyline_output() |>
+            browser()
+            CPs_standards <- Skyline_output_filt |>
                 dplyr::filter(`Sample Type` == "Standard", #make sure the stds are not blank corrected
                        !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
                        `Isotope Label Type` == "Quan", # use only Quant ions
@@ -310,7 +318,7 @@ CPquant <- function(...){
 
 
 
-            CPs_samples <- Skyline_output() |>  #-> Skyline_output()
+            CPs_samples <- Skyline_output_filt |>  #-> Skyline_output()
                 dplyr::filter(`Sample Type` == "Unknown",
                        !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
                        `Isotope Label Type` == "Quan") |>
@@ -574,7 +582,7 @@ CPquant <- function(...){
         # Define the QA/QC reactive block
         Skyline_recovery <- reactive({
             # Ensure data is available
-            df <- Skyline_output()  # Use the reactive data source
+            df <- Skyline_output_filt  # Use the reactive data source
             req(df)  # Make sure df is not NULL
 
             # Prepare RECOVERY Data
