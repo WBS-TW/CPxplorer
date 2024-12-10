@@ -35,7 +35,9 @@ CPquant <- function(...){
                                                     shiny::uiOutput("defineVariables")
                                                 ),
                                                 shiny::mainPanel(
-                                                    DT::DTOutput("table1")
+                                                    plotly::plotlyOutput("plot_Skyline_output"),
+                                                    DT::DTOutput("table_Skyline_output")
+
                                                 )
                                             )
                                             )),
@@ -48,20 +50,14 @@ CPquant <- function(...){
 
                             shiny::tabPanel(
                                 "Quantification summary",
-                                # shiny::sidebarLayout(
-                                #         shiny::sidebarPanel(),
-                                #         shiny::mainPanel(
-                                #                 DT::DTOutput("quantTable")
-                                #         )
-                                # )
                                 shiny::fluidPage(DT::DTOutput("quantTable"))
                             ),
                             shiny::tabPanel(
                                 "QA/QC",
                                 shiny::mainPanel(
-                                    DT::DTOutput("table2"),   # First table output (Skyline recovery data)
+                                    DT::DTOutput("table_recovery"),   # First table output (Skyline recovery data)
                                     br(),                     # Optional line break to add space between the tables
-                                    DT::DTOutput("LOD")       # Second table output (LOD table)
+                                    DT::DTOutput("table_LOD")       # Second table output (LOD table)
                                 )
                             ),
                             shiny::tabPanel(
@@ -109,7 +105,7 @@ CPquant <- function(...){
             }
 
 
-            # Calculate the average blank value, should be based on each homologue
+            # Calculate the average blank value, based on each homologue
             if (input$blankSubtraction == "Yes"){
 
                 #creating a df_blank with average of all blanks for each CxCly group
@@ -133,76 +129,11 @@ CPquant <- function(...){
             }
         })
 
-
-
-        ###START: Define UI components
+        # defineVariablesUI in separate file UI_components.R
         output$defineVariables <- shiny::renderUI({
-
-
-
-            # Create the UI components
-            shiny::fluidRow(
-                shiny::h4("Define variables"),
-                shiny::tags$br(),
-                shiny::column(
-                    6,
-                    shiny::varSelectInput(
-                        inputId = "standardAnnoColumn", #select which variable to use to define standards
-                        label = "Variable for annotating standards",
-                        data = Skyline_output(),
-                        selected = "Batch Name"
-                    )
-                ),
-                # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                #shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                #shiny::column(
-                #       6,
-                #      shiny::selectInput(
-                #             inputId = "blanks", #select which variable to use to define standards
-                #            label = "Define which samples are blanks",
-                #           choices = unique(Skyline_output()$`Replicate Name`),
-                #          multiple = TRUE
-                # )
-                #),
-                shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                shiny::column(
-                    6,
-                    shiny::selectInput(
-                        inputId = "removeSamples", #select if some samples will be removed from quantification
-                        label = 'Samples to remove from quantification?',
-                        choices = unique(Skyline_output()$`Replicate Name`),
-                        selected = NULL,
-                        multiple = TRUE
-                    )
-                ),
-                # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                # shiny::column(
-                # 6,
-                #shiny::sliderInput(
-                #       inputId = "removeAreas", #remove low peak areas
-                #      label = "Keep absolute peak areas above this threshold (0 means keep everything)",
-                #     min = min(Skyline_output()$Area),
-                #    max = max(Skyline_output()$Area),
-                #   value = 0,
-                #  step = 10
-                # )
-                #),
-                shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                shiny::column(
-                    6,
-                    shiny::sliderInput(
-                        inputId = "removeRsquared", #keep only Molecule above this rsquared, zero means keep everything
-                        label = 'Keep the the calibration curves that show rsquared above this threshold (0 means keep everything)',
-                        min = 0,
-                        max = 1,
-                        value = 0.80,
-                        step = 0.05
-                    )
-                )
-            )
+            defineVariablesUI(Skyline_output())
         })
 
-        ### END: Define input variables
 
         # Set reactive values from user input
         # removeAreas <- eventReactive(input$go, {as.numeric(input$removeAreas)})
@@ -212,7 +143,7 @@ CPquant <- function(...){
 
 
         #Render raw table
-        output$table1 <- DT::renderDT({
+        output$table_Skyline_output <- DT::renderDT({
             DT::datatable(Skyline_output(),
                           options = list(
                               paging = TRUE,
@@ -225,7 +156,6 @@ CPquant <- function(...){
         # Render summary statistics and plots of raw input BEFORE quantification
         output$inputSummary <- shiny::renderUI({
             shiny::fluidRow(
-                shiny::column(6, plotly::plotlyOutput("plotSummary1", width = "30vw")),
                 shiny::column(6, plotly::plotlyOutput("CalibrationSCCPs", width = "30vw")),
                 shiny::column(6, plotly::plotlyOutput("CalibrationMCCPs", width = "30vw")),
                 shiny::column(6, plotly::plotlyOutput("CalibrationLCCPs", width = "30vw"))
@@ -233,7 +163,7 @@ CPquant <- function(...){
         })
 
 
-        output$plotSummary1 <- plotly::renderPlotly({
+        output$plot_Skyline_output <- plotly::renderPlotly({
             data <- Skyline_output() |>
                 dplyr::filter(`Isotope Label Type` == "Quan") |>
                 dplyr::mutate(OrderedMolecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))) # Create a composite ordering factor
@@ -255,7 +185,7 @@ CPquant <- function(...){
         ##### START: Deconvolution script
 
         shiny::observeEvent(input$go, {
-
+            # remove samples if selected by removeSamples input
             if(!is.null(removeSamples()) && length(removeSamples()) > 0){
                 Skyline_output_filt <- Skyline_output() |>
                     dplyr::filter(!`Replicate Name` %in% removeSamples())
@@ -265,7 +195,7 @@ CPquant <- function(...){
 
 
             ##### PREPARE FOR DECONVOLUTION #######
-            browser()
+
             CPs_standards <- Skyline_output_filt |>
                 dplyr::filter(`Sample Type` == "Standard", #make sure the stds are not blank corrected
                        !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
@@ -322,14 +252,6 @@ CPquant <- function(...){
                 dplyr::filter(`Sample Type` == "Unknown",
                        !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
                        `Isotope Label Type` == "Quan") |>
-                #mutate(Group = case_when(
-                #       Chain_length <10 ~ "vS",  # Group vS <10
-                #       Chain_length >= 10 & Chain_length <= 13 ~ "S",  # Group S for 10-13
-                #       Chain_length >= 14 & Chain_length <= 17 ~ "M",  # Group M for 14-17
-                #      Chain_length >= 18 & Chain_length <= 30 ~ "L",  # Group L for 18-30
-                #       Chain_length >30 ~ "vL",  # Group vL >30
-                #     .default = "Unknown" # Default case
-                #)) |>
                 dplyr::group_by(`Replicate Name`) |>  # Group by Replicate Name and Group
                 dplyr::mutate(Relative_distribution = Area / sum(Area, na.rm = TRUE)) |>
                 dplyr::ungroup() |>  # Ungroup before dropping the Group column
@@ -339,8 +261,8 @@ CPquant <- function(...){
 
 
             CPs_standards_input <- CPs_standards |>
-                dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |> #-> !!sym(input$standardAnnoColumn)
-                tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor") #-> !!sym(input$standardAnnoColumn)
+                dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |>
+                tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor")
 
 
             CPs_samples_input <- CPs_samples |>
@@ -422,7 +344,7 @@ CPquant <- function(...){
                     deconv_coef <- deconv_coef / sum(deconv_coef) * 100
                 }
 
-                # Calculate deconvolved resolved values
+                # Calculate deconvolved resolved values using matrix multiplication
                 deconv_resolved <- combined_matrix %*% deconv_coef
 
                 # Ensure that values are positive for chi-square test
@@ -491,7 +413,7 @@ CPquant <- function(...){
             )
 
             # View the resulting data frame
-            print(sum_results_df)
+            #print(sum_results_df)
 
             #Calculate the sum of the area in the samples
             #Sum the area of the samples
@@ -518,7 +440,7 @@ CPquant <- function(...){
                 dplyr::mutate(ConcentrationDetailed = Relative_distribution * Concentration)
 
             # View the result
-            print(Final_results)
+            #print(Final_results)
 
 
             ################################################### FINAL RESULTS ####################################################################
@@ -533,20 +455,6 @@ CPquant <- function(...){
                 )
 
 
-            #reorganized_data <- Concentration  |>
-            #       unnest(c(data)) |>
-            #      distinct(`Replicate.Name`, `Molecule`, .keep_all = TRUE)  |>
-            #     pivot_wider(names_from = `Molecule`, values_from = `Concentration`)
-            #reorganized_data <- t(reorganized_data) #transpose
-
-            #Make the first row (replicate names) the column names
-            #colnames(reorganized_data) <- reorganized_data[1, ]
-            #Samples_Concentration <- reorganized_data[-1, ]
-            # Convert the result back to a data frame
-            #Samples_Concentration <- as.data.frame(Samples_Concentration)
-            #Samples_Concentration2 <- Samples_Concentration |>
-            #       mutate(Molecule = CPs_samples_input$Molecule)|>
-            #      relocate(Molecule, .before = everything())
 
             ### END: Deconvolution script
 
@@ -581,6 +489,7 @@ CPquant <- function(...){
 
         # Define the QA/QC reactive block
         Skyline_recovery <- reactive({
+
             # Ensure data is available
             df <- Skyline_output_filt  # Use the reactive data source
             req(df)  # Make sure df is not NULL
@@ -627,7 +536,7 @@ CPquant <- function(...){
         })
 
         # Render the QA/QC datatable with only RecoveryPercentage column
-        output$table2 <- DT::renderDT({
+        output$table_recovery <- DT::renderDT({
             RECOVERY <- Skyline_recovery()  # Get the reactive data
 
             # Check if RECOVERY has data
@@ -668,6 +577,7 @@ CPquant <- function(...){
         })
 
 
+
         ###################################################################LOD####################################
 
         # Define a reactive block for the LOD table
@@ -689,7 +599,7 @@ CPquant <- function(...){
         })
 
         # Render the LOD table
-        output$LOD <- DT::renderDT({
+        output$table_LOD <- DT::renderDT({
             lod_data <- LOD_summary()  # Get the reactive data
 
             DT::datatable(lod_data,

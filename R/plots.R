@@ -1,13 +1,13 @@
 
-load_plots <- function(Skyline_output) {
+load_plots <- function(df_output) {
 
 
     output$CalibrationSCCPs <- plotly::renderPlotly({
-        data <- Skyline_output() |>
+        data <- df_plots |>
             dplyr::filter(`Isotope Label Type` == "Quan") |>
-            dplyr::filter(stringr::str_detect(Note, "S-")) |>
+            dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "S-")) |>
             dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
-            dplyr::group_by(Note, `Molecule`)
+            dplyr::group_by(!!dplyr::sym(standardAnnoColumn()), `Molecule`)
 
         # Fit linear models for each combination of Note and Molecule List
         models <- data |>
@@ -30,7 +30,7 @@ load_plots <- function(Skyline_output) {
                 symbol = ~ Note, # Differentiates by Note using different symbols
                 text = ~ paste("Homologue:", `Molecule`, "<br>Area:", Area,
                                "<br>Analyte Concentration (ug/g):", `Analyte Concentration`,
-                               "<br>Standard:", Note),
+                               "<br>Standard:", !!dplyr::sym(standardAnnoColumn())),
                 hoverinfo = "text",
                 visible = "legendonly",  # Initially hide this trace
                 legendgroup = ~ `Molecule` # Group by Molecule List
@@ -61,11 +61,11 @@ load_plots <- function(Skyline_output) {
 
     output$CalibrationMCCPs <- plotly::renderPlotly({
         # Filter and group the data
-        data <- Skyline_output() |>
+        data <- df_plots |>
             dplyr::filter(`Isotope Label Type` == "Quan") |>
-            dplyr::filter(stringr::str_detect(Note, "M-")) |>
+            dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "M-")) |>
             dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
-            dplyr::group_by(Note, `Molecule`)
+            dplyr::group_by(!!dplyr::sym(standardAnnoColumn()), `Molecule`)
 
         # Fit linear models for each combination of Note and Molecule
         models <- data |>
@@ -88,7 +88,7 @@ load_plots <- function(Skyline_output) {
                 symbol = ~ Note, # Differentiates by Note using different symbols
                 text = ~ paste("Homologue:", `Molecule`, "<br>Area:", Area,
                                "<br>Analyte Concentration (ug/g):", `Analyte Concentration`,
-                               "<br>Standard:", Note),
+                               "<br>Standard:", !!dplyr::sym(standardAnnoColumn())),
                 hoverinfo = "text",
                 visible = "legendonly",  # Initially hide this trace
                 legendgroup = ~ `Molecule` # Group by Molecule
@@ -119,12 +119,12 @@ load_plots <- function(Skyline_output) {
 
     output$CalibrationLCCPs <- plotly::renderPlotly({
         # Filter and group the data
-        data <- Skyline_output() |>
+        data <- df_plots |>
             dplyr::filter(`Isotope Label Type` == "Quan") |>
-            dplyr::filter(stringr::str_detect(Note, "L-")) |>
+            dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "L-")) |>
             dplyr::filter(`Molecule List` %in% c("PCA-C18", "PCA-C19", "PCA-C20", "PCA-C21", "PCA-C22", "PCA-C23",
                                                  "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
-            dplyr::group_by(Note, `Molecule`)
+            dplyr::group_by(!!dplyr::sym(standardAnnoColumn()), `Molecule`)
 
         # Fit linear models for each combination of Note and Molecule
         models <- data |>
@@ -147,7 +147,7 @@ load_plots <- function(Skyline_output) {
                 symbol = ~ Note, # Differentiates by Note using different symbols
                 text = ~ paste("Homologue:", `Molecule`, "<br>Area:", Area,
                                "<br>Analyte Concentration (ug/g):", `Analyte Concentration`,
-                               "<br>Standard:", Note),
+                               "<br>Standard:", !!dplyr::sym(standardAnnoColumn())),
                 hoverinfo = "text",
                 visible = "legendonly",  # Initially hide this trace
                 legendgroup = ~ `Molecule` # Group by Molecule
