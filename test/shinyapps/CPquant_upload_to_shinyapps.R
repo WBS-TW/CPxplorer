@@ -1,19 +1,310 @@
-#' CPquant: Shiny CPs Quantification for Skyline Output
-#' @param ...
-#'
-#' @import readxl
-#' @import nnls
-#' @import dplyr
-#' @import tibble
-#' @import tidyr
-#' @import shiny
-#' @import DT
-#' @import plotly
-#' @import purrr
-#' @importFrom stats lm
+
+library(readxl)
+library(nnls)
+library(dplyr)
+library(tibble)
+library(tidyr)
+library(shiny)
+library(DT)
+library(plotly)
+library(purrr)
+library(stats)
 
 
-CPquant <- function(...){
+
+
+
+plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
+    # Prepare the data
+
+    df <- CPs_standards_S |>
+        dplyr::filter(Response_factor > 0) |>
+        #dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
+        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
+        tidyr::unnest(c(data, fitted_values)) |>
+        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+
+    # Ensure standardAnnoColumn exists in the data
+    if (!standardAnnoColumn %in% colnames(df)) {
+        stop("standardAnnoColumn not found in data")
+    }
+
+    # Create the plot
+    p <- plotly::plot_ly()
+
+    # Add scatter plot markers
+    p <- p |>
+        plotly::add_markers(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~Area,
+            color = ~PCA,
+            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            text = ~paste(
+                "Homologue:", PCA,
+                "<br>Area:", round(Area, 2),
+                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Rsquared:", round(rsquared, 3)
+            ),
+            hoverinfo = "text",
+            visible = "legendonly",
+            legendgroup = ~PCA
+        )
+
+    # Add linear model lines
+    p <- p |>
+        plotly::add_lines(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~fitted_values,
+            color = ~PCA,
+            line = list(dash = "solid"),
+            hoverinfo = "none",
+            visible = "legendonly",
+            legendgroup = ~PCA,
+            showlegend = FALSE  # Don't show duplicate legends for lines
+        )
+
+    # Configure layout
+    p |>
+        plotly::layout(
+            title = list(
+                text = "Calibration PCAs-C10-13",
+                x = 0.5  # Center the title
+            ),
+            xaxis = list(
+                title = "Analyte Concentration (ug/g)",
+                zeroline = TRUE,
+                showgrid = TRUE
+            ),
+            yaxis = list(
+                title = "Area",
+                zeroline = TRUE,
+                showgrid = TRUE
+            )
+        )
+}
+
+
+
+plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
+    # Prepare the data
+
+    df <- CPs_standards_M |>
+        dplyr::filter(Response_factor > 0) |>
+        #dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
+        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
+        tidyr::unnest(c(data, fitted_values)) |>
+        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+
+    # Ensure standardAnnoColumn exists in the data
+    if (!standardAnnoColumn %in% colnames(df)) {
+        stop("standardAnnoColumn not found in data")
+    }
+
+    # Create the plot
+    p <- plotly::plot_ly()
+
+    # Add scatter plot markers
+    p <- p |>
+        plotly::add_markers(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~Area,
+            color = ~PCA,
+            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            text = ~paste(
+                "Homologue:", PCA,
+                "<br>Area:", round(Area, 2),
+                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Rsquared:", round(rsquared, 3)
+            ),
+            hoverinfo = "text",
+            visible = "legendonly",
+            legendgroup = ~PCA
+        )
+
+    # Add linear model lines
+    p <- p |>
+        plotly::add_lines(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~fitted_values,
+            color = ~PCA,
+            line = list(dash = "solid"),
+            hoverinfo = "none",
+            visible = "legendonly",
+            legendgroup = ~PCA,
+            showlegend = FALSE  # Don't show duplicate legends for lines
+        )
+
+    # Configure layout
+    p |>
+        plotly::layout(
+            title = list(
+                text = "Calibration PCAs-C14-17",
+                x = 0.5  # Center the title
+            ),
+            xaxis = list(
+                title = "Analyte Concentration (ug/g)",
+                zeroline = TRUE,
+                showgrid = TRUE
+            ),
+            yaxis = list(
+                title = "Area",
+                zeroline = TRUE,
+                showgrid = TRUE
+            )
+        )
+}
+
+
+
+
+plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
+    # Prepare the data
+
+    df <- CPs_standards_L |>
+        dplyr::filter(Response_factor > 0) |>
+        # dplyr::filter(`Molecule List` %in% c("PCA-C18", "PCA-C19", "PCA-C20", "PCA-C21", "PCA-C22", "PCA-C23",
+        #                                      "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
+        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
+        tidyr::unnest(c(data, fitted_values)) |>
+        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+
+    # Ensure standardAnnoColumn exists in the data
+    if (!standardAnnoColumn %in% colnames(df)) {
+        stop("standardAnnoColumn not found in data")
+    }
+
+    # Create the plot
+    p <- plotly::plot_ly()
+
+    # Add scatter plot markers
+    p <- p |>
+        plotly::add_markers(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~Area,
+            color = ~PCA,
+            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            text = ~paste(
+                "Homologue:", PCA,
+                "<br>Area:", round(Area, 2),
+                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Rsquared:", round(rsquared, 3)
+            ),
+            hoverinfo = "text",
+            visible = "legendonly",
+            legendgroup = ~PCA
+        )
+
+    # Add linear model lines
+    p <- p |>
+        plotly::add_lines(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~fitted_values,
+            color = ~PCA,
+            line = list(dash = "solid"),
+            hoverinfo = "none",
+            visible = "legendonly",
+            legendgroup = ~PCA,
+            showlegend = FALSE  # Don't show duplicate legends for lines
+        )
+
+    # Configure layout
+    p |>
+        plotly::layout(
+            title = list(
+                text = "Calibration PCAs-C18-30",
+                x = 0.5  # Center the title
+            ),
+            xaxis = list(
+                title = "Analyte Concentration (ug/g)",
+                zeroline = TRUE,
+                showgrid = TRUE
+            ),
+            yaxis = list(
+                title = "Area",
+                zeroline = TRUE,
+                showgrid = TRUE
+            )
+        )
+}
+
+
+
+defineVariablesUI <- function(Skyline_output){
+    ###START: Define UI components
+
+    # Create the UI components
+    shiny::fluidRow(
+        shiny::h4("Define variables"),
+        shiny::tags$br(),
+        shiny::column(
+            6,
+            shiny::varSelectInput(
+                inputId = "standardAnnoColumn", #select which variable to use to define standards
+                label = "Variable for annotating standards",
+                data = Skyline_output,
+                selected = "Batch Name"
+            )
+        ),
+        # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        #shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        #shiny::column(
+        #       6,
+        #      shiny::selectInput(
+        #             inputId = "blanks", #select which variable to use to define standards
+        #            label = "Define which samples are blanks",
+        #           choices = unique(Skyline_output()$`Replicate Name`),
+        #          multiple = TRUE
+        # )
+        #),
+        shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        shiny::column(
+            6,
+            shiny::selectInput(
+                inputId = "removeSamples", #select if some samples will be removed from quantification
+                label = 'Samples to remove from quantification?',
+                choices = unique(Skyline_output$`Replicate Name`),
+                selected = NULL,
+                multiple = TRUE
+            )
+        ),
+        # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        # shiny::column(
+        # 6,
+        #shiny::sliderInput(
+        #       inputId = "removeAreas", #remove low peak areas
+        #      label = "Keep absolute peak areas above this threshold (0 means keep everything)",
+        #     min = min(Skyline_output()$Area),
+        #    max = max(Skyline_output()$Area),
+        #   value = 0,
+        #  step = 10
+        # )
+        #),
+        shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        shiny::column(
+            6,
+            shiny::sliderInput(
+                inputId = "removeRsquared", #keep only Molecule above this rsquared, zero means keep everything
+                label = 'Keep the the calibration curves that show rsquared above this threshold (0 means keep everything)',
+                min = 0,
+                max = 1,
+                value = 0.80,
+                step = 0.05
+            )
+        )
+    )
+}
+
+### END: Define input variables
+
 
     options(shiny.maxRequestSize = 500 * 1024^2)
     # UI
@@ -526,7 +817,6 @@ CPquant <- function(...){
 
 
             ###########################################################RECOVERY#######################################################
-#browser()
             if(input$calculateRecovery == "Yes") {
                 # Recovery calculations
                 recovery_data <- Skyline_output_filt |>
@@ -638,4 +928,3 @@ CPquant <- function(...){
     # Run the application
     shinyApp(ui = ui, server = server)
 
-}

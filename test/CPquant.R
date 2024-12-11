@@ -22,6 +22,7 @@ CPquant <- function(...){
                             shiny::tabPanel("Quantification Inputs",
                                             shiny::fluidPage(shiny::sidebarLayout(
                                                 shiny::sidebarPanel(
+                                                    width = 3,
                                                     shiny::fileInput("fileInput", "Import excel file from Skyline",
                                                                      accept = c('xlsx')),
                                                     shiny::radioButtons("blankSubtraction",
@@ -29,39 +30,57 @@ CPquant <- function(...){
                                                                         choices = c("Yes", "No"), selected = "No"),
                                                     shiny::radioButtons("correctWithRS", label = "Correct with RS?",
                                                                         choices = c("Yes", "No"), selected = "No"),
+                                                    shiny::radioButtons("calculateRecovery",
+                                                                        label = "Calculate recovery? (req QC samples)",
+                                                                        choices = c("Yes", "No"), selected = "No"),
                                                     shiny::radioButtons("standardTypes", label = "Types of standards",
                                                                         choices = c("Mixtures"), selected = "Mixtures"), #will add single chain std later
                                                     shiny::actionButton('go', 'Proceed', width = "100%"),
                                                     shiny::uiOutput("defineVariables")
                                                 ),
                                                 shiny::mainPanel(
-                                                    DT::DTOutput("table1")
+                                                    width = 9,
+                                                    plotly::plotlyOutput("plot_Skyline_output"),
+                                                    DT::DTOutput("table_Skyline_output")
+
                                                 )
                                             )
                                             )),
                             shiny::tabPanel(
                                 "Input summary",
+                                shiny::sidebarPanel(
+                                    width = 2, # max 12
+                                    shiny::radioButtons("navSummary", "Choose tab:",
+                                                        choices = c("Std Calibration Curves", "Quan to Qual ratio"),
+                                                        selected = "Std Calibration Curves")
+                                ),
                                 shiny::mainPanel(
-                                    shiny::uiOutput("inputSummary")
+                                    width = 10,
+                                    shiny::conditionalPanel(
+                                        condition = "input.navSummary == 'Std Calibration Curves'",
+                                        plotly::plotlyOutput("CalibrationSCCPs"),
+                                        shiny::tags$br(),
+                                        plotly::plotlyOutput("CalibrationMCCPs"),
+                                        shiny::tags$br(),
+                                        plotly::plotlyOutput("CalibrationLCCPs")
+                                    ),
+                                    shiny::conditionalPanel(
+                                        condition = "input.navSummary == 'Quan to Qual ratio'",
+                                        plotly::plotlyOutput("RatioQuantToQual")
+                                    )
                                 )
                             ),
 
                             shiny::tabPanel(
                                 "Quantification summary",
-                                # shiny::sidebarLayout(
-                                #         shiny::sidebarPanel(),
-                                #         shiny::mainPanel(
-                                #                 DT::DTOutput("quantTable")
-                                #         )
-                                # )
                                 shiny::fluidPage(DT::DTOutput("quantTable"))
                             ),
                             shiny::tabPanel(
                                 "QA/QC",
                                 shiny::mainPanel(
-                                    DT::DTOutput("table2"),   # First table output (Skyline recovery data)
+                                    DT::DTOutput("table_recovery"),   # First table output (Skyline recovery data)
                                     br(),                     # Optional line break to add space between the tables
-                                    DT::DTOutput("LOD")       # Second table output (LOD table)
+                                    DT::DTOutput("table_LOD")       # Second table output (LOD table)
                                 )
                             ),
                             shiny::tabPanel(
@@ -109,7 +128,7 @@ CPquant <- function(...){
             }
 
 
-            # Calculate the average blank value, should be based on each homologue
+            # Calculate the average blank value, based on each homologue
             if (input$blankSubtraction == "Yes"){
 
                 #creating a df_blank with average of all blanks for each CxCly group
@@ -126,93 +145,28 @@ CPquant <- function(...){
                     dplyr::full_join(df_blank) |>
                     dplyr::mutate(AverageBlank = tidyr::replace_na(AverageBlank, 0)) |>
                     dplyr::mutate(Area =  dplyr::case_when(`Sample Type` == "Unknown" ~ Area - AverageBlank, .default = Area)) |> #subtract only when Sample Type == Unknown otherwise also subtract standards and others with blank
-                    dplyr::mutate(Area = ifelse(Area <0, 0, Area)) #remove negative areas after blank subtraction
+                    dplyr::mutate(Area = ifelse(Area <0, 0, Area)) #replace negative areas after blank subtraction with zero
 
             } else {
                 df
             }
         })
 
-
-
-        ###START: Define UI components
+        # defineVariablesUI in separate file UI_components.R
         output$defineVariables <- shiny::renderUI({
-
-
-
-            # Create the UI components
-            shiny::fluidRow(
-                shiny::h4("Define variables"),
-                shiny::tags$br(),
-                shiny::column(
-                    6,
-                    shiny::varSelectInput(
-                        inputId = "standardAnnoColumn", #select which variable to use to define standards
-                        label = "Variable for annotating standards",
-                        data = Skyline_output(),
-                        selected = "Batch Name"
-                    )
-                ),
-                # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                #shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                #shiny::column(
-                #       6,
-                #      shiny::selectInput(
-                #             inputId = "blanks", #select which variable to use to define standards
-                #            label = "Define which samples are blanks",
-                #           choices = unique(Skyline_output()$`Replicate Name`),
-                #          multiple = TRUE
-                # )
-                #),
-                shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                shiny::column(
-                    6,
-                    shiny::selectInput(
-                        inputId = "removeSamples", #select if some samples will be removed from quantification
-                        label = 'Samples to remove from quantification?',
-                        choices = unique(Skyline_output()$`Replicate Name`),
-                        selected = NULL,
-                        multiple = TRUE
-                    )
-                ),
-                # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                # shiny::column(
-                # 6,
-                #shiny::sliderInput(
-                #       inputId = "removeAreas", #remove low peak areas
-                #      label = "Keep absolute peak areas above this threshold (0 means keep everything)",
-                #     min = min(Skyline_output()$Area),
-                #    max = max(Skyline_output()$Area),
-                #   value = 0,
-                #  step = 10
-                # )
-                #),
-                shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-                shiny::column(
-                    6,
-                    shiny::sliderInput(
-                        inputId = "removeRsquared", #keep only Molecule above this rsquared, zero means keep everything
-                        label = 'Keep the the calibration curves that show rsquared above this threshold (0 means keep everything)',
-                        min = 0,
-                        max = 1,
-                        value = 0.80,
-                        step = 0.05
-                    )
-                )
-            )
+            defineVariablesUI(Skyline_output())
         })
 
-        ### END: Define input variables
 
         # Set reactive values from user input
-        # removeAreas <- eventReactive(input$go, {as.numeric(input$removeAreas)})
+
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
         standardAnnoColumn <- shiny::eventReactive(input$go, {as.character(input$standardAnnoColumn)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
 
 
         #Render raw table
-        output$table1 <- DT::renderDT({
+        output$table_Skyline_output <- DT::renderDT({
             DT::datatable(Skyline_output(),
                           options = list(
                               paging = TRUE,
@@ -223,17 +177,9 @@ CPquant <- function(...){
 
 
         # Render summary statistics and plots of raw input BEFORE quantification
-        output$inputSummary <- shiny::renderUI({
-            shiny::fluidRow(
-                shiny::column(6, plotly::plotlyOutput("plotSummary1", width = "30vw")),
-                shiny::column(6, plotly::plotlyOutput("CalibrationSCCPs", width = "30vw")),
-                shiny::column(6, plotly::plotlyOutput("CalibrationMCCPs", width = "30vw")),
-                shiny::column(6, plotly::plotlyOutput("CalibrationLCCPs", width = "30vw"))
-            )
-        })
 
 
-        output$plotSummary1 <- plotly::renderPlotly({
+        output$plot_Skyline_output <- plotly::renderPlotly({
             data <- Skyline_output() |>
                 dplyr::filter(`Isotope Label Type` == "Quan") |>
                 dplyr::mutate(OrderedMolecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))) # Create a composite ordering factor
@@ -248,14 +194,13 @@ CPquant <- function(...){
         })
 
 
-        # add load_plots() here
-
-
 
         ##### START: Deconvolution script
 
         shiny::observeEvent(input$go, {
 
+
+            # remove samples if selected by removeSamples input
             if(!is.null(removeSamples()) && length(removeSamples()) > 0){
                 Skyline_output_filt <- Skyline_output() |>
                     dplyr::filter(!`Replicate Name` %in% removeSamples())
@@ -265,7 +210,7 @@ CPquant <- function(...){
 
 
             ##### PREPARE FOR DECONVOLUTION #######
-            browser()
+
             CPs_standards <- Skyline_output_filt |>
                 dplyr::filter(`Sample Type` == "Standard", #make sure the stds are not blank corrected
                               !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
@@ -277,7 +222,7 @@ CPquant <- function(...){
                 dplyr::mutate(coef = purrr::map(models, coef)) |>
                 dplyr::mutate(Response_factor = purrr::map_dbl(models, ~ coef(.x)["`Analyte Concentration`"]))|> #get the slope
                 dplyr::mutate(intercept = purrr::map(coef, purrr::pluck("(Intercept)"))) |>
-                dplyr::mutate(rsquared = purrr::map(models, summary)) |> #first creat a data frame list with the model
+                dplyr::mutate(rsquared = purrr::map(models, summary)) |> #first create a data frame list with the model
                 dplyr::mutate(rsquared = purrr::map(rsquared, purrr::pluck("r.squared"))) |> # then pluck only the r.squared value
                 dplyr::select(-coef) |>  # remove coef variable since it has already been plucked
                 tidyr::unnest(c(Response_factor, intercept, rsquared)) |>  #removing the list type for these variables
@@ -291,13 +236,18 @@ CPquant <- function(...){
 
 
 
-            # This is for mixtures, single chain stds will be added later
+
+
+
+
+            ###### This is for mixtures, single chain stds will be added later
 
             if(input$standardTypes == "Mixtures"){
                 # For SCCPs
-                CPs_standards_S <- CPs_standards |>
+                CPs_standards_S <- CPs_standards  |>
                     dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "S-")) |>
                     dplyr::mutate(Response_factor = if_else(C_number < 14, Response_factor, 0)) #Need to restrict to C10-C13, if <C10 then vSCCPs?
+
 
                 # For MCCPs
                 CPs_standards_M <- CPs_standards |>
@@ -314,22 +264,36 @@ CPquant <- function(...){
 
                 # Filter out empty data frames before binding
                 CPs_standards <- dplyr::bind_rows(Filter(function(x) nrow(x) > 0, CPs_standards_list))
+
+
+
+                ##### ADD from standards calibration (plots.R)
+                output$CalibrationSCCPs <- plotly::renderPlotly({
+                    plot_cal_SCCPs(CPs_standards_S, standardAnnoColumn())
+                })
+
+                output$CalibrationMCCPs <- plotly::renderPlotly({
+                    plot_cal_MCCPs(CPs_standards_M, standardAnnoColumn())
+                })
+
+                output$CalibrationLCCPs <- plotly::renderPlotly({
+                    plot_cal_LCCPs(CPs_standards_L, standardAnnoColumn())
+                })
+
             }
 
+
+
+
+
+
+            # Prepare for CP samples
 
 
             CPs_samples <- Skyline_output_filt |>  #-> Skyline_output()
                 dplyr::filter(`Sample Type` == "Unknown",
                               !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
                               `Isotope Label Type` == "Quan") |>
-                #mutate(Group = case_when(
-                #       Chain_length <10 ~ "vS",  # Group vS <10
-                #       Chain_length >= 10 & Chain_length <= 13 ~ "S",  # Group S for 10-13
-                #       Chain_length >= 14 & Chain_length <= 17 ~ "M",  # Group M for 14-17
-                #      Chain_length >= 18 & Chain_length <= 30 ~ "L",  # Group L for 18-30
-                #       Chain_length >30 ~ "vL",  # Group vL >30
-                #     .default = "Unknown" # Default case
-                #)) |>
                 dplyr::group_by(`Replicate Name`) |>  # Group by Replicate Name and Group
                 dplyr::mutate(Relative_distribution = Area / sum(Area, na.rm = TRUE)) |>
                 dplyr::ungroup() |>  # Ungroup before dropping the Group column
@@ -339,8 +303,8 @@ CPquant <- function(...){
 
 
             CPs_standards_input <- CPs_standards |>
-                dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |> #-> !!sym(input$standardAnnoColumn)
-                tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor") #-> !!sym(input$standardAnnoColumn)
+                dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |>
+                tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor")
 
 
             CPs_samples_input <- CPs_samples |>
@@ -422,7 +386,7 @@ CPquant <- function(...){
                     deconv_coef <- deconv_coef / sum(deconv_coef) * 100
                 }
 
-                # Calculate deconvolved resolved values
+                # Calculate deconvolved resolved values using matrix multiplication
                 deconv_resolved <- combined_matrix %*% deconv_coef
 
                 # Ensure that values are positive for chi-square test
@@ -491,7 +455,7 @@ CPquant <- function(...){
             )
 
             # View the resulting data frame
-            print(sum_results_df)
+            #print(sum_results_df)
 
             #Calculate the sum of the area in the samples
             #Sum the area of the samples
@@ -517,8 +481,7 @@ CPquant <- function(...){
             Final_results <- merged_df |>
                 dplyr::mutate(ConcentrationDetailed = Relative_distribution * Concentration)
 
-            # View the result
-            print(Final_results)
+
 
 
             ################################################### FINAL RESULTS ####################################################################
@@ -533,20 +496,6 @@ CPquant <- function(...){
                 )
 
 
-            #reorganized_data <- Concentration  |>
-            #       unnest(c(data)) |>
-            #      distinct(`Replicate.Name`, `Molecule`, .keep_all = TRUE)  |>
-            #     pivot_wider(names_from = `Molecule`, values_from = `Concentration`)
-            #reorganized_data <- t(reorganized_data) #transpose
-
-            #Make the first row (replicate names) the column names
-            #colnames(reorganized_data) <- reorganized_data[1, ]
-            #Samples_Concentration <- reorganized_data[-1, ]
-            # Convert the result back to a data frame
-            #Samples_Concentration <- as.data.frame(Samples_Concentration)
-            #Samples_Concentration2 <- Samples_Concentration |>
-            #       mutate(Molecule = CPs_samples_input$Molecule)|>
-            #      relocate(Molecule, .before = everything())
 
             ### END: Deconvolution script
 
@@ -573,133 +522,105 @@ CPquant <- function(...){
                               rownames = FALSE)
 
             })
-        })
 
 
-        ###########################################################RECOVERY#######################################################
+
+            ###########################################################RECOVERY#######################################################
+            #browser()
+            if(input$calculateRecovery == "Yes") {
+                # Recovery calculations
+                recovery_data <- Skyline_output_filt |>
+                    dplyr::filter(`Isotope Label Type` == "Quan",
+                                  `Molecule List` %in% c("IS", "RS"))
 
 
-        # Define the QA/QC reactive block
-        Skyline_recovery <- reactive({
-            # Ensure data is available
-            df <- Skyline_output_filt  # Use the reactive data source
-            req(df)  # Make sure df is not NULL
+                RECOVERY <- recovery_data |>  # Calculate recovery
+                    tidyr::pivot_wider(
+                        id_cols = c(`Replicate Name`, `Sample Type`),
+                        names_from = `Molecule List`,
+                        values_from = Area
+                    ) |>
+                    dplyr::mutate(across(c(IS, RS), ~replace_na(.x, 0)))
 
-            # Prepare RECOVERY Data
-            RECOVERY <- df |>
-                dplyr::filter(`Isotope Label Type` == "Quan") |>
-                tidyr::pivot_wider(id_cols = c(`Replicate Name`, `Sample Type`),
-                                   names_from = Molecule,
-                                   values_from = Area) |>  # Spread IS and RS into columns
-                as.data.frame()  # Convert to data frame for consistency
+                # Calculate QC ratio
+                qc_ratio <- RECOVERY |>
+                    #dplyr::filter(`Sample Type` == "Quality Control") |>
+                    dplyr::mutate(RatioStd = IS / RS) |>
+                    dplyr::summarize(AverageRatio = mean(RatioStd, na.rm = TRUE))
 
-            # Check if IS and RS columns exist before trying to mutate them
-            if ("IS" %in% colnames(RECOVERY) & "RS" %in% colnames(RECOVERY)) {
+                # Calculate sample recovery
                 RECOVERY <- RECOVERY |>
-                    dplyr::mutate(across(c(IS, RS), ~replace_na(.x, 0)))  # Replace NAs with 0 for IS and RS
-            } else {
-                stop("Required columns 'IS' or 'RS' are missing from the data.")
-            }
+                    dplyr::filter(`Sample Type` %in% c("Unknown", "Blank")) |>
+                    dplyr::mutate(
+                        RatioSample = IS / RS,
+                        Recovery = RatioSample / as.numeric(qc_ratio$AverageRatio),
+                        RecoveryPercentage = round(Recovery * 100, 0)
+                    ) |>
+                    dplyr::select(`Replicate Name`, `Sample Type`, RecoveryPercentage)
 
-            # Calculate AverageRatio for Quality Control
-            dfR <- RECOVERY |>
-                dplyr::filter(`Sample Type` == "Quality Control") |>
-                dplyr::mutate(RatioStd = IS / RS) |>
-                dplyr::summarize(AverageRatio = mean(RatioStd, na.rm = TRUE))
+                # LOD calculations
+                blank_data <- Final_results |>
+                    tidyr::pivot_longer(
+                        cols = -Molecule,
+                        names_to = "Replicate.Name",
+                        values_to = "Concentration"
+                    ) |>
+                    dplyr::left_join(
+                        Skyline_output_filt |>
+                            dplyr::select(`Replicate Name`, `Sample Type`) |>
+                            dplyr::distinct(),
+                        by = c("Replicate.Name" = "Replicate Name")
+                    ) |>
+                    dplyr::filter(`Sample Type` == "Blank")
 
-            # Ensure dfR is valid
-            if (nrow(dfR) == 0) {
-                stop("No Quality Control samples found.")
-            }
+                LOD_calc <- blank_data |>
+                    dplyr::summarize(
+                        LOD = 3 * sd(Concentration, na.rm = TRUE),
+                        n_blanks = sum(!is.na(Concentration))
+                    )
 
-            # RECOVERY Calculation
-            RECOVERY <- RECOVERY |>
-                dplyr::filter(`Sample Type` %in% c("Unknown", "Blank")) |>
-                dplyr::mutate(RatioSample = IS / RS) |>
-                dplyr::mutate(Recovery = RatioSample / as.numeric(dfR$AverageRatio)) |>
-                dplyr::mutate(RecoveryPercentage = round(Recovery * 100, 0)) |>  # Round Recovery to 0 decimals
-                dplyr::select(`Replicate Name`, `Sample Type`, RecoveryPercentage)  # Select only relevant columns
-
-            # Replace NA values with 0 if necessary
-            RECOVERY[is.na(RECOVERY)] <- 0
-
-            return(RECOVERY)
-        })
-
-        # Render the QA/QC datatable with only RecoveryPercentage column
-        output$table2 <- DT::renderDT({
-            RECOVERY <- Skyline_recovery()  # Get the reactive data
-
-            # Check if RECOVERY has data
-            req(nrow(RECOVERY) > 0)
-
-            DT::datatable(RECOVERY,
-                          filter = "top",
-                          extensions = c("Buttons", "Scroller"),
-                          options = list(
-                              scrollY = 650,
-                              scrollX = 500,
-                              deferRender = TRUE,
-                              scroller = TRUE,
-                              buttons = list(
-                                  list(
-                                      extend = "excel",
-                                      filename = "Samples_recovery",
-                                      title = NULL,
-                                      exportOptions = list(modifier = list(page = "all"))
+                # Render recovery table
+                output$table_recovery <- DT::renderDT({
+                    DT::datatable(RECOVERY,
+                                  filter = "top",
+                                  extensions = c("Buttons", "Scroller"),
+                                  options = list(
+                                      scrollY = 650,
+                                      scrollX = 500,
+                                      deferRender = TRUE,
+                                      scroller = TRUE,
+                                      buttons = list(
+                                          list(extend = "excel",
+                                               filename = "Samples_recovery",
+                                               title = NULL,
+                                               exportOptions = list(modifier = list(page = "all"))),
+                                          list(extend = "csv",
+                                               filename = "Samples_recovery",
+                                               title = NULL,
+                                               exportOptions = list(modifier = list(page = "all"))),
+                                          list(extend = "colvis",
+                                               targets = 0,
+                                               visible = FALSE)
+                                      ),
+                                      dom = "lBfrtip",
+                                      fixedColumns = TRUE
                                   ),
-                                  list(
-                                      extend = "csv",
-                                      filename = "Samples_recovery",
-                                      title = NULL,
-                                      exportOptions = list(modifier = list(page = "all"))
+                                  rownames = FALSE)
+                })
+
+                # Render LOD table
+                output$table_LOD <- DT::renderDT({
+                    DT::datatable(LOD_calc,
+                                  options = list(
+                                      pageLength = 10,
+                                      dom = 't'
                                   ),
-                                  list(
-                                      extend = "colvis",
-                                      targets = 0,
-                                      visible = FALSE
-                                  )
-                              ),
-                              dom = "lBfrtip",
-                              fixedColumns = TRUE
-                          ),
-                          rownames = FALSE
-            )
+                                  rownames = FALSE)
+                })
+
+            }
         })
 
-
-        ###################################################################LOD####################################
-
-        # Define a reactive block for the LOD table
-        LOD_summary <- reactive({
-            # Ensure data is available
-            df_samples <- ConcentrationB  # Use the reactive data source for Samples_Concentration
-
-            req(df_samples)
-
-            # Filter for 'Blank' Sample Type and calculate the standard deviation of 'Samples_Concentration'
-            lod_sd <- df_samples |>
-                dplyr::filter('Sample Type' == "Blank") |>
-                dplyr::summarize(LOD = sd(Concentration, na.rm = TRUE) * 3)  # Multiply by 3 for LOD
-
-            # Convert to data frame
-            lod_sd <- as.data.frame(lod_sd)
-
-            lod_sd
-        })
-
-        # Render the LOD table
-        output$LOD <- DT::renderDT({
-            lod_data <- LOD_summary()  # Get the reactive data
-
-            DT::datatable(lod_data,
-                          options = list(
-                              pageLength = 10,
-                              dom = 't'  # Table only, without additional controls
-                          ),
-                          rownames = FALSE
-            )
-        })
 
 
         # Close the app when the session ends
