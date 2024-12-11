@@ -1,178 +1,223 @@
 
-load_plots <- function(df_output) {
 
+plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
+    # Prepare the data
 
-    output$CalibrationSCCPs <- plotly::renderPlotly({
-        data <- df_plots |>
-            dplyr::filter(`Isotope Label Type` == "Quan") |>
-            dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "S-")) |>
-            dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
-            dplyr::group_by(!!dplyr::sym(standardAnnoColumn()), `Molecule`)
+    df <- CPs_standards_S |>
+        dplyr::filter(Response_factor > 0) |>
+        #dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
+        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
+        tidyr::unnest(c(data, fitted_values)) |>
+        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
 
-        # Fit linear models for each combination of Note and Molecule List
-        models <- data |>
-            dplyr::group_modify(~ {
-                lm_model <- stats::lm(Area ~ `Analyte Concentration`, data = .x)
-                .x$predicted <- predict(lm_model, newdata = .x)
-                .x
-            })
+    # Ensure standardAnnoColumn exists in the data
+    if (!standardAnnoColumn %in% colnames(df)) {
+        stop("standardAnnoColumn not found in data")
+    }
 
-        # Initialize the plot
-        p <- plotly::plot_ly()
+    # Create the plot
+    p <- plotly::plot_ly()
 
-        # Add scatter plot markers with visibility set to "legendonly"
-        p <- p |>
-            plotly::add_markers(
-                data = models,
-                x = ~ `Analyte Concentration`,
-                y = ~ Area,
-                color = ~ `Molecule`,
-                symbol = ~ Note, # Differentiates by Note using different symbols
-                text = ~ paste("Homologue:", `Molecule`, "<br>Area:", Area,
-                               "<br>Analyte Concentration (ug/g):", `Analyte Concentration`,
-                               "<br>Standard:", !!dplyr::sym(standardAnnoColumn())),
-                hoverinfo = "text",
-                visible = "legendonly",  # Initially hide this trace
-                legendgroup = ~ `Molecule` # Group by Molecule List
+    # Add scatter plot markers
+    p <- p |>
+        plotly::add_markers(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~Area,
+            color = ~PCA,
+            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            text = ~paste(
+                "Homologue:", PCA,
+                "<br>Area:", round(Area, 2),
+                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Rsquared:", round(rsquared, 3)
+            ),
+            hoverinfo = "text",
+            visible = "legendonly",
+            legendgroup = ~PCA
+        )
+
+    # Add linear model lines
+    p <- p |>
+        plotly::add_lines(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~fitted_values,
+            color = ~PCA,
+            line = list(dash = "solid"),
+            hoverinfo = "none",
+            visible = "legendonly",
+            legendgroup = ~PCA,
+            showlegend = FALSE  # Don't show duplicate legends for lines
+        )
+
+    # Configure layout
+    p |>
+        plotly::layout(
+            title = list(
+                text = "Calibration PCAs-C10-13",
+                x = 0.5  # Center the title
+            ),
+            xaxis = list(
+                title = "Analyte Concentration (ug/g)",
+                zeroline = TRUE,
+                showgrid = TRUE
+            ),
+            yaxis = list(
+                title = "Area",
+                zeroline = TRUE,
+                showgrid = TRUE
             )
+        )
+}
 
-        # Add linear model lines with visibility set to "legendonly"
-        p <- p |>
-            plotly::add_lines(
-                data = models,
-                x = ~ `Analyte Concentration`,
-                y = ~ predicted,
-                color = ~ `Molecule`,
-                line = list(dash = "solid"),
-                hoverinfo = "none",
-                visible = "legendonly",  # Initially hide this trace
-                legendgroup = ~ `Molecule` # Group by Molecule List
+
+
+plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
+    # Prepare the data
+
+    df <- CPs_standards_M |>
+        dplyr::filter(Response_factor > 0) |>
+        #dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
+        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
+        tidyr::unnest(c(data, fitted_values)) |>
+        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+
+    # Ensure standardAnnoColumn exists in the data
+    if (!standardAnnoColumn %in% colnames(df)) {
+        stop("standardAnnoColumn not found in data")
+    }
+
+    # Create the plot
+    p <- plotly::plot_ly()
+
+    # Add scatter plot markers
+    p <- p |>
+        plotly::add_markers(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~Area,
+            color = ~PCA,
+            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            text = ~paste(
+                "Homologue:", PCA,
+                "<br>Area:", round(Area, 2),
+                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Rsquared:", round(rsquared, 3)
+            ),
+            hoverinfo = "text",
+            visible = "legendonly",
+            legendgroup = ~PCA
+        )
+
+    # Add linear model lines
+    p <- p |>
+        plotly::add_lines(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~fitted_values,
+            color = ~PCA,
+            line = list(dash = "solid"),
+            hoverinfo = "none",
+            visible = "legendonly",
+            legendgroup = ~PCA,
+            showlegend = FALSE  # Don't show duplicate legends for lines
+        )
+
+    # Configure layout
+    p |>
+        plotly::layout(
+            title = list(
+                text = "Calibration PCAs-C14-17",
+                x = 0.5  # Center the title
+            ),
+            xaxis = list(
+                title = "Analyte Concentration (ug/g)",
+                zeroline = TRUE,
+                showgrid = TRUE
+            ),
+            yaxis = list(
+                title = "Area",
+                zeroline = TRUE,
+                showgrid = TRUE
             )
+        )
+}
 
-        # Layout configuration
-        p |>
-            plotly::layout(
-                title = "Calibration PCAs-C10-13",
-                xaxis = list(title = "Analyte Concentration"),
-                yaxis = list(title = "Area")
+
+
+
+plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
+    # Prepare the data
+
+    df <- CPs_standards_L |>
+        dplyr::filter(Response_factor > 0) |>
+        # dplyr::filter(`Molecule List` %in% c("PCA-C18", "PCA-C19", "PCA-C20", "PCA-C21", "PCA-C22", "PCA-C23",
+        #                                      "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
+        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
+        tidyr::unnest(c(data, fitted_values)) |>
+        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+
+    # Ensure standardAnnoColumn exists in the data
+    if (!standardAnnoColumn %in% colnames(df)) {
+        stop("standardAnnoColumn not found in data")
+    }
+
+    # Create the plot
+    p <- plotly::plot_ly()
+
+    # Add scatter plot markers
+    p <- p |>
+        plotly::add_markers(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~Area,
+            color = ~PCA,
+            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            text = ~paste(
+                "Homologue:", PCA,
+                "<br>Area:", round(Area, 2),
+                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Rsquared:", round(rsquared, 3)
+            ),
+            hoverinfo = "text",
+            visible = "legendonly",
+            legendgroup = ~PCA
+        )
+
+    # Add linear model lines
+    p <- p |>
+        plotly::add_lines(
+            data = df,
+            x = ~`Analyte Concentration`,
+            y = ~fitted_values,
+            color = ~PCA,
+            line = list(dash = "solid"),
+            hoverinfo = "none",
+            visible = "legendonly",
+            legendgroup = ~PCA,
+            showlegend = FALSE  # Don't show duplicate legends for lines
+        )
+
+    # Configure layout
+    p |>
+        plotly::layout(
+            title = list(
+                text = "Calibration PCAs-C18-30",
+                x = 0.5  # Center the title
+            ),
+            xaxis = list(
+                title = "Analyte Concentration (ug/g)",
+                zeroline = TRUE,
+                showgrid = TRUE
+            ),
+            yaxis = list(
+                title = "Area",
+                zeroline = TRUE,
+                showgrid = TRUE
             )
-    })
-
-
-    output$CalibrationMCCPs <- plotly::renderPlotly({
-        # Filter and group the data
-        data <- df_plots |>
-            dplyr::filter(`Isotope Label Type` == "Quan") |>
-            dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "M-")) |>
-            dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
-            dplyr::group_by(!!dplyr::sym(standardAnnoColumn()), `Molecule`)
-
-        # Fit linear models for each combination of Note and Molecule
-        models <- data |>
-            dplyr::group_modify(~ {
-                lm_model <- stats::lm(Area ~ `Analyte Concentration`, data = .x)
-                .x$predicted <- predict(lm_model, newdata = .x)
-                .x
-            })
-
-        # Initialize the plot
-        p <- plotly::plot_ly()
-
-        # Add scatter plot markers with visibility set to "legendonly"
-        p <- p |>
-            plotly::add_markers(
-                data = models,
-                x = ~ `Analyte Concentration`,
-                y = ~ Area,
-                color = ~ `Molecule`,
-                symbol = ~ Note, # Differentiates by Note using different symbols
-                text = ~ paste("Homologue:", `Molecule`, "<br>Area:", Area,
-                               "<br>Analyte Concentration (ug/g):", `Analyte Concentration`,
-                               "<br>Standard:", !!dplyr::sym(standardAnnoColumn())),
-                hoverinfo = "text",
-                visible = "legendonly",  # Initially hide this trace
-                legendgroup = ~ `Molecule` # Group by Molecule
-            )
-
-        # Add linear model lines with visibility set to "legendonly"
-        p <- p |>
-            plotly::add_lines(
-                data = models,
-                x = ~ `Analyte Concentration`,
-                y = ~ predicted,
-                color = ~ `Molecule`,
-                line = list(dash = "solid"),
-                hoverinfo = "none",
-                visible = "legendonly",  # Initially hide this trace
-                legendgroup = ~ `Molecule` # Group by Molecule
-            )
-
-        # Layout configuration
-        p |>
-            plotly::layout(
-                title = "Calibration PCAs-C14-17",
-                xaxis = list(title = "Analyte Concentration"),
-                yaxis = list(title = "Area")
-            )
-    })
-
-
-    output$CalibrationLCCPs <- plotly::renderPlotly({
-        # Filter and group the data
-        data <- df_plots |>
-            dplyr::filter(`Isotope Label Type` == "Quan") |>
-            dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "L-")) |>
-            dplyr::filter(`Molecule List` %in% c("PCA-C18", "PCA-C19", "PCA-C20", "PCA-C21", "PCA-C22", "PCA-C23",
-                                                 "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
-            dplyr::group_by(!!dplyr::sym(standardAnnoColumn()), `Molecule`)
-
-        # Fit linear models for each combination of Note and Molecule
-        models <- data |>
-            dplyr::group_modify(~ {
-                lm_model <- lm(Area ~ `Analyte Concentration`, data = .x)
-                .x$predicted <- predict(lm_model, newdata = .x)
-                .x
-            })
-
-        # Initialize the plot
-        p <- plotly::plot_ly()
-
-        # Add scatter plot markers with visibility set to "legendonly"
-        p <- p |>
-            plotly::add_markers(
-                data = models,
-                x = ~ `Analyte Concentration`,
-                y = ~ Area,
-                color = ~ `Molecule`,
-                symbol = ~ Note, # Differentiates by Note using different symbols
-                text = ~ paste("Homologue:", `Molecule`, "<br>Area:", Area,
-                               "<br>Analyte Concentration (ug/g):", `Analyte Concentration`,
-                               "<br>Standard:", !!dplyr::sym(standardAnnoColumn())),
-                hoverinfo = "text",
-                visible = "legendonly",  # Initially hide this trace
-                legendgroup = ~ `Molecule` # Group by Molecule
-            )
-
-        # Add linear model lines with visibility set to "legendonly"
-        p <- p |>
-            plotly::add_lines(
-                data = models,
-                x = ~ `Analyte Concentration`,
-                y = ~ predicted,
-                color = ~ `Molecule`,
-                line = list(dash = "solid"),
-                hoverinfo = "none",
-                visible = "legendonly",  # Initially hide this trace
-                legendgroup = ~ `Molecule` # Group by Molecule
-            )
-
-        # Layout configuration
-        p |>
-            plotly::layout(
-                title = "Calibration PCAs-C18-30",
-                xaxis = list(title = "Analyte Concentration"),
-                yaxis = list(title = "Area")
-            )
-    })
-
+        )
 }

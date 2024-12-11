@@ -44,9 +44,13 @@ CPquant <- function(...){
                             shiny::tabPanel(
                                 "Input summary",
                                 shiny::mainPanel(
-                                    shiny::uiOutput("inputSummary")
-                                )
-                            ),
+                                    #shiny::uiOutput("inputSummary")
+                                    plotly::plotlyOutput("CalibrationSCCPs"),
+                                    shiny::tags$br(),
+                                    plotly::plotlyOutput("CalibrationMCCPs"),
+                                    shiny::tags$br(),
+                                    plotly::plotlyOutput("CalibrationLCCPs"))
+                                ),
 
                             shiny::tabPanel(
                                 "Quantification summary",
@@ -137,6 +141,7 @@ CPquant <- function(...){
 
         # Set reactive values from user input
         # removeAreas <- eventReactive(input$go, {as.numeric(input$removeAreas)})
+
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
         standardAnnoColumn <- shiny::eventReactive(input$go, {as.character(input$standardAnnoColumn)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
@@ -154,13 +159,6 @@ CPquant <- function(...){
 
 
         # Render summary statistics and plots of raw input BEFORE quantification
-        output$inputSummary <- shiny::renderUI({
-            shiny::fluidRow(
-                shiny::column(6, plotly::plotlyOutput("CalibrationSCCPs", width = "30vw")),
-                shiny::column(6, plotly::plotlyOutput("CalibrationMCCPs", width = "30vw")),
-                shiny::column(6, plotly::plotlyOutput("CalibrationLCCPs", width = "30vw"))
-            )
-        })
 
 
         output$plot_Skyline_output <- plotly::renderPlotly({
@@ -177,14 +175,24 @@ CPquant <- function(...){
             )
         })
 
+        # output$inputSummary <- shiny::renderUI({
+        #     shiny::fluidRow(
+        #         shiny::column(6, plotly::plotlyOutput("CalibrationSCCPs", width = "30vw")),
+        #         shiny::column(6, plotly::plotlyOutput("CalibrationMCCPs", width = "30vw")),
+        #         shiny::column(6, plotly::plotlyOutput("CalibrationLCCPs", width = "30vw"))
+        #     )
+        # })
 
-        # add load_plots() here
+
+
 
 
 
         ##### START: Deconvolution script
 
         shiny::observeEvent(input$go, {
+
+
             # remove samples if selected by removeSamples input
             if(!is.null(removeSamples()) && length(removeSamples()) > 0){
                 Skyline_output_filt <- Skyline_output() |>
@@ -207,7 +215,7 @@ CPquant <- function(...){
                 dplyr::mutate(coef = purrr::map(models, coef)) |>
                 dplyr::mutate(Response_factor = purrr::map_dbl(models, ~ coef(.x)["`Analyte Concentration`"]))|> #get the slope
                 dplyr::mutate(intercept = purrr::map(coef, purrr::pluck("(Intercept)"))) |>
-                dplyr::mutate(rsquared = purrr::map(models, summary)) |> #first creat a data frame list with the model
+                dplyr::mutate(rsquared = purrr::map(models, summary)) |> #first create a data frame list with the model
                 dplyr::mutate(rsquared = purrr::map(rsquared, purrr::pluck("r.squared"))) |> # then pluck only the r.squared value
                 dplyr::select(-coef) |>  # remove coef variable since it has already been plucked
                 tidyr::unnest(c(Response_factor, intercept, rsquared)) |>  #removing the list type for these variables
@@ -221,13 +229,18 @@ CPquant <- function(...){
 
 
 
-            # This is for mixtures, single chain stds will be added later
+
+
+
+
+            ###### This is for mixtures, single chain stds will be added later
 
             if(input$standardTypes == "Mixtures"){
                 # For SCCPs
-                CPs_standards_S <- CPs_standards |>
-                    dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "S-")) |>
+                CPs_standards_S <- CPs_standards  |>
+                        dplyr::filter(stringr::str_detect(!!dplyr::sym(standardAnnoColumn()), "S-")) |>
                     dplyr::mutate(Response_factor = if_else(C_number < 14, Response_factor, 0)) #Need to restrict to C10-C13, if <C10 then vSCCPs?
+
 
                 # For MCCPs
                 CPs_standards_M <- CPs_standards |>
@@ -244,8 +257,30 @@ CPquant <- function(...){
 
                 # Filter out empty data frames before binding
                 CPs_standards <- dplyr::bind_rows(Filter(function(x) nrow(x) > 0, CPs_standards_list))
+
+
+
+                ##### ADD from standards calibration (plots.R)
+                output$CalibrationSCCPs <- plotly::renderPlotly({
+                    plot_cal_SCCPs(CPs_standards_S, standardAnnoColumn())
+                })
+
+                output$CalibrationMCCPs <- plotly::renderPlotly({
+                    plot_cal_MCCPs(CPs_standards_M, standardAnnoColumn())
+                })
+
+                output$CalibrationLCCPs <- plotly::renderPlotly({
+                    plot_cal_LCCPs(CPs_standards_L, standardAnnoColumn())
+                })
+
             }
 
+
+
+
+
+
+# Prepare for CP samples
 
 
             CPs_samples <- Skyline_output_filt |>  #-> Skyline_output()
