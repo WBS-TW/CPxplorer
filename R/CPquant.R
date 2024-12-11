@@ -43,13 +43,27 @@ CPquant <- function(...){
                                             )),
                             shiny::tabPanel(
                                 "Input summary",
+                                shiny::sidebarPanel(
+                                    width = 2, # max 12
+                                    shiny::radioButtons("navSummary", "Choose tab:",
+                                                        choices = c("Std Calibration Curves", "Quan to Qual ratio"),
+                                                        selected = "Std Calibration Curves")
+                                ),
                                 shiny::mainPanel(
-                                    #shiny::uiOutput("inputSummary")
-                                    plotly::plotlyOutput("CalibrationSCCPs"),
-                                    shiny::tags$br(),
-                                    plotly::plotlyOutput("CalibrationMCCPs"),
-                                    shiny::tags$br(),
-                                    plotly::plotlyOutput("CalibrationLCCPs"))
+                                    width = 10,
+                                    shiny::conditionalPanel(
+                                        condition = "input.navSummary == 'Std Calibration Curves'",
+                                        plotly::plotlyOutput("CalibrationSCCPs"),
+                                        shiny::tags$br(),
+                                        plotly::plotlyOutput("CalibrationMCCPs"),
+                                        shiny::tags$br(),
+                                        plotly::plotlyOutput("CalibrationLCCPs")
+                                        ),
+                                    shiny::conditionalPanel(
+                                        condition = "input.navSummary == 'Quan to Qual ratio'",
+                                        plotly::plotlyOutput("QuantToQualRatio")
+                                    )
+                                )
                                 ),
 
                             shiny::tabPanel(
