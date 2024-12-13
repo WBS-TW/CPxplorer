@@ -32,7 +32,7 @@ defineVariablesUI <- function(Skyline_output){
             6,
             shiny::selectInput(
                 inputId = "removeSamples", #select if some samples will be removed from quantification
-                label = 'Samples to remove from quantification?',
+                label = 'Remove samples from quantification?',
                 choices = unique(Skyline_output$`Replicate Name`),
                 selected = NULL,
                 multiple = TRUE
