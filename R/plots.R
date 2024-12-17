@@ -29,7 +29,7 @@ plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
-                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
                 "<br>Standard:", get(standardAnnoColumn),
                 "<br>Rsquared:", round(rsquared, 3)
             ),
@@ -60,7 +60,7 @@ plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
                 x = 0.5  # Center the title
             ),
             xaxis = list(
-                title = "Analyte Concentration (ug/g)",
+                title = "Analyte Concentration",
                 zeroline = TRUE,
                 showgrid = TRUE
             ),
@@ -103,7 +103,7 @@ plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
-                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
                 "<br>Standard:", get(standardAnnoColumn),
                 "<br>Rsquared:", round(rsquared, 3)
             ),
@@ -134,7 +134,7 @@ plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
                 x = 0.5  # Center the title
             ),
             xaxis = list(
-                title = "Analyte Concentration (ug/g)",
+                title = "Analyte Concentration",
                 zeroline = TRUE,
                 showgrid = TRUE
             ),
@@ -179,7 +179,7 @@ plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
-                "<br>Analyte Concentration (ug/g):", round(`Analyte Concentration`, 3),
+                "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
                 "<br>Standard:", get(standardAnnoColumn),
                 "<br>Rsquared:", round(rsquared, 3)
             ),
@@ -210,7 +210,7 @@ plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
                 x = 0.5  # Center the title
             ),
             xaxis = list(
-                title = "Analyte Concentration (ug/g)",
+                title = "Analyte Concentration",
                 zeroline = TRUE,
                 showgrid = TRUE
             ),

@@ -693,3 +693,84 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
 
 }
 
+
+### Function to perform deconvolution on a single data frame ###
+perform_deconvolution <- function(df, combined_standard) {
+    df_matrix <- as.matrix(df)
+
+    print(paste("df_matrix dimensions:", dim(df_matrix)))
+    print(paste("combined_standard dimensions:", dim(combined_standard)))
+
+    if (nrow(combined_standard) != nrow(df_matrix)) {
+        stop("Dimensions of combined_standard and df are incompatible.")
+    }
+
+    # Reshape df_matrix if it has only one column or extract the first column if it has multiple
+    if (ncol(df_matrix) == 1) {
+        df_vector <- as.vector(df_matrix)
+    } else {
+        df_vector <- as.vector(df_matrix[, 1])  # Extract the first column for nnls
+    }
+
+    # Check for NA/NaN/Inf values in df_vector and combined_standard
+    if (any(is.na(df_vector)) || any(is.nan(df_vector)) || any(is.infinite(df_vector))) {
+        stop("df_vector contains NA/NaN/Inf values.")
+    }
+
+    if (any(is.na(combined_standard)) || any(is.nan(combined_standard)) || any(is.infinite(combined_standard))) {
+        stop("combined_standard contains NA/NaN/Inf values.")
+    }
+
+    # Perform nnls
+    deconv <- nnls::nnls(combined_standard, df_vector)
+
+    # Extract deconvolution results
+    deconv_coef <- deconv$x
+
+    # # Normalize the coefficients so they sum to 100%
+    # if (sum(deconv_coef) > 0) {
+    #     deconv_coef <- deconv_coef / sum(deconv_coef) * 100
+    # }
+
+    # Normalize the coefficients so they sum to 1
+    if (sum(deconv_coef) > 0) {
+     deconv_coef <- deconv_coef / sum(deconv_coef)
+    }
+
+    # Calculate deconvolved resolved values using matrix multiplication
+    deconv_resolved <- combined_standard %*% deconv_coef
+
+
+    # Calculate the Goodnes of fit
+    # Calculate the total sum of squares (SST)
+    sst <- sum((df_vector - mean(df_vector))^2)
+    # Calculate the residual sum of squares (SSR)
+    ssr <- sum((df_vector - deconv_resolved/sum(deconv_resolved))^2)
+
+    # Calculate R-squared goodnes of fit
+    r_squared <- 1 - (ssr / sst)
+    # Calculate Mean Squared Error (MSE)
+    mse <- mean((df_vector - deconv_resolved/sum(deconv_resolved))^2)
+
+    # Calculate Root Mean Squared Error (RMSE)
+    rmse <- sqrt(mse)
+
+    # Ensure that values are positive for chi-square test
+    # if (any(deconv_resolved < 0) || any(df_vector < 0)) {
+    #     warning("Non-positive values found, skipping chi-square test")
+    #     chisq_result <- NULL
+    # } else {
+    #     #adding a small constant to avoid 0 values
+    #     observed_corr <- df_vector + 1E-9
+    #     predicted_corr <- deconv_resolved + 1E-9
+    #     chisq_result <- chisq.test(x= observed_corr, p = predicted_corr/sum(predicted_corr), rescale.p = TRUE)
+    # }
+
+    return(list(
+        deconv_coef = deconv_coef,
+        deconv_resolved = deconv_resolved,
+        r_squared = r_squared
+        #chisq_result = chisq_result
+    ))
+}
+
