@@ -1,4 +1,4 @@
-#' CPxplorer
+#' CPions
 #'
 #' @param ...
 #'
@@ -18,11 +18,11 @@
 #' @import markdown
 
 
-CPxplorer <- function(...){
+CPions <- function(...){
 
 #--------------------------------UI function----------------------------------#
 ui <- shiny::navbarPage(
-    "CPXplorer",
+    "CPions",
     theme = shinythemes::shinytheme('spacelab'),
     shiny::tabPanel("Normal settings",
                     shiny::fluidPage(shiny::sidebarLayout(
@@ -151,7 +151,7 @@ ui <- shiny::navbarPage(
             shiny::sidebarPanel(shiny::h3("Manual"),
                                 width = 3),
             shiny::mainPanel(
-                shiny::includeMarkdown("R/instructions_CPxplorer.md")
+                shiny::includeMarkdown("R/instructions_CPions.md")
             )
         )
     )

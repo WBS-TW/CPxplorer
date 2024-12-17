@@ -22,7 +22,7 @@ create_formula <- function(C, H, Cl, Br, S, O) {
                   O > 1  ~ paste0("O", O))
     )
     # Remove any leading or trailing spaces
-    dplyr::str_trim(formula)
+    stringr::str_trim(formula)
 }
 
 

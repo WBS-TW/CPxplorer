@@ -2,10 +2,11 @@
 % Please edit documentation in R/CPxplorer-package.R
 \docType{package}
 \name{CPxplorer-package}
+\alias{CPxplorer}
 \alias{CPxplorer-package}
-\title{CPxplorer: CPxplorer: PCAs analysis and quantification}
+\title{CPxplorer: CPxplorer: PCAs and analogues analysis and quantification}
 \description{
-Generates list of ions for mass spectrometric analysis and quantification of PCAs and analogues.
+Generates list of ions of PCAs and analoguesfor mass spectrometric analysis and perform quantification.
 }
 \author{
 \strong{Maintainer}: Thanh Wang \email{thanh.wang@liu.se} (\href{https://orcid.org/0000-0002-5729-1908}{ORCID})

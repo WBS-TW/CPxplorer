@@ -6,7 +6,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-5729-1908")),
     person("Idoia", "Beloqui Ezquer", , "idoia.beloqui.ezquer@liu.se", role = "aut")
   )
-Description: Generates list of ions for mass spectrometric analysis and perform quantification of PCAs and analogues.
+Description: Generates list of ions of PCAs and analoguesfor mass spectrometric analysis and perform quantification.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

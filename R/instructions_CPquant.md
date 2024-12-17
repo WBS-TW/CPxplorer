@@ -2,6 +2,10 @@
 # Introduction
 
 
+### Quantification standards
+For PCA mixtures based on S/M/LCCPs, it is adviced to remove integrated area from standards that should not contain the specified homologues, i.e. C10-C13 should not be integrated in MCCP mixtures, and so on.
+
+
 
 
 ## Instructions    
