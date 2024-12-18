@@ -17,8 +17,7 @@
 CPquant <- function(...){
 
     options(shiny.maxRequestSize = 500 * 1024^2)
-    # UI
-    # UI
+
     ui <- shiny::navbarPage("Quantification by deconvolution from Skyline output",
                             shiny::tabPanel("Quantification Inputs",
                                             shiny::fluidPage(shiny::sidebarLayout(
@@ -204,7 +203,7 @@ CPquant <- function(...){
 
 
 
- #----------------START: Deconvolution script------------------#
+        #----------------START: Deconvolution script------------------#
 
         shiny::observeEvent(input$go, {
 
@@ -214,7 +213,7 @@ CPquant <- function(...){
             progress$set(message = "Processing data...", value = 0)
 
             # remove samples if selected by removeSamples input
-            progress$set(value = 0.1, detail = "Filtering samples")
+
             if(!is.null(removeSamples()) && length(removeSamples()) > 0){
                 Skyline_output_filt <- Skyline_output() |>
                     dplyr::filter(!`Replicate Name` %in% removeSamples())
@@ -536,23 +535,23 @@ CPquant <- function(...){
                 DT::datatable(
                     #Final_results,
                     Samples_Concentration,
-                              filter = "top", extensions = c("Buttons", "Scroller"),
-                              options = list(scrollY = 650,
-                                             scrollX = 500,
-                                             deferRender = TRUE,
-                                             scroller = TRUE,
-                                             buttons = list(list(extend = "excel", filename = "Samples_concentration", title = NULL,
-                                                                 exportOptions = list(
-                                                                     modifier = list(page = "all")
-                                                                 )),
-                                                            list(extend = "csv", filename = "Samples_concentration", title = NULL,
-                                                                 exportOptions = list(
-                                                                     modifier = list(page = "all")
-                                                                 )),
-                                                            list(extend = "colvis", targets = 0, visible = FALSE)),
-                                             dom = "lBfrtip",
-                                             fixedColumns = TRUE),
-                              rownames = FALSE)
+                    filter = "top", extensions = c("Buttons", "Scroller"),
+                    options = list(scrollY = 650,
+                                   scrollX = 500,
+                                   deferRender = TRUE,
+                                   scroller = TRUE,
+                                   buttons = list(list(extend = "excel", filename = "Samples_concentration", title = NULL,
+                                                       exportOptions = list(
+                                                           modifier = list(page = "all")
+                                                       )),
+                                                  list(extend = "csv", filename = "Samples_concentration", title = NULL,
+                                                       exportOptions = list(
+                                                           modifier = list(page = "all")
+                                                       )),
+                                                  list(extend = "colvis", targets = 0, visible = FALSE)),
+                                   dom = "lBfrtip",
+                                   fixedColumns = TRUE),
+                    rownames = FALSE)
 
             })
 
