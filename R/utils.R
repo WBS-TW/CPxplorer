@@ -1,5 +1,10 @@
 # Various utilities and helper functions
 
+
+####################################################################################
+#-------------------------------- CPions functions --------------------------------#
+####################################################################################
+
 create_formula <- function(C, H, Cl, Br, S, O) {
     formula <- paste0(
         dplyr::case_when(C < 1 ~ paste0(""),
@@ -100,9 +105,8 @@ calculate_haloperc <- function(Molecule_Formula) {
     return(Molecule_Halo_perc)
 }
 
-############################################################################
+
 ######### This function generates input for the Envipat function ###########
-############################################################################
 
 generateInput_Envipat_normal <- function(data = data, group = group, adduct_ions = adduct_ions, fragment_ions = fragment_ions) {
 
@@ -237,9 +241,7 @@ generateInput_Envipat_advanced <- function(data = data, Compounds = Compounds, A
 
 
 getAdduct_normal <- function(adduct_ions, C, Cl, Clmax, threshold) {
-    ####################################################################
     # Regex to extract strings
-    ####################################################################
     ion_modes <- stringr::str_extract(adduct_ions, "(?<=\\]).{1}") # Using lookbehind assertion to extract ion mode
     fragment_ions <- stringr::str_extract(adduct_ions, "(?<=.{4}).+?(?=\\])") # extract after the 3rd character and before ]
     group <- stringr::str_extract(adduct_ions, "[^\\[].{2}") # Using positive lookbehind for [)
@@ -272,10 +274,8 @@ getAdduct_normal <- function(adduct_ions, C, Cl, Clmax, threshold) {
             dplyr::mutate(Charge = as.integer(1))
     }
 
-    ####################################################################
-    ####### generate input data for envipat based on fragment_ions
-    ####################################################################
 
+    # generate input data for envipat based on fragment_ions
     data <- generateInput_Envipat_normal(data = data, group = group, adduct_ions = adduct_ions, fragment_ions = fragment_ions)
 
     # Remove formula without Cl after adduct formations
@@ -286,10 +286,9 @@ getAdduct_normal <- function(adduct_ions, C, Cl, Clmax, threshold) {
     CP_allions <- list()
     data_ls <- list()
 
-    ####################################################################
+
     # function to get isotopic patterns for all PCAs.
     # data("isotopes") needs to be loaded in app.R
-    ####################################################################
     getisotopes <- function(x) {enviPat::isopattern(isotopes = isotopes,
                                                     chemforms = x,
                                                     threshold = threshold,
@@ -396,13 +395,9 @@ getAdduct_normal <- function(adduct_ions, C, Cl, Clmax, threshold) {
 }
 
 
-
-#----------------------------------------------------------------------------------------------------
-
 getAdduct_BCA <- function(adduct_ions, C, Cl, Br, Clmax, Brmax, threshold) {
-    ####################################################################
+
     # Regex to extract strings
-    ####################################################################
     ion_modes <- stringr::str_extract(adduct_ions, "(?<=\\]).{1}") # Using lookbehind assertion to extract ion mode
     fragment_ions <- stringr::str_extract(adduct_ions, "(?<=.{4}).+?(?=\\])") # extract after the 3rd character and before ]
     group <- stringr::str_extract(adduct_ions, "[^\\[].{2}") # Using positive lookbehind for [)
@@ -432,11 +427,8 @@ getAdduct_BCA <- function(adduct_ions, C, Cl, Br, Clmax, Brmax, threshold) {
             dplyr::mutate(Charge = as.integer(1))
     }
 
-    ####################################################################
+
     ####### generate input data for envipat based on fragment_ions
-    ####################################################################
-
-
     data <- generateInput_Envipat_BCA(data = data, group = group, adduct_ions = adduct_ions, fragment_ions = fragment_ions)
 
 
@@ -513,14 +505,11 @@ getAdduct_BCA <- function(adduct_ions, C, Cl, Br, Clmax, Brmax, threshold) {
 
 }
 
-#----------------------------------------------------------------------------------------------------
+
 
 getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, Br, Brmax, threshold) {
-    ####################################################################
+
     # Regex to extract strings
-    ####################################################################
-
-
     if (Compounds == "PCA") {
         data <- crossing(C, Cl) |> #set combinations of C and Cl
             dplyr::filter(C >= Cl) |> # filter so Cl dont exceed C atoms
@@ -604,10 +593,8 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
             dplyr::mutate(Charge = as.integer(1))
     }
 
-    ####################################################################
-    ####### generate input data for envipat based on adduct ions
-    ####################################################################
 
+    #generate input data for envipat based on adduct ions
     data <- generateInput_Envipat_advanced(data = data, Compounds = Compounds, Adduct_Ion = Adduct_Ion, TP = TP, Charge = Charge)
 
     # Remove formula without Cl after adduct formations
@@ -618,10 +605,9 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
     CP_allions <- list()
     data_ls <- list()
 
-    ####################################################################
+
     # function to get isotopic patterns for all PCA/PCO/BCA.
     # data("isotopes") needs to be loaded in app.R
-    ####################################################################
     getisotopes <- function(x) {enviPat::isopattern(isotopes = isotopes,
                                                     chemforms = x,
                                                     threshold = threshold,
@@ -694,9 +680,14 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
 }
 
 
+#########################################################################################################
+#------------------------------------------ CPquant functions ------------------------------------------#
+#########################################################################################################
+
 ### Function to perform deconvolution on a single data frame ###
 perform_deconvolution <- function(df, combined_standard) {
     df_matrix <- as.matrix(df)
+
 
     print(paste("df_matrix dimensions:", dim(df_matrix)))
     print(paste("combined_standard dimensions:", dim(combined_standard)))
@@ -709,7 +700,7 @@ perform_deconvolution <- function(df, combined_standard) {
     if (ncol(df_matrix) == 1) {
         df_vector <- as.vector(df_matrix)
     } else {
-        df_vector <- as.vector(df_matrix[, 1])  # Extract the first column for nnls
+        df_vector <- as.vector(df_matrix["Relative_distribution"])  # Extract the first column for nnls
     }
 
     # Check for NA/NaN/Inf values in df_vector and combined_standard
@@ -737,8 +728,9 @@ perform_deconvolution <- function(df, combined_standard) {
      deconv_coef <- deconv_coef / sum(deconv_coef)
     }
 
-    # Calculate deconvolved resolved values using matrix multiplication
+    # Calculate deconvolved values using matrix multiplication
     deconv_resolved <- combined_standard %*% deconv_coef
+
 
 
     # Calculate the Goodnes of fit
@@ -755,7 +747,7 @@ perform_deconvolution <- function(df, combined_standard) {
     # Calculate Root Mean Squared Error (RMSE)
     rmse <- sqrt(mse)
 
-    # Ensure that values are positive for chi-square test
+    # Chiq-square test: ensure that values are positive for chi-square test
     # if (any(deconv_resolved < 0) || any(df_vector < 0)) {
     #     warning("Non-positive values found, skipping chi-square test")
     #     chisq_result <- NULL
@@ -765,6 +757,11 @@ perform_deconvolution <- function(df, combined_standard) {
     #     predicted_corr <- deconv_resolved + 1E-9
     #     chisq_result <- chisq.test(x= observed_corr, p = predicted_corr/sum(predicted_corr), rescale.p = TRUE)
     # }
+
+    combined_standard_names <- colnames(combined_standard)
+
+    names(deconv_coef) <- combined_standard_names
+
 
     return(list(
         deconv_coef = deconv_coef,
