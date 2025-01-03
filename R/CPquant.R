@@ -28,11 +28,14 @@ CPquant <- function(...){
                                                                      accept = c('xlsx')),
                                                     shiny::radioButtons("blankSubtraction",
                                                                         label = "Subtraction with blank?",
-                                                                        choices = c("Yes", "No"), selected = "No"),
+                                                                        choices = c("Yes, by avg area of blanks", "No"), selected = "No"),
                                                     shiny::radioButtons("correctWithRS", label = "Correct with RS?",
                                                                         choices = c("Yes", "No"), selected = "No"),
                                                     shiny::radioButtons("calculateRecovery",
                                                                         label = "Calculate recovery? (req QC samples)",
+                                                                        choices = c("Yes", "No"), selected = "No"),
+                                                    shiny::radioButtons("calculateMDL",
+                                                                        label = "Calculate MDL? (req blank samples)",
                                                                         choices = c("Yes", "No"), selected = "No"),
                                                     shiny::radioButtons("standardTypes", label = "Types of standards",
                                                                         choices = c("Mixtures"), selected = "Mixtures"), #will add single chain std later
@@ -81,7 +84,7 @@ CPquant <- function(...){
                                 shiny::mainPanel(
                                     DT::DTOutput("table_recovery"),   # First table output (Skyline recovery data)
                                     br(),                     # Optional line break to add space between the tables
-                                    DT::DTOutput("table_LOD")       # Second table output (LOD table)
+                                    DT::DTOutput("table_MDL")       # Second table output (LOD table)
                                 )
                             ),
                             shiny::tabPanel(
@@ -136,7 +139,7 @@ CPquant <- function(...){
             }
 
             # Calculate the average blank value
-            if (input$blankSubtraction == "Yes"){
+            if (input$blankSubtraction == "Yes, by avg area of blanks"){
                 df_blank <- df |>
                     dplyr::filter(`Sample Type` == "Blank") |>
                     dplyr::group_by(Molecule, `Molecule List`, `Isotope Label Type`) |>
@@ -317,8 +320,8 @@ CPquant <- function(...){
                 dplyr::group_by(`Replicate Name`) |>  # Group by Replicate Nam
                 dplyr::mutate(Relative_distribution = Area / sum(Area, na.rm = TRUE)) |>
                 dplyr::ungroup() |>
-                #dplyr::select(`Replicate Name`, Molecule, Area, Relative_distribution) |>
-                dplyr::select(`Replicate Name`, `Sample Type`, Molecule, Area, Relative_distribution) |>
+                #dplyr::select(`Replicate Name`, `Sample Type`, Molecule, Area, Relative_distribution) |>
+                dplyr::select(-`Mass Error PPM`, -`Isotope Label Type`, -`Chromatogram Precursor M/Z`, -`Analyte Concentration`, -`Batch Name`) |>
                 dplyr::mutate(dplyr::across(Relative_distribution, ~replace(., is.nan(.), 0)))  # Replace NaN with zero
 
 
@@ -376,14 +379,14 @@ CPquant <- function(...){
             # Apply the perform_deconvolution function to each nested data frame
             deconvolution <- combined_sample |>
                 #perform_deconvolution on only Relative_distribution in the nested data frame
-                dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(select(.x, Relative_distribution), combined_standard))) |>
+                dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_distribution), combined_standard))) |>
                 dplyr::mutate(total_sum = purrr::map_dbl(result, ~sum(.x$deconv_resolved))) |>
                 dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, `Batch Name` = names(.x$deconv_coef))))) |>
                 dplyr::mutate(rsquared = purrr::map(result, purrr::pluck("r_squared"))) |>
                 dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
                 #calculate the Concentration by multiplying the total_sum with Relative_distribution inside data nested object
-                dplyr::mutate(data = purrr::map2(data, total_sum, ~mutate(.x, Concentration = .y *Relative_distribution))) |>
-                select(-result)
+                dplyr::mutate(data = purrr::map2(data, total_sum, ~dplyr::mutate(.x, Concentration = .y *Relative_distribution))) |>
+                dplyr::select(-result)
 
 
 
@@ -543,7 +546,7 @@ CPquant <- function(...){
             #     mutate(Molecule = CPs_samples_input$Molecule)|>
             #     relocate(Molecule, .before = everything())
 
-#browser()
+
 
             progress$set(value = 1, detail = "Complete")
 
@@ -596,7 +599,7 @@ CPquant <- function(...){
 
                 # Calculate QC ratio
                 qc_ratio <- RECOVERY |>
-                    #dplyr::filter(`Sample Type` == "Quality Control") |>
+                    dplyr::filter(`Sample Type` == "Quality Control") |>
                     dplyr::mutate(RatioStd = IS / RS) |>
                     dplyr::summarize(AverageRatio = mean(RatioStd, na.rm = TRUE))
 
@@ -641,33 +644,25 @@ CPquant <- function(...){
                 })
             }
 
-            # LOD calculations (need to take into account if blank subtraction affect or not)
-            #blank_data <- Final_results |>
-            # blank_data <- Samples_Concentration |>
-            #     tidyr::pivot_longer(
-            #         cols = -Molecule,
-            #         names_to = "Replicate.Name",
-            #         values_to = "Concentration"
-            #     ) |>
-            #     dplyr::left_join(
-            #         Skyline_output_filt |>
-            #             dplyr::select(`Replicate Name`, `Sample Type`) |>
-            #             dplyr::distinct(),
-            #         by = c("Replicate.Name" = "Replicate Name")
-            #     ) |>
-            #     dplyr::filter(`Sample Type` == "Blank")
-            #
-            # LOD_calc <- blank_data |>
-            #     dplyr::summarize(
-            #         LOD = 3 * sd(Concentration, na.rm = TRUE),
-            #         n_blanks = sum(!is.na(Concentration))
-            #     )
+
+            if(input$calculateMDL == "Yes") {
+            #MDL calculations (need to take into account if blank subtraction affect or not)
+            MDL_data <- Samples_Concentration |>
+                dplyr::filter(`Sample Type` == "Blank") |>
+                dplyr::rowwise() %>%
+                dplyr::mutate(sum_PCA = sum(dplyr::c_across(-c(`Replicate Name`, `Sample Type`)), na.rm = TRUE)) %>%
+                dplyr::ungroup() |>
+                dplyr::summarize(
+                    MDL_sumPCA = 3 * sd(sum_PCA, na.rm = TRUE),
+                    number_of_blanks = n()
+                )
+            }
 
 
 
-            # Render LOD table
-            output$table_LOD <- DT::renderDT({
-                DT::datatable(LOD_calc,
+            # Render MDL table
+            output$table_MDL <- DT::renderDT({
+                DT::datatable(MDL_data,
                               options = list(
                                   pageLength = 10,
                                   dom = 't'
@@ -675,6 +670,7 @@ CPquant <- function(...){
                               rownames = FALSE)
             })
 
+browser()
 
         })
 
