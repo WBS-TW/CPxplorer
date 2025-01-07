@@ -740,7 +740,7 @@ perform_deconvolution <- function(df, combined_standard) {
     ssr <- sum((df_vector - deconv_resolved/sum(deconv_resolved))^2)
 
     # Calculate R-squared goodnes of fit
-    r_squared <- 1 - (ssr / sst)
+    deconv_rsquared <- 1 - (ssr / sst)
     # Calculate Mean Squared Error (MSE)
     mse <- mean((df_vector - deconv_resolved/sum(deconv_resolved))^2)
 
@@ -766,7 +766,7 @@ perform_deconvolution <- function(df, combined_standard) {
     return(list(
         deconv_coef = deconv_coef,
         deconv_resolved = deconv_resolved,
-        r_squared = r_squared
+        deconv_rsquared = deconv_rsquared
         #chisq_result = chisq_result
     ))
 }

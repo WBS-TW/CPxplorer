@@ -66,3 +66,71 @@ defineVariablesUI <- function(Skyline_output){
 }
 
 ### END: Define input variables
+
+
+defineSamplesUI <- function(Samples_Concentration){
+    ###START: Define UI components
+
+    # Create the UI components
+    shiny::fluidRow(
+        shiny::h4("Define variables"),
+        shiny::tags$br(),
+        shiny::column(
+            6,
+            shiny::varSelectInput(
+                inputId = "standardAnnoColumn", #select which variable to use to define standards
+                label = "Variable for annotating standards",
+                data = Skyline_output,
+                selected = "Batch Name"
+            )
+        ),
+        # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        #shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        #shiny::column(
+        #       6,
+        #      shiny::selectInput(
+        #             inputId = "blanks", #select which variable to use to define standards
+        #            label = "Define which samples are blanks",
+        #           choices = unique(Skyline_output()$`Replicate Name`),
+        #          multiple = TRUE
+        # )
+        #),
+        shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        shiny::column(
+            6,
+            shiny::selectInput(
+                inputId = "removeSamples", #select if some samples will be removed from quantification
+                label = 'Remove samples from quantification?',
+                choices = unique(Skyline_output$`Replicate Name`),
+                selected = NULL,
+                multiple = TRUE
+            )
+        ),
+        # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        # shiny::column(
+        # 6,
+        #shiny::sliderInput(
+        #       inputId = "removeAreas", #remove low peak areas
+        #      label = "Keep absolute peak areas above this threshold (0 means keep everything)",
+        #     min = min(Skyline_output()$Area),
+        #    max = max(Skyline_output()$Area),
+        #   value = 0,
+        #  step = 10
+        # )
+        #),
+        shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
+        shiny::column(
+            6,
+            shiny::sliderInput(
+                inputId = "removeRsquared", #keep only Molecule above this rsquared, zero means keep everything
+                label = 'Keep the the calibration curves that show rsquared above this threshold (0 means keep everything)',
+                min = 0,
+                max = 1,
+                value = 0.80,
+                step = 0.05
+            )
+        )
+    )
+}
+
+### END: Define input variables
