@@ -686,8 +686,8 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
 
 ### Function to perform deconvolution on a single data frame ###
 perform_deconvolution <- function(df, combined_standard) {
-    df_matrix <- as.matrix(df)
 
+    df_matrix <- as.matrix(df)
 
     print(paste("df_matrix dimensions:", dim(df_matrix)))
     print(paste("combined_standard dimensions:", dim(combined_standard)))
@@ -698,9 +698,9 @@ perform_deconvolution <- function(df, combined_standard) {
 
     # Reshape df_matrix if it has only one column or extract the first column if it has multiple
     if (ncol(df_matrix) == 1) {
-        df_vector <- as.vector(df_matrix)
+    df_vector <- as.vector(df_matrix)
     } else {
-        df_vector <- as.vector(df_matrix["Relative_distribution"])  # Extract the first column for nnls
+        df_vector <- as.vector(df_matrix["Relative_Area"])  # Extract the first column for nnls
     }
 
     # Check for NA/NaN/Inf values in df_vector and combined_standard
@@ -733,7 +733,7 @@ perform_deconvolution <- function(df, combined_standard) {
 
 
 
-    # Calculate the Goodnes of fit
+    # Calculate the Goodnes of Fit
     # Calculate the total sum of squares (SST)
     sst <- sum((df_vector - mean(df_vector))^2)
     # Calculate the residual sum of squares (SSR)
@@ -747,17 +747,24 @@ perform_deconvolution <- function(df, combined_standard) {
     # Calculate Root Mean Squared Error (RMSE)
     rmse <- sqrt(mse)
 
-    # Chiq-square test: ensure that values are positive for chi-square test
+    #Chiq-square test: ensure that values are positive for chi-square test
     # if (any(deconv_resolved < 0) || any(df_vector < 0)) {
     #     warning("Non-positive values found, skipping chi-square test")
     #     chisq_result <- NULL
     # } else {
     #     #adding a small constant to avoid 0 values
-    #     observed_corr <- df_vector + 1E-9
-    #     predicted_corr <- deconv_resolved + 1E-9
+    #     observed_corr <- df_vector + 1E-12
+    #     predicted_corr <- deconv_resolved + 1E-12
     #     chisq_result <- chisq.test(x= observed_corr, p = predicted_corr/sum(predicted_corr), rescale.p = TRUE)
     # }
 
+
+    # Kolmogorov-Smirnov Test
+    #ks_result <- ks.test(deconv_resolved, df_vector)
+
+
+
+    #combine results for output
     combined_standard_names <- colnames(combined_standard)
 
     names(deconv_coef) <- combined_standard_names
@@ -770,4 +777,200 @@ perform_deconvolution <- function(df, combined_standard) {
         #chisq_result = chisq_result
     ))
 }
+
+################################################################################
+### Perform deconvolution separately for all standards mixtures together ###
+
+get_concentration_mixtures_all <- function(CPs_standards) {
+
+    #Extract all characters before the first "-" character so user can have their own naming of standards
+    unique_chars <- unique(str_extract(CPs_standards$`Batch Name`, "^[^-]+"))
+
+    # Create a list to store the tibbles
+    CPs_standards_list <- list()
+
+    # Create tibbles for each unique character and store in the list
+    for (char in unique_chars) {
+        if (char == "SCCP") {
+            CPs_standards_name <- paste0("CPs_standards_", char)
+            CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
+                filter(str_detect(!!dplyr::sym(standardAnnoColumn()), paste0("^", char, "-"))) |>
+                mutate(Response_factor = if_else(C_number < 14, Response_factor, 0))
+
+        } else if (char == "MCCP") {
+            CPs_standards_name <- paste0("CPs_standards_", char)
+            CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
+                filter(str_detect(!!dplyr::sym(standardAnnoColumn()), paste0("^", char, "-"))) |>
+                mutate(Response_factor = if_else(C_number >= 14 & C_number <= 17, Response_factor, 0))
+        } else if (char == "LCCP") {
+            CPs_standards_name <- paste0("CPs_standards_", char)
+            CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
+                filter(str_detect(!!dplyr::sym(standardAnnoColumn()), paste0("^", char, "-"))) |>
+                mutate(Response_factor = if_else(C_number >= 18, Response_factor, 0))
+        }
+    }
+
+
+    # Filter out empty data frames before binding
+    #CPs_standards <- dplyr::bind_rows(Filter(function(x) nrow(x) > 0, CPs_standards_list))
+
+    CPs_standards_SCCP <- CPs_standards_list[["CPs_standards_SCCP"]]
+    CPs_standards_MCCP <- CPs_standards_list[["CPs_standards_MCCP"]]
+    CPs_standards_LCCP <- CPs_standards_list[["CPs_standards_LCCP"]]
+
+    ##### ADD from standards calibration (plots.R)
+    output$CalibrationSCCPs <- plotly::renderPlotly({
+        plot_cal_SCCPs(CPs_standards_SCCP, standardAnnoColumn())
+    })
+
+    output$CalibrationMCCPs <- plotly::renderPlotly({
+        plot_cal_MCCPs(CPs_standards_MCCP, standardAnnoColumn())
+    })
+
+    output$CalibrationLCCPs <- plotly::renderPlotly({
+        plot_cal_LCCPs(CPs_standards_LCCP, standardAnnoColumn())
+    })
+
+
+
+
+
+    ############################################################################### DECONVOLUTION #############################################################################
+
+    progress$set(value = 0.8, detail = "Performing deconvolution")
+
+    # Deconvolution for Mixtures
+
+    CPs_standards_input <- CPs_standards |>
+        dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |>
+        tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor")
+
+    # Ensure combined_standard is correctly defined as a matrix prior to deconvolution
+
+    # First populate combined_standard with CPs_standards_input
+    combined_standard <- CPs_standards_input  |>
+        tibble::column_to_rownames(var = "Molecule") |>
+        as.matrix()
+
+
+
+
+
+    # This performs deconvolution on all mixtures together. NEED TO CHECK IF perform_deconvolution ON SEPARATE SCCP, MCCP, LCCP is more correct!
+    deconvolution <- combined_sample |>
+        #perform_deconvolution on only Relative_Area in the nested data frame
+        dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard))) |>
+        dplyr::mutate(total_sum = purrr::map_dbl(result, ~sum(.x$deconv_resolved))) |>
+        dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, `Batch Name` = names(.x$deconv_coef))))) |>
+        dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
+        dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
+        #calculate the Concentration by multiplying the total_sum with Relative_Area inside data nested object
+        dplyr::mutate(data = purrr::map2(data, total_sum, ~dplyr::mutate(.x, Concentration = .y *Relative_Area))) |>
+        dplyr::select(-result)
+
+
+}
+
+
+################################################################################
+### Perform deconvolution separately for SCCPs, MCCPs and LCCPs standards ###
+## NOT IMPLEMENTED YET ##
+
+get_concentration_mixtures_separate <- function(x) {
+
+
+    #This performs deconvolution on separate mixtures SCCP, MCCP and LCCP
+
+    combined_standard_SCCP <- CPs_standards |>
+        filter(str_detect(!!dplyr::sym(standardAnnoColumn()), "SCCP")) |>
+        filter(C_number <=13) |>
+        dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |>
+        tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor") |>
+        tibble::column_to_rownames(var = "Molecule") |>
+        as.matrix()
+
+    combined_standard_MCCP <- CPs_standards |>
+        filter(str_detect(!!dplyr::sym(standardAnnoColumn()), "MCCP")) |>
+        filter(C_number >13 & C_number <18) |>
+        dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |>
+        tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor") |>
+        tibble::column_to_rownames(var = "Molecule") |>
+        as.matrix()
+
+    combined_standard_LCCP <- CPs_standards |>
+        filter(str_detect(!!dplyr::sym(standardAnnoColumn()), "LCCP")) |>
+        filter(C_number >= 18) |>
+        dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |>
+        tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor") |>
+        tibble::column_to_rownames(var = "Molecule") |>
+        as.matrix()
+
+
+
+
+    deconvolution_SCCP <- combined_sample |>
+        mutate(data = map(data, ~ filter(.x, C_number <=13))) |>
+        #perform_deconvolution on only Relative_Area in the nested data frame
+        dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard_SCCP))) |>
+        dplyr::mutate(total_sum = purrr::map_dbl(result, ~sum(.x$deconv_resolved))) |>
+        dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, `Batch Name` = names(.x$deconv_coef))))) |>
+        dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
+        dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
+        #calculate the Concentration by multiplying the total_sum with Relative_Area inside data nested object
+        dplyr::mutate(data = purrr::map2(data, total_sum, ~dplyr::mutate(.x, Concentration = .y *Relative_Area))) |>
+        dplyr::select(-result)
+
+    deconvolution_MCCP <- combined_sample |>
+        mutate(data = map(data, ~ filter(.x, C_number >13 & C_number <18))) |>
+        #perform_deconvolution on only Relative_Area in the nested data frame
+        dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard_MCCP))) |>
+        dplyr::mutate(total_sum = purrr::map_dbl(result, ~sum(.x$deconv_resolved))) |>
+        dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, `Batch Name` = names(.x$deconv_coef))))) |>
+        dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
+        dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
+        #calculate the Concentration by multiplying the total_sum with Relative_Area inside data nested object
+        dplyr::mutate(data = purrr::map2(data, total_sum, ~dplyr::mutate(.x, Concentration = .y *Relative_Area))) |>
+        dplyr::select(-result)
+
+    deconvolution_LCCP <- combined_sample |>
+        mutate(data = map(data, ~ filter(.x, C_number >= 18))) |>
+        #perform_deconvolution on only Relative_Area in the nested data frame
+        dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard_LCCP))) |>
+        dplyr::mutate(total_sum = purrr::map_dbl(result, ~sum(.x$deconv_resolved))) |>
+        dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, `Batch Name` = names(.x$deconv_coef))))) |>
+        dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
+        dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
+        #calculate the Concentration by multiplying the total_sum with Relative_Area inside data nested object
+        dplyr::mutate(data = purrr::map2(data, total_sum, ~dplyr::mutate(.x, Concentration = .y *Relative_Area))) |>
+        dplyr::select(-result)
+
+
+    Samples_Concentration_SCCP <- deconvolution_SCCP |>
+        dplyr::select(`Replicate Name`, `Sample Type`, data) |>
+        dplyr::mutate(data = purrr::map(data, ~ select(.x, Molecule, Concentration))) |>
+        tidyr::unnest(data) |>
+        group_by(`Replicate Name`) |>
+        ungroup()
+
+    Samples_Concentration_MCCP <- deconvolution_MCCP |>
+        dplyr::select(`Replicate Name`, `Sample Type`, data) |>
+        dplyr::mutate(data = purrr::map(data, ~ select(.x, Molecule, Concentration))) |>
+        tidyr::unnest(data) |>
+        group_by(`Replicate Name`) |>
+        ungroup()
+
+    Samples_Concentration_LCCP <- deconvolution_LCCP |>
+        dplyr::select(`Replicate Name`, `Sample Type`, data) |>
+        dplyr::mutate(data = purrr::map(data, ~ select(.x, Molecule, Concentration))) |>
+        tidyr::unnest(data) |>
+        group_by(`Replicate Name`) |>
+        ungroup()
+
+    Samples_Concentration_CPs <- Samples_Concentration_SCCP |>
+        full_join(Samples_Concentration_MCCP) |>
+        full_join(Samples_Concentration_LCCP)
+
+}
+
+
 

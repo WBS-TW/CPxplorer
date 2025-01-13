@@ -1,9 +1,9 @@
 
 
-plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
+plot_cal_SCCPs <- function(CPs_standards_SCCP, standardAnnoColumn) {
     # Prepare the data
 
-    df <- CPs_standards_S |>
+    df <- CPs_standards_SCCP |>
         dplyr::filter(Response_factor > 0) |>
         #dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
         dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
@@ -74,10 +74,10 @@ plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
 
 
 
-plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
+plot_cal_MCCPs <- function(CPs_standards_MCCP, standardAnnoColumn) {
     # Prepare the data
 
-    df <- CPs_standards_M |>
+    df <- CPs_standards_MCCP |>
         dplyr::filter(Response_factor > 0) |>
         #dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
         dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
@@ -149,10 +149,10 @@ plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
 
 
 
-plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
+plot_cal_LCCPs <- function(CPs_standards_LCCP, standardAnnoColumn) {
     # Prepare the data
 
-    df <- CPs_standards_L |>
+    df <- CPs_standards_LCCP |>
         dplyr::filter(Response_factor > 0) |>
         # dplyr::filter(`Molecule List` %in% c("PCA-C18", "PCA-C19", "PCA-C20", "PCA-C21", "PCA-C22", "PCA-C23",
         #                                      "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
