@@ -42,7 +42,7 @@ CPquant <- function(...){
                                                                         label = "Calculate MDL? (req blank samples)",
                                                                         choices = c("Yes", "No"), selected = "No"),
                                                     shiny::radioButtons("standardTypes", label = "Types of standards",
-                                                                        choices = c("Mixtures"), selected = "Mixtures"), #will add single chain std later
+                                                                        choices = c("Group Mixtures"), selected = "Group Mixtures"), #will add single chain std later
                                                     shiny::tags$div(
                                                         title = "Wait until import file is fully loaded before pressing!",
                                                         shiny::actionButton('go', 'Proceed', width = "100%")
@@ -96,7 +96,7 @@ CPquant <- function(...){
                                                         choices = c("Single Sample Comparison", "All Samples Overview"),
                                                         selected = "All Samples Overview"),
                                     shiny::tags$div(
-                                        title = "Might take some time before plot shows!",
+                                        title = "WAIT after pressing..Might take some time before plot shows!",
                                         shiny::actionButton('go2', 'Plot', width = "100%")
                                     )),
                                 shiny::mainPanel(
@@ -144,7 +144,15 @@ CPquant <- function(...){
 
             progress$set(value = 0.6, detail = "Processing data")
             df <- df |>
-                dplyr::mutate(`Analyte Concentration` = as.numeric(`Analyte Concentration`)) |>
+                dplyr::rename(Replicate_Name = `Replicate Name`) |>
+                dplyr::rename(Sample_Type = `Sample Type`) |>
+                dplyr::rename(Molecule_List = `Molecule List`) |>
+                dplyr::rename(Mass_Error_PPM = `Mass Error PPM`) |>
+                dplyr::rename(Isotope_Label_Type = `Isotope Label Type`) |>
+                dplyr::rename(Chromatogram_Precursor_MZ = `Chromatogram Precursor M/Z`) |>
+                dplyr::rename(Analyte_Concentration = `Analyte Concentration`) |>
+                dplyr::rename(Batch_Name = `Batch Name`) |>
+                dplyr::mutate(Analyte_Concentration = as.numeric(Analyte_Concentration)) |>
                 dplyr::mutate(Area = as.numeric(Area)) |>
                 dplyr::mutate(Area = replace_na(Area, 0)) |>
                 dplyr::mutate(C_part = stringr::str_extract(Molecule, "C\\d+"),
@@ -156,27 +164,36 @@ CPquant <- function(...){
             progress$set(value = 0.8, detail = "Applying corrections")
 
             #  Normalize data based on 'Correct with RS' input
-            if (input$correctWithRS == "Yes" & any(df$`Molecule List` == "RS")){
+            if (input$correctWithRS == "Yes" & any(df$Molecule_List == "RS")){
                 df <- df |>
-                    dplyr::group_by(`Replicate Name`) |>
-                    dplyr::mutate(Area = Area / first(Area[`Molecule List`== "RS" & `Isotope Label Type` == "Quan"])) |>
+                    dplyr::group_by(Replicate_Name) |>
+                    dplyr::mutate(Area = Area / first(Area[Molecule_List== "RS" & Isotope_Label_Type == "Quan"])) |>
                     dplyr::ungroup()
             }
 
             # Calculate the average blank value
             if (input$blankSubtraction == "Yes, by avg area of blanks"){
                 df_blank <- df |>
-                    dplyr::filter(`Sample Type` == "Blank") |>
-                    dplyr::group_by(Molecule, `Molecule List`, `Isotope Label Type`) |>
+                    dplyr::filter(Sample_Type == "Blank") |>
+                    dplyr::group_by(Molecule, Molecule_List, Isotope_Label_Type) |>
                     dplyr::summarize(AverageBlank = mean(Area, na.rm = TRUE)) |>
                     dplyr::ungroup() |>
-                    dplyr::filter(!`Molecule List` %in% c("IS", "RS", "VS"))
+                    dplyr::filter(!Molecule_List %in% c("IS", "RS", "VS"))
 
                 df <- df |>
                     dplyr::full_join(df_blank) |>
                     dplyr::mutate(AverageBlank = tidyr::replace_na(AverageBlank, 0)) |>
-                    dplyr::mutate(Area = dplyr::case_when(`Sample Type` == "Unknown" ~ Area - AverageBlank, .default = Area)) |> #only blank subtraction of Unknown Sample Type
+                    dplyr::mutate(Area = dplyr::case_when(Sample_Type == "Unknown" ~ Area - AverageBlank, .default = Area)) |> #only blank subtraction of Unknown Sample Type
                     dplyr::mutate(Area = ifelse(Area <0, 0, Area)) #replace negative Area with 0 after blank subtraction
+            }
+
+            if (input$standardTypes == "Group Mixtures") {
+                df <- df |>
+                    dplyr::mutate(Quantification_Group = case_when(
+                        C_number >= 10 & C_number <= 13 ~ "SCCP",
+                        C_number >= 14 & C_number <= 17 ~ "MCCP",
+                        C_number >= 18 ~ "LCCP"
+                    ))
             }
 
             progress$set(value = 1, detail = "Complete")
@@ -193,7 +210,7 @@ CPquant <- function(...){
         # Set reactive values from user input
 
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
-        standardAnnoColumn <- shiny::eventReactive(input$go, {as.character(input$standardAnnoColumn)})
+        #standardAnnoColumn <- shiny::eventReactive(input$go, {as.character(input$standardAnnoColumn)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
         Samples_Concentration_rv <- reactiveVal() # Create a reactive value to store Samples_Concentration after deconvolution
 
@@ -214,17 +231,17 @@ CPquant <- function(...){
 
         output$plot_Skyline_output <- plotly::renderPlotly({
             Skyline_output() |>
-                dplyr::filter(`Isotope Label Type` == "Quan") |>
+                dplyr::filter(Isotope_Label_Type == "Quan") |>
                 dplyr::mutate(OrderedMolecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))) |>  # Create a composite ordering factor
 
                 plotly::plot_ly(
                     x = ~ OrderedMolecule,
                     y = ~ Area,
-                    color = ~ `Sample Type`,
+                    color = ~ Sample_Type,
                     type = "box",
                     text = ~paste(
                         "Homologue: ", PCA,
-                        "<br>Sample: ", `Replicate Name`,
+                        "<br>Sample: ", Replicate_Name,
                         "<br>Area:", round(Area, 2)
                     ),
                     hoverinfo = "text"
@@ -246,41 +263,44 @@ CPquant <- function(...){
 
             if(!is.null(removeSamples()) && length(removeSamples()) > 0){
                 Skyline_output_filt <- Skyline_output() |>
-                    dplyr::filter(!`Replicate Name` %in% removeSamples())
+                    dplyr::filter(!Replicate_Name %in% removeSamples())
             } else{
                 Skyline_output_filt <- Skyline_output()
             }
 
 
             # define the chosen standardAnnoColumn as a character for later calculations
-            standardAnnoColumn_name <- standardAnnoColumn()
+            #standardAnnoColumn_name <- standardAnnoColumn()
 
 
             ##### PREPARE FOR DECONVOLUTION #######
             # Prepare for deconvolution for standards
             progress$set(value = 0.2, detail = "Preparing standards data")
 
-            CPs_standards <- Skyline_output_filt |>
-                dplyr::filter(`Sample Type` == "Standard",
-                              !`Molecule List` %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
-                              `Isotope Label Type` == "Quan", # use only Quant ions
-                              !!dplyr::sym(standardAnnoColumn()) != "NA") |>
-                dplyr::group_by(!!dplyr::sym(standardAnnoColumn()), `Sample Type`, Molecule, `Molecule List`, C_number, Cl_number, PCA) |> #`Batch Name` is default. !!sym(standardAnnoColumn) unquotes the string variable and converts it to a symbol that dplyr can understand within the group_by() function
+            # This is for SCCP, MCCP, LCCP mixtures
+            if(input$standardTypes == "Group Mixtures"){
+
+                CPs_standards <- Skyline_output_filt |>
+                dplyr::filter(Sample_Type == "Standard",
+                              !Molecule_List %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
+                              Isotope_Label_Type == "Quan", # use only Quant ions
+                              Batch_Name != "NA") |>
+                dplyr::group_by(Batch_Name, Sample_Type, Molecule, Molecule_List, C_number, Cl_number, PCA, Quantification_Group) |> #Batch_Name is default. !!sym(standardAnnoColumn) unquotes the string variable and converts it to a symbol that dplyr can understand within the group_by() function
                 tidyr::nest() |>
-                dplyr::mutate(models = purrr::map(data, ~lm(Area ~ `Analyte Concentration`, data = .x))) |>
+                dplyr::mutate(models = purrr::map(data, ~lm(Area ~ Analyte_Concentration, data = .x))) |>
                 dplyr::mutate(coef = purrr::map(models, coef)) |>
-                dplyr::mutate(Response_factor = purrr::map_dbl(models, ~ coef(.x)["`Analyte Concentration`"]))|> #get the slope which will be the RF
+                dplyr::mutate(RF = purrr::map_dbl(models, ~ coef(.x)["Analyte_Concentration"]))|> #get the slope which will be the RF
                 dplyr::mutate(intercept = purrr::map(coef, purrr::pluck("(Intercept)"))) |>
                 dplyr::mutate(rsquared = purrr::map(models, summary)) |> #first create a data frame list with the model
                 dplyr::mutate(rsquared = purrr::map(rsquared, purrr::pluck("r.squared"))) |> # then pluck only the r.squared value
                 dplyr::select(-coef) |>  # remove coef variable since it has already been plucked
-                tidyr::unnest(c(Response_factor, intercept, rsquared)) |>  #removing the list type for these variables
-                dplyr::mutate(Response_factor = if_else(Response_factor < 0, 0, Response_factor)) |> # replace negative RF with 0
+                tidyr::unnest(c(RF, intercept, rsquared)) |>  #removing the list type for these variables
+                dplyr::mutate(RF = if_else(RF < 0, 0, RF)) |> # replace negative RF with 0
                 dplyr::mutate(rsquared = ifelse(is.nan(rsquared), 0, rsquared)) |>
-                dplyr::mutate(Response_factor = if_else(rsquared < removeRsquared(), 0, Response_factor)) |> #keep RF only if rsquared is above removeRsquared input
+                dplyr::mutate(RF = if_else(rsquared < removeRsquared(), 0, RF)) |> #keep RF only if rsquared is above removeRsquared input
                 dplyr::ungroup() |>
-                dplyr::group_by(!!dplyr::sym(standardAnnoColumn()), C_number) |> #grouping by the selected input$standardAnnoColumn and chain length
-                dplyr::mutate(Sum_response_factor_chainlength = sum(Response_factor, na.rm = TRUE)) |>
+                dplyr::group_by(Batch_Name) |> #grouping by the standards
+                dplyr::mutate(Sum_RF_group = sum(RF, na.rm = TRUE)) |>
                 dplyr::ungroup()
 
 
@@ -289,56 +309,38 @@ CPquant <- function(...){
             # Prepare for deconvolution of samples
             progress$set(value = 0.6, detail = "Preparing sample data")
 
-            CPs_samples <- Skyline_output_filt |>
+                unique_chars <- unique(CPs_standards$Quantification_Group)
+
+                CPs_samples <- Skyline_output_filt |>
                 dplyr::filter(
-                    #`Sample Type` == "Unknown",
-                    `Sample Type` %in% c("Unknown", "Blank"), #include both unknown and blank
-                    !`Molecule List` %in% c("IS", "RS", "VS"), # remove IS, RS, VS
-                    `Isotope Label Type` == "Quan") |>
-                dplyr::group_by(`Replicate Name`) |>  # Group by Replicate Nam
-                dplyr::mutate(Relative_Area = Area / sum(Area, na.rm = TRUE)) |>
+                    #Sample_Type == "Unknown",
+                    Sample_Type %in% c("Unknown", "Blank"), #include both unknown and blank
+                    !Molecule_List %in% c("IS", "RS", "VS"), # remove IS, RS, VS
+                    Isotope_Label_Type == "Quan") |>
+                # Quantification_Group
+                dplyr::group_by(Replicate_Name) |>  # Group by Replicate Name
+                dplyr::mutate(Relative_Area = Area / sum(Area, na.rm = TRUE)) |> #Relative area
                 dplyr::ungroup() |>
-                #dplyr::select(`Replicate Name`, `Sample Type`, Molecule, Area, Relative_Area) |>
-                dplyr::select(-`Mass Error PPM`, -`Isotope Label Type`, -`Chromatogram Precursor M/Z`, -`Analyte Concentration`, -!!dplyr::sym(standardAnnoColumn())) |>
+                dplyr::select(-Mass_Error_PPM, -Isotope_Label_Type, -Chromatogram_Precursor_MZ, -Analyte_Concentration, -Batch_Name) |>
                 dplyr::mutate(dplyr::across(Relative_Area, ~replace(., is.nan(.), 0)))  # Replace NaN with zero
 
 
             CPs_samples_input <- CPs_samples |>
-                dplyr::select(Molecule, `Replicate Name`, Relative_Area) |>
-                tidyr::pivot_wider(names_from = "Replicate Name", values_from = "Relative_Area")
+                dplyr::select(Molecule, Replicate_Name, Relative_Area) |>
+                tidyr::pivot_wider(names_from = "Replicate_Name", values_from = "Relative_Area")
 
-
-            # This step ensures that all values are corresponding to the same molecule for std and sample
-            problems_inputs <- tryCatch({
-                CPs_samples_input |> right_join(CPs_standards_input, by = "Molecule")
-            }, warning = function(w) {
-                message("A warning occurred: ", conditionMessage(w))
-                NULL
-            }, error = function(e) {
-                message("An error occurred: ", conditionMessage(e))
-                NULL
-            })
-            # Check if result is NULL to handle the case where an error or warning occurred
-            if (is.null(problems_inputs)) {
-                message("The operation did not complete successfully.")
-            } else {
-                message("No problems! Standard and samples corresponds to each other.")
-            }
 
 
             # Ensure combined_sample is correctly defined with nested data frames prior to deconvolution
             combined_sample <- CPs_samples  |>
-                dplyr::group_by(`Replicate Name`, `Sample Type`) |>
+                dplyr::group_by(Replicate_Name, Sample_Type) |>
                 tidyr::nest() |>
                 dplyr::ungroup()
 
 
             ###### This is for mixtures, single chain stds will be added later
-            if(input$standardTypes == "Mixtures"){
 
-                #Extract all characters before the first "-" character so user can have their own naming of standards
 
-                unique_chars <- unique(str_extract(CPs_standards[[standardAnnoColumn_name]], "^[^-]+"))
 
                 # Create a list to store the tibbles
                 CPs_standards_list <- list()
@@ -348,19 +350,19 @@ CPquant <- function(...){
                     if (char == "SCCP") {
                         CPs_standards_name <- paste0("CPs_standards_", char)
                         CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            filter(str_detect(!!dplyr::sym(standardAnnoColumn()), paste0("^", char, "-"))) |>
-                            mutate(Response_factor = if_else(C_number < 14, Response_factor, 0))
+                            filter(str_detect(Batch_Name, paste0("^", char, "-"))) |>
+                            mutate(RF = if_else(C_number < 14, RF, 0))
 
                     } else if (char == "MCCP") {
                         CPs_standards_name <- paste0("CPs_standards_", char)
                         CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            filter(str_detect(!!dplyr::sym(standardAnnoColumn()), paste0("^", char, "-"))) |>
-                            mutate(Response_factor = if_else(C_number >= 14 & C_number <= 17, Response_factor, 0))
+                            filter(str_detect(Batch_Name, paste0("^", char, "-"))) |>
+                            mutate(RF = if_else(C_number >= 14 & C_number <= 17, RF, 0))
                     } else if (char == "LCCP") {
                         CPs_standards_name <- paste0("CPs_standards_", char)
                         CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            filter(str_detect(!!dplyr::sym(standardAnnoColumn()), paste0("^", char, "-"))) |>
-                            mutate(Response_factor = if_else(C_number >= 18, Response_factor, 0))
+                            filter(str_detect(Batch_Name, paste0("^", char, "-"))) |>
+                            mutate(RF = if_else(C_number >= 18, RF, 0))
                     }
                 }
 
@@ -374,30 +376,36 @@ CPquant <- function(...){
 
                 ##### ADD from standards calibration (plots.R)
                 output$CalibrationSCCPs <- plotly::renderPlotly({
-                    plot_cal_SCCPs(CPs_standards_SCCP, standardAnnoColumn())
+                    plot_cal_SCCPs(CPs_standards_SCCP, Batch_Name)
                 })
 
                 output$CalibrationMCCPs <- plotly::renderPlotly({
-                    plot_cal_MCCPs(CPs_standards_MCCP, standardAnnoColumn())
+                    plot_cal_MCCPs(CPs_standards_MCCP, Batch_Name)
                 })
 
                 output$CalibrationLCCPs <- plotly::renderPlotly({
-                    plot_cal_LCCPs(CPs_standards_LCCP, standardAnnoColumn())
+                    plot_cal_LCCPs(CPs_standards_LCCP, Batch_Name)
                 })
 
 
-
-
-
-                ############################################################################### DECONVOLUTION #############################################################################
+                #### DECONVOLUTION ####
 
                 progress$set(value = 0.8, detail = "Performing deconvolution")
 
-                # Deconvolution for Mixtures
 
                 CPs_standards_input <- CPs_standards |>
-                    dplyr::select(Molecule, !!dplyr::sym(standardAnnoColumn()), Response_factor) |>
-                    tidyr::pivot_wider(names_from = !!dplyr::sym(standardAnnoColumn()), values_from = "Response_factor")
+                    dplyr::select(Molecule, Batch_Name, RF) |>
+                    tidyr::pivot_wider(names_from = Batch_Name, values_from = "RF") |>
+                    dplyr::mutate(across(everything(), ~ tidyr::replace_na(., 0)))
+
+
+                CPs_standards_sum_RF <- CPs_standards |>
+                    dplyr::select(Batch_Name, Sum_RF_group) |>
+                    dplyr::distinct() |>
+                    ungroup() |>
+                    tidyr::pivot_wider(names_from = Batch_Name, values_from = "Sum_RF_group") |>
+                    dplyr::mutate(across(everything(), ~ tidyr::replace_na(., 0)))
+
 
                 # Ensure combined_standard is correctly defined as a matrix prior to deconvolution
 
@@ -408,38 +416,42 @@ CPquant <- function(...){
 
 
 
-
-
                 # This performs deconvolution on all mixtures together. NEED TO CHECK IF perform_deconvolution ON SEPARATE SCCP, MCCP, LCCP is more correct!
+                # deconvolution <- combined_sample |>
+                #     #perform_deconvolution on only Relative_Area in the nested data frame
+                #     dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard))) |>
+                #     dplyr::mutate(total_sum = purrr::map_dbl(result, ~sum(.x$deconv_resolved))) |>
+                #     dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, Batch_Name = names(.x$deconv_coef))))) |>
+                #     dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
+                #     dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
+                #     #calculate the Concentration by multiplying the total_sum with Relative_Area inside data nested object
+                #     dplyr::mutate(data = purrr::map2(data, total_sum, ~dplyr::mutate(.x, Concentration = .y * Relative_Area))) |>
+                #     dplyr::select(-result)
+#browser()
                 deconvolution <- combined_sample |>
                     #perform_deconvolution on only Relative_Area in the nested data frame
-                    dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard))) |>
-                    dplyr::mutate(total_sum = purrr::map_dbl(result, ~sum(.x$deconv_resolved))) |>
-                    dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, `Batch Name` = names(.x$deconv_coef))))) |>
+                    dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard, CPs_standards_sum_RF))) |>
+                    dplyr::mutate(sum_Area = purrr::map_dbl(data, ~sum(.x$Area))) |>
+                    dplyr::mutate(sum_deconv_RF = as.numeric(purrr::map(result, purrr::pluck("sum_deconv_RF")))) |>
+                    dplyr::mutate(Concentration = sum_Area/sum_deconv_RF) |>
+                    dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, Batch_Name = names(.x$deconv_coef))))) |>
                     dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
                     dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
-                    #calculate the Concentration by multiplying the total_sum with Relative_Area inside data nested object
-                    dplyr::mutate(data = purrr::map2(data, total_sum, ~dplyr::mutate(.x, Concentration = .y *Relative_Area))) |>
                     dplyr::select(-result)
+
+
+
+                #### Calculate the concentration ####
+
+
+                progress$set(value = 0.9, detail = "Calculating final results")
+
+                #Samples_Concentration <- deconvolution |>
+
+                # Store Samples_Concentration in the reactive value
+                Samples_Concentration_rv(deconvolution)
+
             }
-
-
-
-            ########################################################## Calculate the concentration ###############################################################
-
-
-            progress$set(value = 0.9, detail = "Calculating final results")
-
-            Samples_Concentration <- deconvolution |>
-                dplyr::select(`Replicate Name`, `Sample Type`, data) |>
-                dplyr::mutate(data = purrr::map(data, ~ select(.x, Molecule, Concentration))) |>
-                tidyr::unnest(data) |>
-                group_by(`Replicate Name`) |>
-                mutate(Relative_Area = Concentration / sum(Concentration)) |>
-                ungroup()
-
-            # Store Samples_Concentration in the reactive value
-            Samples_Concentration_rv(Samples_Concentration)
 
             progress$set(value = 1, detail = "Complete")
 
@@ -448,9 +460,9 @@ CPquant <- function(...){
 
             # Render table
             output$quantTable <- DT::renderDT({
-                Samples_Concentration |>
-                    select(-Relative_Area) |> #remove to make compact df for pivot_wider
-                    tidyr::pivot_wider(names_from = Molecule, values_from = Concentration) |>
+                deconvolution |>
+                    select(Replicate_Name, Sample_Type, Concentration, deconv_rsquared) |> #remove to make compact df for pivot_wider
+                    #tidyr::pivot_wider(names_from = Molecule, values_from = Concentration) |>
                     DT::datatable(
                         filter = "top", extensions = c("Buttons", "Scroller"),
                         options = list(scrollY = 650,
@@ -478,42 +490,42 @@ CPquant <- function(...){
             ###########################################################QA/QC#######################################################
 
             QAQC <- deconvolution |>
-                dplyr::select(`Replicate Name`, `Sample Type`, deconv_rsquared) |>
+                dplyr::select(Replicate_Name, Sample_Type, deconv_rsquared) |>
                 dplyr::mutate(deconv_rsquared = round(deconv_rsquared, 3))
 
             if(input$calculateRecovery == "Yes") {
                 # Recovery calculations
                 recovery_data <- Skyline_output_filt |>
-                    dplyr::filter(`Isotope Label Type` == "Quan",
-                                  `Molecule List` %in% c("IS", "RS"))
+                    dplyr::filter(Isotope_Label_Type == "Quan",
+                                  Molecule_List %in% c("IS", "RS"))
 
 
                 RECOVERY <- recovery_data |>  # Calculate recovery
                     tidyr::pivot_wider(
-                        id_cols = c(`Replicate Name`, `Sample Type`),
-                        names_from = `Molecule List`,
+                        id_cols = c(Replicate_Name, Sample_Type),
+                        names_from = Molecule_List,
                         values_from = Area
                     ) |>
                     dplyr::mutate(across(c(IS, RS), ~replace_na(.x, 0)))
 
                 # Calculate QC ratio
                 qc_ratio <- RECOVERY |>
-                    dplyr::filter(`Sample Type` == "Quality Control") |>
+                    dplyr::filter(Sample_Type == "Quality Control") |>
                     dplyr::mutate(RatioStd = IS / RS) |>
                     dplyr::summarize(AverageRatio = mean(RatioStd, na.rm = TRUE))
 
                 # Calculate sample recovery
                 RECOVERY <- RECOVERY |>
-                    dplyr::filter(`Sample Type` %in% c("Unknown", "Blank")) |>
+                    dplyr::filter(Sample_Type %in% c("Unknown", "Blank")) |>
                     dplyr::mutate(
                         RatioSample = IS / RS,
                         Recovery = RatioSample / as.numeric(qc_ratio$AverageRatio),
                         RecoveryPercentage = round(Recovery * 100, 0)
                     ) |>
-                    dplyr::select(`Replicate Name`, `Sample Type`, RecoveryPercentage)
+                    dplyr::select(Replicate_Name, Sample_Type, RecoveryPercentage)
 
                 QAQC <- QAQC |>
-                    dplyr::left_join(RECOVERY, by = c("Replicate Name", "Sample Type"))
+                    dplyr::left_join(RECOVERY, by = c("Replicate_Name", "Sample_Type"))
             }
 
             # Render recovery table
@@ -552,24 +564,24 @@ CPquant <- function(...){
                 if (input$blankSubtraction == "No"){
 
                     MDL_data <- Samples_Concentration |>
-                        dplyr::filter(`Sample Type` == "Blank") |>
+                        dplyr::filter(Sample_Type == "Blank") |>
                         dplyr::rowwise() %>%
-                        dplyr::mutate(sum_PCA = sum(dplyr::c_across(-c(`Replicate Name`, `Sample Type`, `Molecule`)), na.rm = TRUE)) %>%
+                        dplyr::mutate(sum_PCA = sum(dplyr::c_across(-c(Replicate_Name, Sample_Type, `Molecule`)), na.rm = TRUE)) %>%
                         dplyr::ungroup() |>
                         dplyr::summarize(
                             MDL_sumPCA = mean(sum_PCA) + 3 * sd(sum_PCA, na.rm = TRUE),
-                            number_of_blanks = dplyr::n_distinct(`Replicate Name`)
+                            number_of_blanks = dplyr::n_distinct(Replicate_Name)
                         )
                 }
                 else if (input$blankSubtraction == "Yes, by avg area of blanks"){
                     MDL_data <- Samples_Concentration |>
-                        dplyr::filter(`Sample Type` == "Blank") |>
+                        dplyr::filter(Sample_Type == "Blank") |>
                         dplyr::rowwise() %>%
-                        dplyr::mutate(sum_PCA = sum(dplyr::c_across(-c(`Replicate Name`, `Sample Type`, `Molecule`)), na.rm = TRUE)) %>%
+                        dplyr::mutate(sum_PCA = sum(dplyr::c_across(-c(Replicate_Name, Sample_Type, `Molecule`)), na.rm = TRUE)) %>%
                         dplyr::ungroup() |>
                         dplyr::summarize(
                             MDL_sumPCA = 3 * sd(sum_PCA, na.rm = TRUE),
-                            number_of_blanks = dplyr::n_distinct(`Replicate Name`)
+                            number_of_blanks = dplyr::n_distinct(Replicate_Name)
                         )
 
                 }
@@ -580,12 +592,12 @@ CPquant <- function(...){
             # Render MDL table
             output$table_MDL <- DT::renderDT({
                 if (exists("MDL_data")) {
-                DT::datatable(MDL_data,
-                              options = list(
-                                  pageLength = 10,
-                                  dom = 't'
-                              ),
-                              rownames = FALSE)
+                    DT::datatable(MDL_data,
+                                  options = list(
+                                      pageLength = 10,
+                                      dom = 't'
+                                  ),
+                                  rownames = FALSE)
                 } else {
                     NULL
                 }
@@ -597,7 +609,7 @@ CPquant <- function(...){
 
 
 
-#browser()
+            #browser()
         })
 
 
@@ -614,7 +626,7 @@ CPquant <- function(...){
                     ggplot2::ggplot(Samples_Concentration_rv(),
                                     ggplot2::aes(x = Molecule, y = Relative_Area)) +
                         ggplot2::geom_bar(stat = "identity") +
-                        ggplot2::facet_wrap(~ `Replicate Name`, scales = "free_y") +
+                        ggplot2::facet_wrap(~ Replicate_Name, scales = "free_y") +
                         ggplot2::theme_minimal() +
                         ggplot2::theme(legend.position = "none") +
                         ggplot2::ggtitle("Relative Homologue Group Pattern")

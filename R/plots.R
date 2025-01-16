@@ -1,6 +1,6 @@
 
 
-plot_cal_SCCPs <- function(CPs_standards_SCCP, standardAnnoColumn) {
+plot_cal_SCCPs <- function(CPs_standards_SCCP, Batch_Name) {
     # Prepare the data
 
     df <- CPs_standards_SCCP |>
@@ -8,11 +8,11 @@ plot_cal_SCCPs <- function(CPs_standards_SCCP, standardAnnoColumn) {
         #dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
         dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
         tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+        dplyr::group_by(Batch_Name, `Molecule`) #need to group to get separate add_lines
 
-    # Ensure standardAnnoColumn exists in the data
-    if (!standardAnnoColumn %in% colnames(df)) {
-        stop("standardAnnoColumn not found in data")
+    # Ensure Batch_Name exists in the data
+    if (!Batch_Name %in% colnames(df)) {
+        stop("Batch_Name not found in data")
     }
 
     # Create the plot
@@ -25,12 +25,12 @@ plot_cal_SCCPs <- function(CPs_standards_SCCP, standardAnnoColumn) {
             x = ~`Analyte Concentration`,
             y = ~Area,
             color = ~PCA,
-            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            symbol = as.formula(paste0("~`", Batch_Name, "`")),
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
                 "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
-                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Standard:", get(Batch_Name),
                 "<br>Rsquared:", round(rsquared, 3)
             ),
             hoverinfo = "text",
@@ -74,7 +74,7 @@ plot_cal_SCCPs <- function(CPs_standards_SCCP, standardAnnoColumn) {
 
 
 
-plot_cal_MCCPs <- function(CPs_standards_MCCP, standardAnnoColumn) {
+plot_cal_MCCPs <- function(CPs_standards_MCCP, Batch_Name) {
     # Prepare the data
 
     df <- CPs_standards_MCCP |>
@@ -82,11 +82,11 @@ plot_cal_MCCPs <- function(CPs_standards_MCCP, standardAnnoColumn) {
         #dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
         dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
         tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+        dplyr::group_by(Batch_Name, `Molecule`) #need to group to get separate add_lines
 
-    # Ensure standardAnnoColumn exists in the data
-    if (!standardAnnoColumn %in% colnames(df)) {
-        stop("standardAnnoColumn not found in data")
+    # Ensure Batch_Name exists in the data
+    if (!Batch_Name %in% colnames(df)) {
+        stop("Batch_Name not found in data")
     }
 
     # Create the plot
@@ -99,12 +99,12 @@ plot_cal_MCCPs <- function(CPs_standards_MCCP, standardAnnoColumn) {
             x = ~`Analyte Concentration`,
             y = ~Area,
             color = ~PCA,
-            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            symbol = as.formula(paste0("~`", Batch_Name, "`")),
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
                 "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
-                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Standard:", get(Batch_Name),
                 "<br>Rsquared:", round(rsquared, 3)
             ),
             hoverinfo = "text",
@@ -149,7 +149,7 @@ plot_cal_MCCPs <- function(CPs_standards_MCCP, standardAnnoColumn) {
 
 
 
-plot_cal_LCCPs <- function(CPs_standards_LCCP, standardAnnoColumn) {
+plot_cal_LCCPs <- function(CPs_standards_LCCP, Batch_Name) {
     # Prepare the data
 
     df <- CPs_standards_LCCP |>
@@ -158,11 +158,11 @@ plot_cal_LCCPs <- function(CPs_standards_LCCP, standardAnnoColumn) {
         #                                      "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
         dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
         tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+        dplyr::group_by(Batch_Name, `Molecule`) #need to group to get separate add_lines
 
-    # Ensure standardAnnoColumn exists in the data
-    if (!standardAnnoColumn %in% colnames(df)) {
-        stop("standardAnnoColumn not found in data")
+    # Ensure Batch_Name exists in the data
+    if (!Batch_Name %in% colnames(df)) {
+        stop("Batch_Name not found in data")
     }
 
     # Create the plot
@@ -175,12 +175,12 @@ plot_cal_LCCPs <- function(CPs_standards_LCCP, standardAnnoColumn) {
             x = ~`Analyte Concentration`,
             y = ~Area,
             color = ~PCA,
-            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            symbol = as.formula(paste0("~`", Batch_Name, "`")),
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
                 "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
-                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Standard:", get(Batch_Name),
                 "<br>Rsquared:", round(rsquared, 3)
             ),
             hoverinfo = "text",
