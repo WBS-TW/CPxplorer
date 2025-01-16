@@ -189,7 +189,7 @@ CPquant <- function(...){
 
             if (input$standardTypes == "Group Mixtures") {
                 df <- df |>
-                    dplyr::mutate(Quantification_Group = case_when(
+                    dplyr::mutate(Quantification_Group = dplyr::case_when(
                         C_number >= 10 & C_number <= 13 ~ "SCCP",
                         C_number >= 14 & C_number <= 17 ~ "MCCP",
                         C_number >= 18 ~ "LCCP"
@@ -212,7 +212,7 @@ CPquant <- function(...){
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
         #standardAnnoColumn <- shiny::eventReactive(input$go, {as.character(input$standardAnnoColumn)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
-        Samples_Concentration_rv <- reactiveVal() # Create a reactive value to store Samples_Concentration after deconvolution
+        Samples_Concentration <- reactiveVal() # Create a reactive value to store Samples_Concentration after deconvolution
 
 
         #Render raw table
@@ -350,19 +350,19 @@ CPquant <- function(...){
                     if (char == "SCCP") {
                         CPs_standards_name <- paste0("CPs_standards_", char)
                         CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            filter(str_detect(Batch_Name, paste0("^", char, "-"))) |>
-                            mutate(RF = if_else(C_number < 14, RF, 0))
+                            dplyr::filter(stringr::str_detect(Batch_Name, paste0("^", char, "_"))) |> #keep only the rows where the Batch_Name column starts with the value of char followed by an underscore.
+                            dplyr::mutate(RF = if_else(C_number >= 10 & C_number <= 13, RF, 0))
 
                     } else if (char == "MCCP") {
                         CPs_standards_name <- paste0("CPs_standards_", char)
                         CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            filter(str_detect(Batch_Name, paste0("^", char, "-"))) |>
-                            mutate(RF = if_else(C_number >= 14 & C_number <= 17, RF, 0))
+                            dplyr::filter(stringr::str_detect(Batch_Name, paste0("^", char, "_"))) |>
+                            dplyr::mutate(RF = if_else(C_number >= 14 & C_number <= 17, RF, 0))
                     } else if (char == "LCCP") {
                         CPs_standards_name <- paste0("CPs_standards_", char)
                         CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            filter(str_detect(Batch_Name, paste0("^", char, "-"))) |>
-                            mutate(RF = if_else(C_number >= 18, RF, 0))
+                            dplyr::filter(stringr::str_detect(Batch_Name, paste0("^", char, "_"))) |>
+                            dplyr::mutate(RF = if_else(C_number >= 18, RF, 0))
                     }
                 }
 
@@ -376,15 +376,15 @@ CPquant <- function(...){
 
                 ##### ADD from standards calibration (plots.R)
                 output$CalibrationSCCPs <- plotly::renderPlotly({
-                    plot_cal_SCCPs(CPs_standards_SCCP, Batch_Name)
+                    plot_cal_SCCPs(CPs_standards_SCCP)
                 })
 
                 output$CalibrationMCCPs <- plotly::renderPlotly({
-                    plot_cal_MCCPs(CPs_standards_MCCP, Batch_Name)
+                    plot_cal_MCCPs(CPs_standards_MCCP)
                 })
 
                 output$CalibrationLCCPs <- plotly::renderPlotly({
-                    plot_cal_LCCPs(CPs_standards_LCCP, Batch_Name)
+                    plot_cal_LCCPs(CPs_standards_LCCP)
                 })
 
 
@@ -402,12 +402,10 @@ CPquant <- function(...){
                 CPs_standards_sum_RF <- CPs_standards |>
                     dplyr::select(Batch_Name, Sum_RF_group) |>
                     dplyr::distinct() |>
-                    ungroup() |>
+                    dplyr::ungroup() |>
                     tidyr::pivot_wider(names_from = Batch_Name, values_from = "Sum_RF_group") |>
                     dplyr::mutate(across(everything(), ~ tidyr::replace_na(., 0)))
 
-
-                # Ensure combined_standard is correctly defined as a matrix prior to deconvolution
 
                 # First populate combined_standard with CPs_standards_input
                 combined_standard <- CPs_standards_input  |>
@@ -417,16 +415,6 @@ CPquant <- function(...){
 
 
                 # This performs deconvolution on all mixtures together. NEED TO CHECK IF perform_deconvolution ON SEPARATE SCCP, MCCP, LCCP is more correct!
-                # deconvolution <- combined_sample |>
-                #     #perform_deconvolution on only Relative_Area in the nested data frame
-                #     dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard))) |>
-                #     dplyr::mutate(total_sum = purrr::map_dbl(result, ~sum(.x$deconv_resolved))) |>
-                #     dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, Batch_Name = names(.x$deconv_coef))))) |>
-                #     dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
-                #     dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
-                #     #calculate the Concentration by multiplying the total_sum with Relative_Area inside data nested object
-                #     dplyr::mutate(data = purrr::map2(data, total_sum, ~dplyr::mutate(.x, Concentration = .y * Relative_Area))) |>
-                #     dplyr::select(-result)
 #browser()
                 deconvolution <- combined_sample |>
                     #perform_deconvolution on only Relative_Area in the nested data frame
@@ -446,10 +434,10 @@ CPquant <- function(...){
 
                 progress$set(value = 0.9, detail = "Calculating final results")
 
-                #Samples_Concentration <- deconvolution |>
+
 
                 # Store Samples_Concentration in the reactive value
-                Samples_Concentration_rv(deconvolution)
+                Samples_Concentration(deconvolution)
 
             }
 
@@ -461,8 +449,8 @@ CPquant <- function(...){
             # Render table
             output$quantTable <- DT::renderDT({
                 deconvolution |>
-                    select(Replicate_Name, Sample_Type, Concentration, deconv_rsquared) |> #remove to make compact df for pivot_wider
-                    #tidyr::pivot_wider(names_from = Molecule, values_from = Concentration) |>
+                    dplyr::select(Replicate_Name, Sample_Type, Concentration, deconv_rsquared) |> #remove to make compact df for pivot_wider
+                    dplyr::mutate(deconv_rsquared = round(deconv_rsquared, 3)) |>
                     DT::datatable(
                         filter = "top", extensions = c("Buttons", "Scroller"),
                         options = list(scrollY = 650,
@@ -563,24 +551,18 @@ CPquant <- function(...){
                 #MDL calculations (need to take into account if blank subtraction affect or not)
                 if (input$blankSubtraction == "No"){
 
-                    MDL_data <- Samples_Concentration |>
+                    MDL_data <- deconvolution |>
                         dplyr::filter(Sample_Type == "Blank") |>
-                        dplyr::rowwise() %>%
-                        dplyr::mutate(sum_PCA = sum(dplyr::c_across(-c(Replicate_Name, Sample_Type, `Molecule`)), na.rm = TRUE)) %>%
-                        dplyr::ungroup() |>
                         dplyr::summarize(
-                            MDL_sumPCA = mean(sum_PCA) + 3 * sd(sum_PCA, na.rm = TRUE),
+                            MDL_sumPCA = mean(Concentration) + 3 * sd(Concentration, na.rm = TRUE),
                             number_of_blanks = dplyr::n_distinct(Replicate_Name)
                         )
                 }
                 else if (input$blankSubtraction == "Yes, by avg area of blanks"){
-                    MDL_data <- Samples_Concentration |>
+                    DL_data <- deconvolution |>
                         dplyr::filter(Sample_Type == "Blank") |>
-                        dplyr::rowwise() %>%
-                        dplyr::mutate(sum_PCA = sum(dplyr::c_across(-c(Replicate_Name, Sample_Type, `Molecule`)), na.rm = TRUE)) %>%
-                        dplyr::ungroup() |>
                         dplyr::summarize(
-                            MDL_sumPCA = 3 * sd(sum_PCA, na.rm = TRUE),
+                            MDL_sumPCA = 3 * sd(Concentration, na.rm = TRUE),
                             number_of_blanks = dplyr::n_distinct(Replicate_Name)
                         )
 
@@ -609,21 +591,23 @@ CPquant <- function(...){
 
 
 
-            #browser()
+
         })
 
 
         shiny::observeEvent(input$go2, {
-            req(Samples_Concentration_rv())  # Make sure the data exists
+            req(Samples_Concentration())  # Make sure the data exists
+
+            # Sample_distribution <- Samples_Concentration() |>
+            #     purrr::pluck("deconv_rsquared") |>
+            #     as_tibble()
 
             if (input$plotHomologueGroups == "All Samples Overview") {
                 output$plotHomologuePattern <- shiny::renderPlot({
-                    # Get the data from the reactive value
-                    #Samples_Concentration_plot <- Samples_Concentration_rv()
 
 
                     # Create the plot with faceting
-                    ggplot2::ggplot(Samples_Concentration_rv(),
+                    ggplot2::ggplot(Samples_Concentration(),
                                     ggplot2::aes(x = Molecule, y = Relative_Area)) +
                         ggplot2::geom_bar(stat = "identity") +
                         ggplot2::facet_wrap(~ Replicate_Name, scales = "free_y") +
