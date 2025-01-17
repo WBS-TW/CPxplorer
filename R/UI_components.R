@@ -5,35 +5,24 @@ defineVariablesUI <- function(Skyline_output){
 
     # Create the UI components
     shiny::fluidRow(
-        shiny::h4("Define variables"),
-        shiny::tags$br(),
-        shiny::column(
-            6,
-            shiny::varSelectInput(
-                inputId = "standardAnnoColumn", #select which variable to use to define standards
-                label = "Variable for annotating standards",
-                data = Skyline_output,
-                selected = "Batch Name"
-            )
-        ),
+        # shiny::h4("Define variables"),
+        # shiny::tags$br(),
+        # shiny::column(
+        #     6,
+        #     shiny::varSelectInput(
+        #         inputId = "standardAnnoColumn", #select which variable to use to define standards
+        #         label = "Variable for annotating standards",
+        #         data = Skyline_output,
+        #         selected = "Batch Name"
+        #     )
+        # ),
         # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-        #shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-        #shiny::column(
-        #       6,
-        #      shiny::selectInput(
-        #             inputId = "blanks", #select which variable to use to define standards
-        #            label = "Define which samples are blanks",
-        #           choices = unique(Skyline_output()$`Replicate Name`),
-        #          multiple = TRUE
-        # )
-        #),
-        shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
         shiny::column(
             6,
             shiny::selectInput(
                 inputId = "removeSamples", #select if some samples will be removed from quantification
                 label = 'Remove samples from quantification?',
-                choices = unique(Skyline_output$`Replicate Name`),
+                choices = unique(Skyline_output$Replicate_Name),
                 selected = NULL,
                 multiple = TRUE
             )
@@ -64,5 +53,7 @@ defineVariablesUI <- function(Skyline_output){
         )
     )
 }
+### END FUNCTION
 
-### END: Define input variables
+
+

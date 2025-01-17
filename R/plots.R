@@ -1,19 +1,14 @@
 
 
-plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
+plot_cal_SCCPs <- function(CPs_standards_SCCP) {
     # Prepare the data
 
-    df <- CPs_standards_S |>
-        dplyr::filter(Response_factor > 0) |>
-        #dplyr::filter(`Molecule List` %in% c("PCA-C10", "PCA-C11", "PCA-C12", "PCA-C13")) |>
+    df <- CPs_standards_SCCP |>
+        dplyr::filter(RF > 0) |>
         dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
         tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+        dplyr::group_by(Batch_Name, Molecule) #need to group to get separate add_lines
 
-    # Ensure standardAnnoColumn exists in the data
-    if (!standardAnnoColumn %in% colnames(df)) {
-        stop("standardAnnoColumn not found in data")
-    }
 
     # Create the plot
     p <- plotly::plot_ly()
@@ -22,15 +17,16 @@ plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
     p <- p |>
         plotly::add_markers(
             data = df,
-            x = ~`Analyte Concentration`,
+            x = ~Analyte_Concentration,
             y = ~Area,
             color = ~PCA,
-            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            #symbol = as.formula(paste0("~`", Batch_Name, "`")),
+            symbol = ~Batch_Name,
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
-                "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
-                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Analyte_Concentration:", round(Analyte_Concentration, 3),
+                "<br>Standard:", Batch_Name,
                 "<br>Rsquared:", round(rsquared, 3)
             ),
             hoverinfo = "text",
@@ -42,7 +38,7 @@ plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
     p <- p |>
         plotly::add_lines(
             data = df,
-            x = ~`Analyte Concentration`,
+            x = ~Analyte_Concentration,
             y = ~fitted_values,
             color = ~PCA,
             line = list(dash = "solid"),
@@ -60,7 +56,7 @@ plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
                 x = 0.5  # Center the title
             ),
             xaxis = list(
-                title = "Analyte Concentration",
+                title = "Analyte_Concentration",
                 zeroline = TRUE,
                 showgrid = TRUE
             ),
@@ -74,20 +70,15 @@ plot_cal_SCCPs <- function(CPs_standards_S, standardAnnoColumn) {
 
 
 
-plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
+plot_cal_MCCPs <- function(CPs_standards_MCCP) {
     # Prepare the data
 
-    df <- CPs_standards_M |>
-        dplyr::filter(Response_factor > 0) |>
-        #dplyr::filter(`Molecule List` %in% c("PCA-C14", "PCA-C15", "PCA-C16", "PCA-C17")) |>
+    df <- CPs_standards_MCCP |>
+        dplyr::filter(RF > 0) |>
         dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
         tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+        dplyr::group_by(Batch_Name, Molecule) #need to group to get separate add_lines
 
-    # Ensure standardAnnoColumn exists in the data
-    if (!standardAnnoColumn %in% colnames(df)) {
-        stop("standardAnnoColumn not found in data")
-    }
 
     # Create the plot
     p <- plotly::plot_ly()
@@ -96,15 +87,15 @@ plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
     p <- p |>
         plotly::add_markers(
             data = df,
-            x = ~`Analyte Concentration`,
+            x = ~Analyte_Concentration,
             y = ~Area,
             color = ~PCA,
-            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            symbol = ~Batch_Name,
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
-                "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
-                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Analyte_Concentration:", round(Analyte_Concentration, 3),
+                "<br>Standard:", Batch_Name,
                 "<br>Rsquared:", round(rsquared, 3)
             ),
             hoverinfo = "text",
@@ -116,7 +107,7 @@ plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
     p <- p |>
         plotly::add_lines(
             data = df,
-            x = ~`Analyte Concentration`,
+            x = ~Analyte_Concentration,
             y = ~fitted_values,
             color = ~PCA,
             line = list(dash = "solid"),
@@ -134,7 +125,7 @@ plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
                 x = 0.5  # Center the title
             ),
             xaxis = list(
-                title = "Analyte Concentration",
+                title = "Analyte_Concentration",
                 zeroline = TRUE,
                 showgrid = TRUE
             ),
@@ -149,21 +140,15 @@ plot_cal_MCCPs <- function(CPs_standards_M, standardAnnoColumn) {
 
 
 
-plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
+plot_cal_LCCPs <- function(CPs_standards_LCCP) {
     # Prepare the data
 
-    df <- CPs_standards_L |>
-        dplyr::filter(Response_factor > 0) |>
-        # dplyr::filter(`Molecule List` %in% c("PCA-C18", "PCA-C19", "PCA-C20", "PCA-C21", "PCA-C22", "PCA-C23",
-        #                                      "PCA-C24", "PCA-C25", "PCA-C26", "PCA-C27", "PCA-C28", "PCA-C29", "PCA-C30")) |>
+    df <- CPs_standards_LCCP |>
+        dplyr::filter(RF > 0) |>
         dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
         tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(!!dplyr::sym(standardAnnoColumn), `Molecule`) #need to group to get separate add_lines
+        dplyr::group_by(Batch_Name, Molecule) #need to group to get separate add_lines
 
-    # Ensure standardAnnoColumn exists in the data
-    if (!standardAnnoColumn %in% colnames(df)) {
-        stop("standardAnnoColumn not found in data")
-    }
 
     # Create the plot
     p <- plotly::plot_ly()
@@ -172,15 +157,15 @@ plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
     p <- p |>
         plotly::add_markers(
             data = df,
-            x = ~`Analyte Concentration`,
+            x = ~Analyte_Concentration,
             y = ~Area,
             color = ~PCA,
-            symbol = as.formula(paste0("~`", standardAnnoColumn, "`")),
+            symbol = ~Batch_Name,
             text = ~paste(
                 "Homologue:", PCA,
                 "<br>Area:", round(Area, 2),
-                "<br>Analyte Concentration:", round(`Analyte Concentration`, 3),
-                "<br>Standard:", get(standardAnnoColumn),
+                "<br>Analyte_Concentration:", round(Analyte_Concentration, 3),
+                "<br>Standard:", Batch_Name,
                 "<br>Rsquared:", round(rsquared, 3)
             ),
             hoverinfo = "text",
@@ -192,7 +177,7 @@ plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
     p <- p |>
         plotly::add_lines(
             data = df,
-            x = ~`Analyte Concentration`,
+            x = ~Analyte_Concentration,
             y = ~fitted_values,
             color = ~PCA,
             line = list(dash = "solid"),
@@ -210,7 +195,7 @@ plot_cal_LCCPs <- function(CPs_standards_L, standardAnnoColumn) {
                 x = 0.5  # Center the title
             ),
             xaxis = list(
-                title = "Analyte Concentration",
+                title = "Analyte_Concentration",
                 zeroline = TRUE,
                 showgrid = TRUE
             ),
