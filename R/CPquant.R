@@ -33,7 +33,7 @@ CPquant <- function(...){
                                                     shiny::radioButtons("blankSubtraction",
                                                                         label = "Subtraction with blank?",
                                                                         choices = c("Yes, by avg area of blanks", "No"), selected = "No"),
-                                                    shiny::radioButtons("correctWithRS", label = "Correct with RS?",
+                                                    shiny::radioButtons("correctWithRS", label = "Correct with RS area?",
                                                                         choices = c("Yes", "No"), selected = "No"),
                                                     shiny::radioButtons("calculateRecovery",
                                                                         label = "Calculate recovery? (req QC samples)",
@@ -93,16 +93,34 @@ CPquant <- function(...){
                                 shiny::sidebarPanel(
                                     width = 2, # max 12
                                     shiny::radioButtons("plotHomologueGroups", "Choose tab:",
-                                                        choices = c("Single Sample Comparison", "All Samples Overview"),
+                                                        choices = c("All Samples Overview", "Samples Overlay", "Samples Comparisons"),
                                                         selected = "All Samples Overview"),
+                                    shiny::conditionalPanel(
+                                        condition = "input.plotHomologueGroups == 'Samples Overlay'",
+                                        shiny::uiOutput("sampleSelectionUIOverlay")
+                                    ),
+                                    shiny::conditionalPanel(
+                                        condition = "input.plotHomologueGroups == 'Samples Comparisons'",
+                                        shiny::uiOutput("sampleSelectionUIComparisons")
+                                    ),
                                     shiny::tags$div(
                                         title = "WAIT after pressing..Might take some time before plot shows!",
                                         shiny::actionButton('go2', 'Plot', width = "100%")
                                     )),
                                 shiny::mainPanel(
                                     width = 10,
-                                    #plotly::plotlyOutput("plotHomologuePattern")
-                                    shiny::plotOutput("plotHomologuePattern", height = "800px", width = "100%")
+                                    shiny::conditionalPanel(
+                                        condition = "input.plotHomologueGroups == 'All Samples Overview'",
+                                        shiny::plotOutput("plotHomologuePatternStatic", height = "800px", width = "100%")
+                                    ),
+                                    shiny::conditionalPanel(
+                                        condition = "input.plotHomologueGroups == 'Samples Overlay'",
+                                        plotly::plotlyOutput("plotHomologuePatternOverlay")
+                                    ),
+                                    shiny::conditionalPanel(
+                                        condition = "input.plotHomologueGroups == 'Samples Comparisons'",
+                                        plotly::plotlyOutput("plotHomologuePatternComparisons")
+                                    )
                                 )
                             ),
                             shiny::tabPanel(
@@ -595,8 +613,35 @@ CPquant <- function(...){
         })
 
 
+
+        output$sampleSelectionUIOverlay <- renderUI({
+            req(Samples_Concentration())
+
+            # Get unique sample names
+            sample_names <- unique(Samples_Concentration()$Replicate_Name)
+
+            selectInput("selectedSamples", "Select samples to compare:",
+                        choices = sample_names,
+                        multiple = TRUE,
+                        selected = NULL)
+        })
+
+        output$sampleSelectionUIComparisons <- renderUI({
+            req(Samples_Concentration())
+
+            # Get unique sample names
+            sample_names <- unique(Samples_Concentration()$Replicate_Name)
+
+            selectInput("selectedSamples", "Select samples to compare:",
+                        choices = sample_names,
+                        multiple = TRUE,
+                        selected = NULL)
+        })
+
         shiny::observeEvent(input$go2, {
             req(Samples_Concentration())  # Make sure the data exists
+
+            withProgress(message = 'Generating plot...', value = 0, {
 
             Sample_distribution <- Samples_Concentration() |>
                 mutate(data = map2(data, deconv_resolved, ~inner_join(.x, .y, by = "Molecule"))) |>
@@ -604,29 +649,130 @@ CPquant <- function(...){
                 select(-deconv_resolved) |>
                 unnest(data)
 
-
+            incProgress(0.5)
 
             if (input$plotHomologueGroups == "All Samples Overview") {
-                output$plotHomologuePattern <- shiny::renderPlot({
-
-
-                    # Create the plot with faceting
+                output$plotHomologuePatternStatic <- shiny::renderPlot({
                     ggplot(Sample_distribution, aes(x = Molecule, y = resolved_distribution, fill = C_homologue)) +
                         geom_col() +
                         facet_wrap(~Replicate_Name) +
-                        #ggforce::facet_wrap_paginate(~ Replicate_Name, ncol = 3, nrow = 4, page = input) +
                         theme_minimal() +
                         theme(axis.text.x = element_blank()) +
                         labs(title = "Relative Distribution",
                              x = "Homologue",
                              y = "Relative Distribution")
                 })
-            }
-            #} else if (input$plotHomologueGroups == "Single Sample Comparison") {
-            #     output$plotHomologuePattern <- shiny::renderPlot({
-            #
-            #     })
-            #}
+            } else if (input$plotHomologueGroups == "Samples Overlay") {
+                output$plotHomologuePatternOverlay <- plotly::renderPlotly({
+                    req(input$selectedSamples)
+                    req(Sample_distribution)
+
+                    # Filter for selected samples
+                    selected_samples <- Sample_distribution %>%
+                        filter(Replicate_Name %in% input$selectedSamples) %>%
+                        mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
+
+                    req(nrow(selected_samples) > 0)
+
+                    # Create a basic bar plot
+                    p <- plot_ly(data = selected_samples,
+                                 x = ~Molecule,
+                                 y = ~resolved_distribution,
+                                 color = ~Replicate_Name,
+                                 type = "bar",
+                                 text = ~paste(
+                                     "Sample:", Replicate_Name,
+                                     "<br>Homologue:", Molecule,
+                                     "<br>Distribution:", round(resolved_distribution, 4),
+                                     "<br>C-atoms:", C_homologue
+                                 ),
+                                 hoverinfo = "text"
+                    ) %>%
+                        layout(
+                            title = "Sample Distribution Overlay",
+                            xaxis = list(
+                                title = "Homologue",
+                                tickangle = 45
+                            ),
+                            yaxis = list(
+                                title = "Distribution"
+                            ),
+                            barmode = 'group',
+                            showlegend = TRUE,
+                            height = 600,
+                            margin = list(b = 100)  # Add more bottom margin for rotated labels
+                        )
+
+                    p
+                })
+            } else if (input$plotHomologueGroups == "Samples Comparisons") {
+                  output$plotHomologuePatternComparisons <- plotly::renderPlotly({
+                      req(input$selectedSamples)
+
+                      # Filter data for selected samples and reshape data for side-by-side comparison
+                      selected_samples <- Sample_distribution %>%
+                          filter(Replicate_Name %in% input$selectedSamples) %>%
+                          mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))) %>%
+                          # Gather the two variables into a long format
+                          tidyr::pivot_longer(
+                              cols = c(resolved_distribution, Relative_Area),
+                              names_to = "Variable",
+                              values_to = "Value"
+                          )
+
+                      # Create a list of plots, one for each Replicate_Name
+                      plot_list <- selected_samples %>%
+                          split(.$Replicate_Name) %>%
+                          map(function(df) {
+                              plot_ly(df,
+                                      x = ~Molecule,
+                                      y = ~Value,
+                                      color = ~C_homologue,
+                                      type = 'bar',
+                                      transforms = list(
+                                          list(
+                                              type = 'groupby',
+                                              groups = ~Variable,
+                                              styles = list(
+                                                  list(target = 'resolved_distribution', value = list(opacity = 1)),
+                                                  list(target = 'Relative_Area', value = list(opacity = 0.7))
+                                              )
+                                          )
+                                      )) %>%
+                                  layout(
+                                      xaxis = list(title = "Homologue",
+                                                   tickangle = 45),
+                                      yaxis = list(title = "Value"),
+                                      barmode = 'group',
+                                      showlegend = TRUE,
+                                      annotations = list(
+                                          x = 0.5,
+                                          y = 1.1,
+                                          text = ~unique(df$Replicate_Name),
+                                          xref = 'paper',
+                                          yref = 'paper',
+                                          showarrow = FALSE
+                                      )
+                                  )
+                          })
+
+                      # Combine the plots using subplot
+                      subplot(plot_list,
+                              nrows = ceiling(length(plot_list)/2),
+                              shareX = TRUE,
+                              shareY = TRUE) %>%
+                          layout(
+                              title = "Sample Comparison",
+                              showlegend = TRUE,
+                              hovermode = 'closest',
+                              hoverlabel = list(bgcolor = "white"),
+                              barmode = 'group'
+                          )
+                  })
+              }
+
+            incProgress(1)
+        })
         })
 
 
