@@ -1,208 +1,102 @@
 
-
-plot_cal_SCCPs <- function(CPs_standards_SCCP) {
-    # Prepare the data
-
-    df <- CPs_standards_SCCP |>
+plot_calibration_curves <- function(CPs_standards) {
+    # Unnest the data first
+    CPs_standards_unnested <- CPs_standards |>
         dplyr::filter(RF > 0) |>
-        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
-        tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(Batch_Name, Molecule) #need to group to get separate add_lines
+        tidyr::unnest(data) |>
+        dplyr::mutate(Molecule = factor(Molecule,
+                                        levels = unique(Molecule[order(C_number, Cl_number)])))
 
+    # Get unique Quantification Groups
+    groups <- unique(CPs_standards_unnested$Quantification_Group)
 
-    # Create the plot
-    p <- plotly::plot_ly()
+    # Create a list to store individual plots
+    plot_list <- list()
 
-    # Add scatter plot markers
-    p <- p |>
-        plotly::add_markers(
-            data = df,
-            x = ~Analyte_Concentration,
-            y = ~Area,
-            color = ~PCA,
-            #symbol = as.formula(paste0("~`", Batch_Name, "`")),
-            symbol = ~Batch_Name,
-            text = ~paste(
-                "Homologue:", PCA,
-                "<br>Area:", round(Area, 2),
-                "<br>Analyte_Concentration:", round(Analyte_Concentration, 3),
-                "<br>Standard:", Batch_Name,
-                "<br>Rsquared:", round(rsquared, 3)
-            ),
-            hoverinfo = "text",
-            visible = "legendonly",
-            legendgroup = ~PCA
+    # Create individual plots for each group
+    for(i in seq_along(groups)) {
+        group_data <- CPs_standards_unnested |>
+            dplyr::filter(Quantification_Group == groups[i])
+
+        plot_list[[i]] <- plot_ly() |>
+            add_trace(
+                data = group_data,
+                x = ~Analyte_Concentration,
+                y = ~Area,
+                color = ~PCA,
+                type = 'scatter',
+                mode = 'markers',
+                legendgroup = ~Molecule_List,
+                legendgrouptitle = list(text = ~Molecule_List),
+                showlegend = FALSE,
+                name = ~paste(PCA, "(points)"),
+                text = ~paste(
+                    "Molecule:", Molecule,
+                    "<br>Area:", round(Area, 2),
+                    "<br>Concentration:", round(Analyte_Concentration, 2),
+                    "<br>R²:", round(rsquared, 3)
+                ),
+                hoverinfo = 'text'
+            ) |>
+            add_trace(
+                data = group_data,
+                x = ~Analyte_Concentration,
+                y = ~RF * Analyte_Concentration + intercept,
+                color = ~PCA,
+                type = 'scatter',
+                mode = 'lines',
+                legendgroup = ~Molecule_List,
+                name = ~PCA,
+                hoverinfo = 'none'
+            )
+    }
+
+    # Calculate layout
+    subplot_cols <- min(length(groups), 2)  # Maximum 2 columns
+    subplot_rows <- ceiling(length(groups) / subplot_cols)
+
+    # Create annotations for titles
+    annotations <- list()
+    for(i in seq_along(groups)) {
+        row <- ceiling(i/subplot_cols)
+        col <- if(i %% subplot_cols == 0) subplot_cols else i %% subplot_cols
+
+        annotations[[i]] <- list(
+            text = groups[i],
+            font = list(size = 14),
+            xref = "paper",
+            yref = "paper",
+            x = (col - 0.5)/subplot_cols,
+            y = 1 - (row - 1)/subplot_rows,
+            xanchor = "center",
+            yanchor = "bottom",
+            showarrow = FALSE
         )
+    }
 
-    # Add linear model lines
-    p <- p |>
-        plotly::add_lines(
-            data = df,
-            x = ~Analyte_Concentration,
-            y = ~fitted_values,
-            color = ~PCA,
-            line = list(dash = "solid"),
-            hoverinfo = "none",
-            visible = "legendonly",
-            legendgroup = ~PCA,
-            showlegend = FALSE  # Don't show duplicate legends for lines
-        )
-
-    # Configure layout
-    p |>
-        plotly::layout(
-            title = list(
-                text = "Calibration PCAs-C10-13",
-                x = 0.5  # Center the title
-            ),
-            xaxis = list(
-                title = "Analyte_Concentration",
-                zeroline = TRUE,
-                showgrid = TRUE
-            ),
-            yaxis = list(
-                title = "Area",
-                zeroline = TRUE,
-                showgrid = TRUE
+    # Combine plots using subplot
+    final_plot <- plotly::subplot(
+        plot_list,
+        nrows = subplot_rows,
+        shareX = TRUE,
+        shareY = TRUE,
+        margin = 0.1
+    ) |>
+        layout(
+            height = 400 * subplot_rows,
+            showlegend = TRUE,
+            annotations = annotations,
+            margin = list(t = 50, b = 50, l = 50, r = 50),
+            legend = list(
+                groupclick = "togglegroup",  # Changed from "toggleitem" to "togglegroup"
+                tracegroupgap = 10,
+                itemsizing = "constant"
             )
         )
-}
 
-
-
-plot_cal_MCCPs <- function(CPs_standards_MCCP) {
-    # Prepare the data
-
-    df <- CPs_standards_MCCP |>
-        dplyr::filter(RF > 0) |>
-        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
-        tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(Batch_Name, Molecule) #need to group to get separate add_lines
-
-
-    # Create the plot
-    p <- plotly::plot_ly()
-
-    # Add scatter plot markers
-    p <- p |>
-        plotly::add_markers(
-            data = df,
-            x = ~Analyte_Concentration,
-            y = ~Area,
-            color = ~PCA,
-            symbol = ~Batch_Name,
-            text = ~paste(
-                "Homologue:", PCA,
-                "<br>Area:", round(Area, 2),
-                "<br>Analyte_Concentration:", round(Analyte_Concentration, 3),
-                "<br>Standard:", Batch_Name,
-                "<br>Rsquared:", round(rsquared, 3)
-            ),
-            hoverinfo = "text",
-            visible = "legendonly",
-            legendgroup = ~PCA
-        )
-
-    # Add linear model lines
-    p <- p |>
-        plotly::add_lines(
-            data = df,
-            x = ~Analyte_Concentration,
-            y = ~fitted_values,
-            color = ~PCA,
-            line = list(dash = "solid"),
-            hoverinfo = "none",
-            visible = "legendonly",
-            legendgroup = ~PCA,
-            showlegend = FALSE  # Don't show duplicate legends for lines
-        )
-
-    # Configure layout
-    p |>
-        plotly::layout(
-            title = list(
-                text = "Calibration PCAs-C14-17",
-                x = 0.5  # Center the title
-            ),
-            xaxis = list(
-                title = "Analyte_Concentration",
-                zeroline = TRUE,
-                showgrid = TRUE
-            ),
-            yaxis = list(
-                title = "Area",
-                zeroline = TRUE,
-                showgrid = TRUE
-            )
-        )
+    return(final_plot)
 }
 
 
 
 
-plot_cal_LCCPs <- function(CPs_standards_LCCP) {
-    # Prepare the data
-
-    df <- CPs_standards_LCCP |>
-        dplyr::filter(RF > 0) |>
-        dplyr::mutate(fitted_values = purrr::map(models, purrr::pluck("fitted.values"))) |>
-        tidyr::unnest(c(data, fitted_values)) |>
-        dplyr::group_by(Batch_Name, Molecule) #need to group to get separate add_lines
-
-
-    # Create the plot
-    p <- plotly::plot_ly()
-
-    # Add scatter plot markers
-    p <- p |>
-        plotly::add_markers(
-            data = df,
-            x = ~Analyte_Concentration,
-            y = ~Area,
-            color = ~PCA,
-            symbol = ~Batch_Name,
-            text = ~paste(
-                "Homologue:", PCA,
-                "<br>Area:", round(Area, 2),
-                "<br>Analyte_Concentration:", round(Analyte_Concentration, 3),
-                "<br>Standard:", Batch_Name,
-                "<br>Rsquared:", round(rsquared, 3)
-            ),
-            hoverinfo = "text",
-            visible = "legendonly",
-            legendgroup = ~PCA
-        )
-
-    # Add linear model lines
-    p <- p |>
-        plotly::add_lines(
-            data = df,
-            x = ~Analyte_Concentration,
-            y = ~fitted_values,
-            color = ~PCA,
-            line = list(dash = "solid"),
-            hoverinfo = "none",
-            visible = "legendonly",
-            legendgroup = ~PCA,
-            showlegend = FALSE  # Don't show duplicate legends for lines
-        )
-
-    # Configure layout
-    p |>
-        plotly::layout(
-            title = list(
-                text = "Calibration PCAs-C18-30",
-                x = 0.5  # Center the title
-            ),
-            xaxis = list(
-                title = "Analyte_Concentration",
-                zeroline = TRUE,
-                showgrid = TRUE
-            ),
-            yaxis = list(
-                title = "Area",
-                zeroline = TRUE,
-                showgrid = TRUE
-            )
-        )
-}

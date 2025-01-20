@@ -3,6 +3,7 @@
 #'
 #' @import shiny
 #' @import bslib
+#' @import htmlwidgets
 #' @import ggplot2
 #' @import ggforce
 #' @import gridExtra
@@ -69,11 +70,12 @@ CPquant <- function(...){
                                     width = 10,
                                     shiny::conditionalPanel(
                                         condition = "input.navSummary == 'Std Calibration Curves'",
-                                        plotly::plotlyOutput("CalibrationSCCPs"),
-                                        shiny::tags$br(),
-                                        plotly::plotlyOutput("CalibrationMCCPs"),
-                                        shiny::tags$br(),
-                                        plotly::plotlyOutput("CalibrationLCCPs")
+                                        # plotly::plotlyOutput("CalibrationSCCPs"),
+                                        # shiny::tags$br(),
+                                        # plotly::plotlyOutput("CalibrationMCCPs"),
+                                        # shiny::tags$br(),
+                                        # plotly::plotlyOutput("CalibrationLCCPs")
+                                        plotly::plotlyOutput("CalibrationCurves")
                                     ),
                                     shiny::conditionalPanel(
                                         condition = "input.navSummary == 'Quan to Qual ratio'",
@@ -85,7 +87,8 @@ CPquant <- function(...){
                             shiny::tabPanel(
                                 "Quantification summary",
                                 shiny::fluidPage(
-                                    DT::DTOutput("quantTable")
+                                    DT::DTOutput("quantTable"),
+                                    plotly::plotlyOutput("sampleContributionPlot")
                                 )
                             ),
                             shiny::tabPanel(
@@ -93,14 +96,14 @@ CPquant <- function(...){
                                 shiny::sidebarPanel(
                                     width = 2, # max 12
                                     shiny::radioButtons("plotHomologueGroups", "Choose tab:",
-                                                        choices = c("All Samples Overview", "Samples Overlay", "Samples Comparisons"),
+                                                        choices = c("All Samples Overview", "Samples Overlay", "Samples Panels"),
                                                         selected = "All Samples Overview"),
                                     shiny::conditionalPanel(
                                         condition = "input.plotHomologueGroups == 'Samples Overlay'",
                                         shiny::uiOutput("sampleSelectionUIOverlay")
                                     ),
                                     shiny::conditionalPanel(
-                                        condition = "input.plotHomologueGroups == 'Samples Comparisons'",
+                                        condition = "input.plotHomologueGroups == 'Samples Panels'",
                                         shiny::uiOutput("sampleSelectionUIComparisons")
                                     ),
                                     shiny::tags$div(
@@ -118,7 +121,7 @@ CPquant <- function(...){
                                         plotly::plotlyOutput("plotHomologuePatternOverlay")
                                     ),
                                     shiny::conditionalPanel(
-                                        condition = "input.plotHomologueGroups == 'Samples Comparisons'",
+                                        condition = "input.plotHomologueGroups == 'Samples Panels'",
                                         plotly::plotlyOutput("plotHomologuePatternComparisons")
                                     )
                                 )
@@ -205,13 +208,17 @@ CPquant <- function(...){
                     dplyr::mutate(Area = ifelse(Area <0, 0, Area)) #replace negative Area with 0 after blank subtraction
             }
 
+            # if (input$standardTypes == "Group Mixtures") {
+            #     df <- df |>
+            #         dplyr::mutate(Quantification_Group = dplyr::case_when(
+            #             C_number >= 10 & C_number <= 13 ~ "SCCP",
+            #             C_number >= 14 & C_number <= 17 ~ "MCCP",
+            #             C_number >= 18 ~ "LCCP"
+            #         ))
+            # }
             if (input$standardTypes == "Group Mixtures") {
                 df <- df |>
-                    dplyr::mutate(Quantification_Group = dplyr::case_when(
-                        C_number >= 10 & C_number <= 13 ~ "SCCP",
-                        C_number >= 14 & C_number <= 17 ~ "MCCP",
-                        C_number >= 18 ~ "LCCP"
-                    ))
+                    dplyr::mutate(Quantification_Group = stringr::str_extract(Batch_Name, "^[^_]+"))
             }
 
             progress$set(value = 1, detail = "Complete")
@@ -303,8 +310,14 @@ CPquant <- function(...){
                                   !Molecule_List %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
                                   Isotope_Label_Type == "Quan", # use only Quant ions
                                   Batch_Name != "NA") |>
-                    dplyr::group_by(Batch_Name, Sample_Type, Molecule, Molecule_List, C_number, Cl_number, PCA, Quantification_Group) |> #Batch_Name is default. !!sym(standardAnnoColumn) unquotes the string variable and converts it to a symbol that dplyr can understand within the group_by() function
+                    dplyr::mutate(
+                        C_range = stringr::str_extract_all(Quantification_Group, "\\d+"),
+                        C_min = as.numeric(purrr::map_chr(C_range, ~.x[1])),
+                        C_max = as.numeric(purrr::map_chr(C_range, function(x) {if(length(x) > 1) {x[2]} else {x[1]}}))) |>
+                    dplyr::select(-C_range) |>
+                    dplyr::group_by(Batch_Name, Sample_Type, Molecule, Molecule_List, C_number, Cl_number, PCA, Quantification_Group, C_min, C_max) |> #Batch_Name is default. !!sym(standardAnnoColumn) unquotes the string variable and converts it to a symbol that dplyr can understand within the group_by() function
                     tidyr::nest() |>
+                    dplyr::filter(C_number >= C_min & C_number <= C_max) |>
                     dplyr::mutate(models = purrr::map(data, ~lm(Area ~ Analyte_Concentration, data = .x))) |>
                     dplyr::mutate(coef = purrr::map(models, coef)) |>
                     dplyr::mutate(RF = purrr::map_dbl(models, ~ coef(.x)["Analyte_Concentration"]))|> #get the slope which will be the RF
@@ -327,7 +340,8 @@ CPquant <- function(...){
                 # Prepare for deconvolution of samples
                 progress$set(value = 0.6, detail = "Preparing sample data")
 
-                unique_chars <- unique(CPs_standards$Quantification_Group)
+                #unique_chars <- unique(CPs_standards$Quantification_Group)
+                unique_chars <- unique(stringr::str_extract(CPs_standards$Batch_Name, "^[^_]+"))
 
                 CPs_samples <- Skyline_output_filt |>
                     dplyr::filter(
@@ -356,53 +370,10 @@ CPquant <- function(...){
                     dplyr::ungroup()
 
 
-                ###### This is for mixtures, single chain stds will be added later
+                ###### Plot the calibration curves ######
 
-
-
-                # Create a list to store the tibbles
-                CPs_standards_list <- list()
-
-                # Create tibbles for each unique character and store in the list
-                for (char in unique_chars) {
-                    if (char == "SCCP") {
-                        CPs_standards_name <- paste0("CPs_standards_", char)
-                        CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            dplyr::filter(stringr::str_detect(Batch_Name, paste0("^", char, "_"))) |> #keep only the rows where the Batch_Name column starts with the value of char followed by an underscore.
-                            dplyr::mutate(RF = if_else(C_number >= 10 & C_number <= 13, RF, 0))
-
-                    } else if (char == "MCCP") {
-                        CPs_standards_name <- paste0("CPs_standards_", char)
-                        CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            dplyr::filter(stringr::str_detect(Batch_Name, paste0("^", char, "_"))) |>
-                            dplyr::mutate(RF = if_else(C_number >= 14 & C_number <= 17, RF, 0))
-                    } else if (char == "LCCP") {
-                        CPs_standards_name <- paste0("CPs_standards_", char)
-                        CPs_standards_list[[CPs_standards_name]] <- CPs_standards |>
-                            dplyr::filter(stringr::str_detect(Batch_Name, paste0("^", char, "_"))) |>
-                            dplyr::mutate(RF = if_else(C_number >= 18, RF, 0))
-                    }
-                }
-
-
-                # Filter out empty data frames before binding
-                #CPs_standards <- dplyr::bind_rows(Filter(function(x) nrow(x) > 0, CPs_standards_list))
-
-                CPs_standards_SCCP <- CPs_standards_list[["CPs_standards_SCCP"]]
-                CPs_standards_MCCP <- CPs_standards_list[["CPs_standards_MCCP"]]
-                CPs_standards_LCCP <- CPs_standards_list[["CPs_standards_LCCP"]]
-
-                ##### ADD from standards calibration (plots.R)
-                output$CalibrationSCCPs <- plotly::renderPlotly({
-                    plot_cal_SCCPs(CPs_standards_SCCP)
-                })
-
-                output$CalibrationMCCPs <- plotly::renderPlotly({
-                    plot_cal_MCCPs(CPs_standards_MCCP)
-                })
-
-                output$CalibrationLCCPs <- plotly::renderPlotly({
-                    plot_cal_LCCPs(CPs_standards_LCCP)
+                output$CalibrationCurves <- plotly::renderPlotly({
+                    plot_calibration_curves(CPs_standards)
                 })
 
 
@@ -446,7 +417,7 @@ CPquant <- function(...){
                     dplyr::select(-result)
 
 
-#browser()
+
                 #### Calculate the concentration ####
 
 
@@ -487,6 +458,37 @@ CPquant <- function(...){
                                        dom = "lBfrtip",
                                        fixedColumns = TRUE),
                         rownames = FALSE)
+
+            })
+
+            # render sampleContributionPlot
+            output$sampleContributionPlot <- renderPlotly({
+                # Assuming your quantification data is in a reactive called quantData()
+                plot_data <- deconvolution %>%
+                    unnest(deconv_coef) %>%
+                    unnest_longer(c(deconv_coef, Batch_Name)) %>%
+                    select(Replicate_Name, Batch_Name, deconv_coef)
+
+                # Create the plotly stacked bar plot
+                plot_ly(plot_data,
+                        x = ~Replicate_Name,
+                        y = ~deconv_coef,
+                        type = "bar",
+                        color = ~Batch_Name,
+                        colors = "Spectral") %>%
+                    layout(
+                        title = list(
+                            text = "Deconvoluted contributions from standards",
+                            x = 0.5,  # Center the title
+                            y = 0.95  # Position slightly down from top
+                        ),
+                        barmode = "stack",
+                        xaxis = list(title = "Replicate Name"),
+                        yaxis = list(title = "Relative Contribution",
+                                     tickformat = ".2%"),
+                        showlegend = TRUE,
+                        legend = list(title = list(text = "Batch Name"))
+                    )
 
             })
 
@@ -705,71 +707,106 @@ CPquant <- function(...){
 
                     p
                 })
-            } else if (input$plotHomologueGroups == "Samples Comparisons") {
-                  output$plotHomologuePatternComparisons <- plotly::renderPlotly({
-                      req(input$selectedSamples)
+            } else if (input$plotHomologueGroups == "Samples Panels") {
+                output$plotHomologuePatternComparisons <- plotly::renderPlotly({
+                    req(input$selectedSamples)
 
-                      # Filter data for selected samples and reshape data for side-by-side comparison
-                      selected_samples <- Sample_distribution %>%
-                          filter(Replicate_Name %in% input$selectedSamples) %>%
-                          mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))) %>%
-                          # Gather the two variables into a long format
-                          tidyr::pivot_longer(
-                              cols = c(resolved_distribution, Relative_Area),
-                              names_to = "Variable",
-                              values_to = "Value"
-                          )
+                    # Filter data for selected samples and reshape data
+                    selected_samples <- Sample_distribution %>%
+                        filter(Replicate_Name %in% input$selectedSamples) %>%
+                        mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
 
-                      # Create a list of plots, one for each Replicate_Name
-                      plot_list <- selected_samples %>%
-                          split(.$Replicate_Name) %>%
-                          map(function(df) {
-                              plot_ly(df,
-                                      x = ~Molecule,
-                                      y = ~Value,
-                                      color = ~C_homologue,
-                                      type = 'bar',
-                                      transforms = list(
-                                          list(
-                                              type = 'groupby',
-                                              groups = ~Variable,
-                                              styles = list(
-                                                  list(target = 'resolved_distribution', value = list(opacity = 1)),
-                                                  list(target = 'Relative_Area', value = list(opacity = 0.7))
-                                              )
-                                          )
-                                      )) %>%
-                                  layout(
-                                      xaxis = list(title = "Homologue",
-                                                   tickangle = 45),
-                                      yaxis = list(title = "Value"),
-                                      barmode = 'group',
-                                      showlegend = TRUE,
-                                      annotations = list(
-                                          x = 0.5,
-                                          y = 1.1,
-                                          text = ~unique(df$Replicate_Name),
-                                          xref = 'paper',
-                                          yref = 'paper',
-                                          showarrow = FALSE
-                                      )
-                                  )
-                          })
+                    # Get unique homologue groups for consistent coloring
+                    homologue_groups <- unique(selected_samples$C_homologue)
 
-                      # Combine the plots using subplot
-                      subplot(plot_list,
-                              nrows = ceiling(length(plot_list)/2),
-                              shareX = TRUE,
-                              shareY = TRUE) %>%
-                          layout(
-                              title = "Sample Comparison",
-                              showlegend = TRUE,
-                              hovermode = 'closest',
-                              hoverlabel = list(bgcolor = "white"),
-                              barmode = 'group'
-                          )
-                  })
-              }
+                    # Create a list of plots, one for each Replicate_Name
+                    plot_list <- selected_samples %>%
+                        split(selected_samples$Replicate_Name) %>%
+                        map(function(df) {
+                            # Create base plot
+                            p <- plot_ly()
+
+                            # Add bars for each homologue group
+                            for(hg in homologue_groups) {
+                                df_filtered <- df[df$C_homologue == hg,]
+                                p <- p %>% add_trace(
+                                    data = df_filtered,
+                                    x = ~Molecule,
+                                    y = ~resolved_distribution,
+                                    name = hg,
+                                    legendgroup = hg,
+                                    showlegend = (df_filtered$Replicate_Name[1] == input$selectedSamples[1]),
+                                    type = 'bar',
+                                    opacity = 1
+                                )
+                            }
+
+                            # Add the black line for Relative_Area
+                            p <- p %>% add_trace(
+                                data = df,
+                                x = ~Molecule,
+                                y = ~Relative_Area,
+                                name = "Relative Area",
+                                legendgroup = "RelativeArea",
+                                showlegend = (df$Replicate_Name[1] == input$selectedSamples[1]),
+                                type = 'scatter',
+                                mode = 'lines+markers',
+                                line = list(color = 'black'),
+                                marker = list(color = 'black', size = 6),
+                                opacity = 0.7
+                            )
+
+                            # Add layout
+                            p <- p %>% layout(
+                                xaxis = list(
+                                    title = "Homologue",
+                                    tickangle = 45
+                                ),
+                                yaxis = list(title = "Value"),
+                                barmode = 'group',
+                                annotations = list(
+                                    x = 0.5,
+                                    y = 1.1,
+                                    text = unique(df$Replicate_Name),
+                                    xref = 'paper',
+                                    yref = 'paper',
+                                    showarrow = FALSE
+                                )
+                            )
+
+                            return(p)
+                        })
+
+                    # Combine the plots using subplot
+                    subplot(plot_list,
+                            nrows = ceiling(length(plot_list)/2),
+                            shareX = TRUE,
+                            shareY = TRUE) %>%
+                        layout(
+                            title = "Sample Comparison",
+                            showlegend = TRUE,
+                            hovermode = 'closest',
+                            hoverlabel = list(bgcolor = "white"),
+                            barmode = 'group'
+                        ) %>%
+                        config(displayModeBar = TRUE) %>%
+                        onRender("
+                function(el) {
+                    var plotDiv = document.getElementById(el.id);
+                    plotDiv.on('plotly_legendclick', function(data) {
+                        Plotly.restyle(plotDiv, {
+                            visible: data.data[data.curveNumber].visible === 'legendonly' ? true : 'legendonly'
+                        }, data.fullData.map((trace, i) => i).filter(i =>
+                            data.fullData[i].legendgroup === data.fullData[data.curveNumber].legendgroup
+                        ));
+                        return false;
+                    });
+                }
+            ")
+                })
+            }
+
+
 
             incProgress(1)
         })
