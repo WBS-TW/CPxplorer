@@ -1,13 +1,13 @@
 Package: CPxplorer
 Title: CPxplorer: PCAs and analogues analysis and quantification 
-Version: 0.5
+Version: 0.7
 Authors@R: c(
-    person("Thanh", "Wang", , "thanh.wang@liu.se", role = c("aut", "cre"),
+    person("Thanh", "Wang", , "thanh.wang@liu.se", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-5729-1908")),
-    person("Idoia", "Beloqui Ezquer", , "idoia.beloqui.ezquer@liu.se", role = "aut")
+    person("Idoia", "Beloqui Ezquer", , "idoia.beloqui.ezquer@liu.se", role = "cre", "aut")
   )
-Description: Generates list of ions of PCAs and analoguesfor mass spectrometric analysis and perform quantification.
-License: MIT + file LICENSE
+Description: Generates list of ions of PCAs and analogues for mass spectrometric analysis and perform quantification by deconvolution.
+License: CC BY 4.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
