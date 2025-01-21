@@ -14,6 +14,7 @@
 #' @import tibble
 #' @import tidyr
 #' @import DT
+#' @import forcats
 #' @import plotly
 #' @import purrr
 #' @import markdown
@@ -95,39 +96,77 @@ CPquant <- function(...){
                             ),
                             shiny::tabPanel(
                                 "Homologue Group Patterns",
-                                shiny::sidebarPanel(
-                                    width = 2, # max 12
-                                    shiny::radioButtons("plotHomologueGroups", "Choose tab:",
-                                                        choices = c("All Samples Overview", "Samples Overlay", "Samples Panels"),
-                                                        selected = "All Samples Overview"),
-                                    shiny::conditionalPanel(
-                                        condition = "input.plotHomologueGroups == 'Samples Overlay'",
-                                        shiny::uiOutput("sampleSelectionUIOverlay")
+                                fluidRow(
+                                    column(
+                                        width = 2,
+                                        shiny::radioButtons("plotHomologueGroups", "Choose tab:",
+                                                            choices = c("All Samples Overview", "Samples Overlay", "Samples Panels"),
+                                                            selected = "All Samples Overview"),
+                                        shiny::conditionalPanel(
+                                            condition = "input.plotHomologueGroups == 'Samples Overlay'",
+                                            shiny::uiOutput("sampleSelectionUIOverlay")
+                                        ),
+                                        shiny::conditionalPanel(
+                                            condition = "input.plotHomologueGroups == 'Samples Panels'",
+                                            shiny::uiOutput("sampleSelectionUIComparisons")
+                                        ),
+                                        shiny::tags$div(
+                                            title = "WAIT after pressing..Might take some time before plot shows!",
+                                            shiny::actionButton('go2', 'Plot', width = "100%")
+                                        )
                                     ),
-                                    shiny::conditionalPanel(
-                                        condition = "input.plotHomologueGroups == 'Samples Panels'",
-                                        shiny::uiOutput("sampleSelectionUIComparisons")
-                                    ),
-                                    shiny::tags$div(
-                                        title = "WAIT after pressing..Might take some time before plot shows!",
-                                        shiny::actionButton('go2', 'Plot', width = "100%")
-                                    )),
-                                shiny::mainPanel(
-                                    width = 10,
-                                    shiny::conditionalPanel(
-                                        condition = "input.plotHomologueGroups == 'All Samples Overview'",
-                                        shiny::plotOutput("plotHomologuePatternStatic", height = "800px", width = "100%")
-                                    ),
-                                    shiny::conditionalPanel(
-                                        condition = "input.plotHomologueGroups == 'Samples Overlay'",
-                                        plotly::plotlyOutput("plotHomologuePatternOverlay")
-                                    ),
-                                    shiny::conditionalPanel(
-                                        condition = "input.plotHomologueGroups == 'Samples Panels'",
-                                        plotly::plotlyOutput("plotHomologuePatternComparisons")
+                                    column(
+                                        width = 10,
+                                        shiny::conditionalPanel(
+                                            condition = "input.plotHomologueGroups == 'All Samples Overview'",
+                                            shiny::plotOutput("plotHomologuePatternStatic", height = "80vh", width = "100%")
+                                        ),
+                                        shiny::conditionalPanel(
+                                            condition = "input.plotHomologueGroups == 'Samples Overlay'",
+                                            plotly::plotlyOutput("plotHomologuePatternOverlay", height = "80vh", width = "100%")
+                                        ),
+                                        shiny::conditionalPanel(
+                                            condition = "input.plotHomologueGroups == 'Samples Panels'",
+                                            plotly::plotlyOutput("plotHomologuePatternComparisons", height = "80vh", width = "100%")
+                                        )
                                     )
                                 )
                             ),
+                            # shiny::tabPanel(
+                            #     "Homologue Group Patterns",
+                            #     shiny::sidebarPanel(
+                            #         width = 2, # max 12
+                            #         shiny::radioButtons("plotHomologueGroups", "Choose tab:",
+                            #                             choices = c("All Samples Overview", "Samples Overlay", "Samples Panels"),
+                            #                             selected = "All Samples Overview"),
+                            #         shiny::conditionalPanel(
+                            #             condition = "input.plotHomologueGroups == 'Samples Overlay'",
+                            #             shiny::uiOutput("sampleSelectionUIOverlay")
+                            #         ),
+                            #         shiny::conditionalPanel(
+                            #             condition = "input.plotHomologueGroups == 'Samples Panels'",
+                            #             shiny::uiOutput("sampleSelectionUIComparisons")
+                            #         ),
+                            #         shiny::tags$div(
+                            #             title = "WAIT after pressing..Might take some time before plot shows!",
+                            #             shiny::actionButton('go2', 'Plot', width = "100%")
+                            #         )),
+                            #     shiny::mainPanel(
+                            #         width = 10,
+                            #         shiny::conditionalPanel(
+                            #             condition = "input.plotHomologueGroups == 'All Samples Overview'",
+                            #             shiny::plotOutput("plotHomologuePatternStatic", height = "90%", width = "100%")
+                            #         ),
+                            #         shiny::conditionalPanel(
+                            #             condition = "input.plotHomologueGroups == 'Samples Overlay'",
+                            #             plotly::plotlyOutput("plotHomologuePatternOverlay", height = "90%", width = "100%")
+                            #         ),
+                            #         shiny::conditionalPanel(
+                            #             condition = "input.plotHomologueGroups == 'Samples Panels'",
+                            #             plotly::plotlyOutput("plotHomologuePatternComparisons", height = "90%", width = "100%")
+                            #         )
+                            #     )
+                            # ),
                             shiny::tabPanel(
                                 "QA/QC",
                                 shiny::mainPanel(
@@ -434,6 +473,7 @@ CPquant <- function(...){
 
             progress$set(value = 1, detail = "Complete")
 
+
             ### END: Deconvolution script
 
 
@@ -702,7 +742,8 @@ CPquant <- function(...){
 
                 if (input$plotHomologueGroups == "All Samples Overview") {
                     output$plotHomologuePatternStatic <- shiny::renderPlot({
-                        ggplot(Sample_distribution, aes(x = Molecule, y = resolved_distribution, fill = C_homologue)) +
+                        #ggplot(Sample_distribution, aes(x = Molecule, y = resolved_distribution, fill = C_homologue)) +
+                        ggplot(Sample_distribution, aes(x = Molecule, y = Relative_Area, fill = C_homologue)) +
                             geom_col() +
                             facet_wrap(~Replicate_Name) +
                             theme_minimal() +
@@ -726,13 +767,14 @@ CPquant <- function(...){
                         # Create a basic bar plot
                         p <- plot_ly(data = selected_samples,
                                      x = ~Molecule,
-                                     y = ~resolved_distribution,
+                                     #y = ~resolved_distribution,
+                                     y = ~Relative_Area,
                                      color = ~Replicate_Name,
                                      type = "bar",
                                      text = ~paste(
                                          "Sample:", Replicate_Name,
                                          "<br>Homologue:", Molecule,
-                                         "<br>Distribution:", round(resolved_distribution, 4),
+                                         "<br>Distribution:", round(Relative_Area, 4),
                                          "<br>C-atoms:", C_homologue
                                      ),
                                      hoverinfo = "text"
@@ -779,7 +821,8 @@ CPquant <- function(...){
                                     p <- p |> add_trace(
                                         data = df_filtered,
                                         x = ~Molecule,
-                                        y = ~resolved_distribution,
+                                        #y = ~resolved_distribution,
+                                        y = ~Relative_Area,
                                         name = hg,
                                         legendgroup = hg,
                                         showlegend = (df_filtered$Replicate_Name[1] == input$selectedSamples[1]),
@@ -788,13 +831,15 @@ CPquant <- function(...){
                                     )
                                 }
 
-                                # Add the black line for Relative_Area
+                                # Add the black line for resolved_distribution
                                 p <- p |> add_trace(
                                     data = df,
                                     x = ~Molecule,
-                                    y = ~Relative_Area,
-                                    name = "Relative Area",
-                                    legendgroup = "RelativeArea",
+                                    #y = ~Relative_Area,
+                                    y = ~resolved_distribution,
+                                    name = "Deconvoluted Distribution",
+                                    #legendgroup = "RelativeArea",
+                                    legendgroup = "DeconvDistr",
                                     showlegend = (df$Replicate_Name[1] == input$selectedSamples[1]),
                                     type = 'scatter',
                                     mode = 'lines+markers',
