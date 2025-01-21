@@ -17,6 +17,7 @@
 #' @import plotly
 #' @import purrr
 #' @import markdown
+#' @import openxlsx
 #' @importFrom stats lm
 
 
@@ -87,6 +88,7 @@ CPquant <- function(...){
                             shiny::tabPanel(
                                 "Quantification summary",
                                 shiny::fluidPage(
+                                    downloadButton("downloadResults", "Export all results to Excel"),
                                     DT::DTOutput("quantTable"),
                                     plotly::plotlyOutput("sampleContributionPlot")
                                 )
@@ -435,6 +437,51 @@ CPquant <- function(...){
             ### END: Deconvolution script
 
 
+
+            output$downloadResults <- shiny::downloadHandler(
+                filename = function() {
+                    paste("CPquant_Results_", Sys.Date(), ".xlsx", sep = "")
+                },
+                content = function(file) {
+                    # Create a new workbook
+                    wb <- openxlsx::createWorkbook()
+
+                    # Add worksheets
+                    openxlsx::addWorksheet(wb, "Quantification")
+                    openxlsx::addWorksheet(wb, "StandardsContribution")
+                    openxlsx::addWorksheet(wb, "HomologueDistribution")
+
+                    # Write data to worksheets
+                    openxlsx::writeData(wb, "Quantification",
+                                        deconvolution |>
+                                            dplyr::select(Replicate_Name, Sample_Type, Concentration, deconv_rsquared) |>
+                                            dplyr::mutate(deconv_rsquared = round(deconv_rsquared, 3)))
+                    openxlsx::writeData(wb, "StandardsContribution",
+                                        deconvolution |>
+                                            unnest(deconv_coef) |>
+                                            unnest_longer(c(deconv_coef, Batch_Name)) |>
+                                            select(Replicate_Name, Batch_Name, deconv_coef) |>
+                                            mutate(deconv_coef = deconv_coef * 100) |>
+                                            pivot_wider(names_from = Batch_Name, values_from = deconv_coef))
+                    openxlsx::writeData(wb, "HomologueDistribution",
+                                        deconvolution |>
+                                            mutate(data = map2(data, deconv_resolved, ~inner_join(.x, .y, by = "Molecule"))) |>
+                                            mutate(data = map(data, ~ .x |> mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
+                                            select(-deconv_resolved) |>
+                                            unnest(data) |>
+                                            mutate(Deconvoluted_Distribution = as.numeric(resolved_distribution)) |>
+                                            rename(Relative_Distribution = Relative_Area) |>
+                                            select(-deconv_coef, -resolved_distribution, -Quantification_Group, -C_number, -Cl_number, -Area, -sum_Area,
+                                                   -sum_deconv_RF, -Concentration, -deconv_resolved, -deconv_rsquared)
+                    )
+
+
+                    # Save workbook
+                    openxlsx::saveWorkbook(wb, file)
+                }
+            )
+
+
             # Render table
             output$quantTable <- DT::renderDT({
                 deconvolution |>
@@ -463,10 +510,10 @@ CPquant <- function(...){
 
             # render sampleContributionPlot
             output$sampleContributionPlot <- renderPlotly({
-                # Assuming your quantification data is in a reactive called quantData()
-                plot_data <- deconvolution %>%
-                    unnest(deconv_coef) %>%
-                    unnest_longer(c(deconv_coef, Batch_Name)) %>%
+                # How much contribution of each sample to the final deconvoluted homologue group pattern
+                plot_data <- deconvolution |>
+                    unnest(deconv_coef) |>
+                    unnest_longer(c(deconv_coef, Batch_Name)) |>
                     select(Replicate_Name, Batch_Name, deconv_coef)
 
                 # Create the plotly stacked bar plot
@@ -475,7 +522,7 @@ CPquant <- function(...){
                         y = ~deconv_coef,
                         type = "bar",
                         color = ~Batch_Name,
-                        colors = "Spectral") %>%
+                        colors = "Spectral") |>
                     layout(
                         title = list(
                             text = "Deconvoluted contributions from standards",
@@ -645,152 +692,152 @@ CPquant <- function(...){
 
             withProgress(message = 'Generating plot...', value = 0, {
 
-            Sample_distribution <- Samples_Concentration() |>
-                mutate(data = map2(data, deconv_resolved, ~inner_join(.x, .y, by = "Molecule"))) |>
-                mutate(data = map(data, ~ .x |> mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
-                select(-deconv_resolved) |>
-                unnest(data)
+                Sample_distribution <- Samples_Concentration() |>
+                    mutate(data = map2(data, deconv_resolved, ~inner_join(.x, .y, by = "Molecule"))) |>
+                    mutate(data = map(data, ~ .x |> mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
+                    select(-deconv_resolved) |>
+                    unnest(data)
 
-            incProgress(0.5)
+                incProgress(0.5)
 
-            if (input$plotHomologueGroups == "All Samples Overview") {
-                output$plotHomologuePatternStatic <- shiny::renderPlot({
-                    ggplot(Sample_distribution, aes(x = Molecule, y = resolved_distribution, fill = C_homologue)) +
-                        geom_col() +
-                        facet_wrap(~Replicate_Name) +
-                        theme_minimal() +
-                        theme(axis.text.x = element_blank()) +
-                        labs(title = "Relative Distribution",
-                             x = "Homologue",
-                             y = "Relative Distribution")
-                })
-            } else if (input$plotHomologueGroups == "Samples Overlay") {
-                output$plotHomologuePatternOverlay <- plotly::renderPlotly({
-                    req(input$selectedSamples)
-                    req(Sample_distribution)
+                if (input$plotHomologueGroups == "All Samples Overview") {
+                    output$plotHomologuePatternStatic <- shiny::renderPlot({
+                        ggplot(Sample_distribution, aes(x = Molecule, y = resolved_distribution, fill = C_homologue)) +
+                            geom_col() +
+                            facet_wrap(~Replicate_Name) +
+                            theme_minimal() +
+                            theme(axis.text.x = element_blank()) +
+                            labs(title = "Relative Distribution",
+                                 x = "Homologue",
+                                 y = "Relative Distribution")
+                    })
+                } else if (input$plotHomologueGroups == "Samples Overlay") {
+                    output$plotHomologuePatternOverlay <- plotly::renderPlotly({
+                        req(input$selectedSamples)
+                        req(Sample_distribution)
 
-                    # Filter for selected samples
-                    selected_samples <- Sample_distribution %>%
-                        filter(Replicate_Name %in% input$selectedSamples) %>%
-                        mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
+                        # Filter for selected samples
+                        selected_samples <- Sample_distribution |>
+                            filter(Replicate_Name %in% input$selectedSamples) |>
+                            mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
 
-                    req(nrow(selected_samples) > 0)
+                        req(nrow(selected_samples) > 0)
 
-                    # Create a basic bar plot
-                    p <- plot_ly(data = selected_samples,
-                                 x = ~Molecule,
-                                 y = ~resolved_distribution,
-                                 color = ~Replicate_Name,
-                                 type = "bar",
-                                 text = ~paste(
-                                     "Sample:", Replicate_Name,
-                                     "<br>Homologue:", Molecule,
-                                     "<br>Distribution:", round(resolved_distribution, 4),
-                                     "<br>C-atoms:", C_homologue
-                                 ),
-                                 hoverinfo = "text"
-                    ) %>%
-                        layout(
-                            title = "Sample Distribution Overlay",
-                            xaxis = list(
-                                title = "Homologue",
-                                tickangle = 45
-                            ),
-                            yaxis = list(
-                                title = "Distribution"
-                            ),
-                            barmode = 'group',
-                            showlegend = TRUE,
-                            height = 600,
-                            margin = list(b = 100)  # Add more bottom margin for rotated labels
-                        )
-
-                    p
-                })
-            } else if (input$plotHomologueGroups == "Samples Panels") {
-                output$plotHomologuePatternComparisons <- plotly::renderPlotly({
-                    req(input$selectedSamples)
-
-                    # Filter data for selected samples and reshape data
-                    selected_samples <- Sample_distribution %>%
-                        filter(Replicate_Name %in% input$selectedSamples) %>%
-                        mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
-
-                    # Get unique homologue groups for consistent coloring
-                    homologue_groups <- unique(selected_samples$C_homologue)
-
-                    # Create a list of plots, one for each Replicate_Name
-                    plot_list <- selected_samples %>%
-                        split(selected_samples$Replicate_Name) %>%
-                        map(function(df) {
-                            # Create base plot
-                            p <- plot_ly()
-
-                            # Add bars for each homologue group
-                            for(hg in homologue_groups) {
-                                df_filtered <- df[df$C_homologue == hg,]
-                                p <- p %>% add_trace(
-                                    data = df_filtered,
-                                    x = ~Molecule,
-                                    y = ~resolved_distribution,
-                                    name = hg,
-                                    legendgroup = hg,
-                                    showlegend = (df_filtered$Replicate_Name[1] == input$selectedSamples[1]),
-                                    type = 'bar',
-                                    opacity = 1
-                                )
-                            }
-
-                            # Add the black line for Relative_Area
-                            p <- p %>% add_trace(
-                                data = df,
-                                x = ~Molecule,
-                                y = ~Relative_Area,
-                                name = "Relative Area",
-                                legendgroup = "RelativeArea",
-                                showlegend = (df$Replicate_Name[1] == input$selectedSamples[1]),
-                                type = 'scatter',
-                                mode = 'lines+markers',
-                                line = list(color = 'black'),
-                                marker = list(color = 'black', size = 6),
-                                opacity = 0.7
-                            )
-
-                            # Add layout
-                            p <- p %>% layout(
+                        # Create a basic bar plot
+                        p <- plot_ly(data = selected_samples,
+                                     x = ~Molecule,
+                                     y = ~resolved_distribution,
+                                     color = ~Replicate_Name,
+                                     type = "bar",
+                                     text = ~paste(
+                                         "Sample:", Replicate_Name,
+                                         "<br>Homologue:", Molecule,
+                                         "<br>Distribution:", round(resolved_distribution, 4),
+                                         "<br>C-atoms:", C_homologue
+                                     ),
+                                     hoverinfo = "text"
+                        ) |>
+                            layout(
+                                title = "Sample Distribution Overlay",
                                 xaxis = list(
                                     title = "Homologue",
                                     tickangle = 45
                                 ),
-                                yaxis = list(title = "Value"),
+                                yaxis = list(
+                                    title = "Distribution"
+                                ),
                                 barmode = 'group',
-                                annotations = list(
-                                    x = 0.5,
-                                    y = 1.1,
-                                    text = unique(df$Replicate_Name),
-                                    xref = 'paper',
-                                    yref = 'paper',
-                                    showarrow = FALSE
-                                )
+                                showlegend = TRUE,
+                                height = 600,
+                                margin = list(b = 100)  # Add more bottom margin for rotated labels
                             )
 
-                            return(p)
-                        })
+                        p
+                    })
+                } else if (input$plotHomologueGroups == "Samples Panels") {
+                    output$plotHomologuePatternComparisons <- plotly::renderPlotly({
+                        req(input$selectedSamples)
 
-                    # Combine the plots using subplot
-                    subplot(plot_list,
-                            nrows = ceiling(length(plot_list)/2),
-                            shareX = TRUE,
-                            shareY = TRUE) %>%
-                        layout(
-                            title = "Sample Comparison",
-                            showlegend = TRUE,
-                            hovermode = 'closest',
-                            hoverlabel = list(bgcolor = "white"),
-                            barmode = 'group'
-                        ) %>%
-                        config(displayModeBar = TRUE) %>%
-                        onRender("
+                        # Filter data for selected samples and reshape data
+                        selected_samples <- Sample_distribution |>
+                            filter(Replicate_Name %in% input$selectedSamples) |>
+                            mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
+
+                        # Get unique homologue groups for consistent coloring
+                        homologue_groups <- unique(selected_samples$C_homologue)
+
+                        # Create a list of plots, one for each Replicate_Name
+                        plot_list <- selected_samples |>
+                            split(selected_samples$Replicate_Name) |>
+                            map(function(df) {
+                                # Create base plot
+                                p <- plot_ly()
+
+                                # Add bars for each homologue group
+                                for(hg in homologue_groups) {
+                                    df_filtered <- df[df$C_homologue == hg,]
+                                    p <- p |> add_trace(
+                                        data = df_filtered,
+                                        x = ~Molecule,
+                                        y = ~resolved_distribution,
+                                        name = hg,
+                                        legendgroup = hg,
+                                        showlegend = (df_filtered$Replicate_Name[1] == input$selectedSamples[1]),
+                                        type = 'bar',
+                                        opacity = 1
+                                    )
+                                }
+
+                                # Add the black line for Relative_Area
+                                p <- p |> add_trace(
+                                    data = df,
+                                    x = ~Molecule,
+                                    y = ~Relative_Area,
+                                    name = "Relative Area",
+                                    legendgroup = "RelativeArea",
+                                    showlegend = (df$Replicate_Name[1] == input$selectedSamples[1]),
+                                    type = 'scatter',
+                                    mode = 'lines+markers',
+                                    line = list(color = 'black'),
+                                    marker = list(color = 'black', size = 6),
+                                    opacity = 0.7
+                                )
+
+                                # Add layout
+                                p <- p |> layout(
+                                    xaxis = list(
+                                        title = "Homologue",
+                                        tickangle = 45
+                                    ),
+                                    yaxis = list(title = "Value"),
+                                    barmode = 'group',
+                                    annotations = list(
+                                        x = 0.5,
+                                        y = 1.1,
+                                        text = unique(df$Replicate_Name),
+                                        xref = 'paper',
+                                        yref = 'paper',
+                                        showarrow = FALSE
+                                    )
+                                )
+
+                                return(p)
+                            })
+
+                        # Combine the plots using subplot
+                        subplot(plot_list,
+                                nrows = ceiling(length(plot_list)/2),
+                                shareX = TRUE,
+                                shareY = TRUE) |>
+                            layout(
+                                title = "Sample Comparison",
+                                showlegend = TRUE,
+                                hovermode = 'closest',
+                                hoverlabel = list(bgcolor = "white"),
+                                barmode = 'group'
+                            ) |>
+                            config(displayModeBar = TRUE) |>
+                            onRender("
                 function(el) {
                     var plotDiv = document.getElementById(el.id);
                     plotDiv.on('plotly_legendclick', function(data) {
@@ -803,13 +850,13 @@ CPquant <- function(...){
                     });
                 }
             ")
-                })
-            }
+                    })
+                }
 
 
 
-            incProgress(1)
-        })
+                incProgress(1)
+            })
         })
 
 
