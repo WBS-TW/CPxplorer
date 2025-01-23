@@ -2,11 +2,8 @@
 #' @param ...
 #'
 #' @import shiny
-#' @import bslib
 #' @import htmlwidgets
 #' @import ggplot2
-#' @import ggforce
-#' @import gridExtra
 #' @import readxl
 #' @import nnls
 #' @import crosstalk
@@ -14,7 +11,6 @@
 #' @import tibble
 #' @import tidyr
 #' @import DT
-#' @import forcats
 #' @import plotly
 #' @import purrr
 #' @import markdown
@@ -72,16 +68,11 @@ CPquant <- function(...){
                                     width = 10,
                                     shiny::conditionalPanel(
                                         condition = "input.navSummary == 'Std Calibration Curves'",
-                                        # plotly::plotlyOutput("CalibrationSCCPs"),
-                                        # shiny::tags$br(),
-                                        # plotly::plotlyOutput("CalibrationMCCPs"),
-                                        # shiny::tags$br(),
-                                        # plotly::plotlyOutput("CalibrationLCCPs")
                                         plotly::plotlyOutput("CalibrationCurves")
                                     ),
                                     shiny::conditionalPanel(
                                         condition = "input.navSummary == 'Quan to Qual ratio'",
-                                        plotly::plotlyOutput("RatioQuantToQual")
+                                        plotly::plotlyOutput("RatioQuantToQual", height = "80vh", width = "100%")
                                     )
                                 )
                             ),
@@ -90,7 +81,9 @@ CPquant <- function(...){
                                 "Quantification summary",
                                 shiny::fluidPage(
                                     downloadButton("downloadResults", "Export all results to Excel"),
+                                    shiny::tags$br(),
                                     DT::DTOutput("quantTable"),
+                                    shiny::tags$br(),
                                     plotly::plotlyOutput("sampleContributionPlot")
                                 )
                             ),
@@ -132,41 +125,6 @@ CPquant <- function(...){
                                     )
                                 )
                             ),
-                            # shiny::tabPanel(
-                            #     "Homologue Group Patterns",
-                            #     shiny::sidebarPanel(
-                            #         width = 2, # max 12
-                            #         shiny::radioButtons("plotHomologueGroups", "Choose tab:",
-                            #                             choices = c("All Samples Overview", "Samples Overlay", "Samples Panels"),
-                            #                             selected = "All Samples Overview"),
-                            #         shiny::conditionalPanel(
-                            #             condition = "input.plotHomologueGroups == 'Samples Overlay'",
-                            #             shiny::uiOutput("sampleSelectionUIOverlay")
-                            #         ),
-                            #         shiny::conditionalPanel(
-                            #             condition = "input.plotHomologueGroups == 'Samples Panels'",
-                            #             shiny::uiOutput("sampleSelectionUIComparisons")
-                            #         ),
-                            #         shiny::tags$div(
-                            #             title = "WAIT after pressing..Might take some time before plot shows!",
-                            #             shiny::actionButton('go2', 'Plot', width = "100%")
-                            #         )),
-                            #     shiny::mainPanel(
-                            #         width = 10,
-                            #         shiny::conditionalPanel(
-                            #             condition = "input.plotHomologueGroups == 'All Samples Overview'",
-                            #             shiny::plotOutput("plotHomologuePatternStatic", height = "90%", width = "100%")
-                            #         ),
-                            #         shiny::conditionalPanel(
-                            #             condition = "input.plotHomologueGroups == 'Samples Overlay'",
-                            #             plotly::plotlyOutput("plotHomologuePatternOverlay", height = "90%", width = "100%")
-                            #         ),
-                            #         shiny::conditionalPanel(
-                            #             condition = "input.plotHomologueGroups == 'Samples Panels'",
-                            #             plotly::plotlyOutput("plotHomologuePatternComparisons", height = "90%", width = "100%")
-                            #         )
-                            #     )
-                            # ),
                             shiny::tabPanel(
                                 "QA/QC",
                                 shiny::mainPanel(
@@ -249,14 +207,7 @@ CPquant <- function(...){
                     dplyr::mutate(Area = ifelse(Area <0, 0, Area)) #replace negative Area with 0 after blank subtraction
             }
 
-            # if (input$standardTypes == "Group Mixtures") {
-            #     df <- df |>
-            #         dplyr::mutate(Quantification_Group = dplyr::case_when(
-            #             C_number >= 10 & C_number <= 13 ~ "SCCP",
-            #             C_number >= 14 & C_number <= 17 ~ "MCCP",
-            #             C_number >= 18 ~ "LCCP"
-            #         ))
-            # }
+
             if (input$standardTypes == "Group Mixtures") {
                 df <- df |>
                     dplyr::mutate(Quantification_Group = stringr::str_extract(Batch_Name, "^[^_]+"))
@@ -335,15 +286,12 @@ CPquant <- function(...){
             }
 
 
-            # define the chosen standardAnnoColumn as a character for later calculations
-            #standardAnnoColumn_name <- standardAnnoColumn()
-
 
             ##### PREPARE FOR DECONVOLUTION #######
             # Prepare for deconvolution for standards
             progress$set(value = 0.2, detail = "Preparing standards data")
 
-            # This is for SCCP, MCCP, LCCP mixtures
+            # Prepare data frame for all standards to be used in deconvolution
             if(input$standardTypes == "Group Mixtures"){
 
                 CPs_standards <- Skyline_output_filt |>
@@ -381,8 +329,8 @@ CPquant <- function(...){
                 # Prepare for deconvolution of samples
                 progress$set(value = 0.6, detail = "Preparing sample data")
 
-                #unique_chars <- unique(CPs_standards$Quantification_Group)
-                unique_chars <- unique(stringr::str_extract(CPs_standards$Batch_Name, "^[^_]+"))
+                # Character vector for unique Batch Name
+                #unique_chars <- unique(stringr::str_extract(CPs_standards$Batch_Name, "^[^_]+"))
 
                 CPs_samples <- Skyline_output_filt |>
                     dplyr::filter(
@@ -415,6 +363,29 @@ CPquant <- function(...){
 
                 output$CalibrationCurves <- plotly::renderPlotly({
                     plot_calibration_curves(CPs_standards)
+                })
+
+                output$RatioQuantToQual <- plotly::renderPlotly({
+
+                    Skyline_output_filt |>
+                        dplyr::group_by(Replicate_Name, Molecule) |>
+                        dplyr::mutate(Quan_Area = ifelse(Isotope_Label_Type == "Quan", Area, NA)) |>
+                        tidyr::fill(Quan_Area, .direction = "downup") |>
+                        dplyr::mutate(QuanMZ = ifelse(Isotope_Label_Type == "Quan", Chromatogram_Precursor_MZ, NA)) |>
+                        tidyr::fill(QuanMZ, .direction = "downup") |>
+                        dplyr::mutate(QuanQualRatio = ifelse(Isotope_Label_Type == "Qual", Quan_Area/Area, 1)) |>
+                        tidyr::replace_na(list(QuanQualRatio = 0)) |>
+                        dplyr::mutate(QuanQualMZ = paste0(QuanMZ,"/",Chromatogram_Precursor_MZ)) |>
+                        dplyr::ungroup() |>
+                        dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio) |>
+                        plot_ly(x = ~Replicate_Name, y = ~QuanQualRatio, type = 'violin', color = ~Sample_Type,
+                                text = ~paste(Replicate_Name, "<br>", Molecule_List, "<br>", Molecule,
+                                              "<br>Quan/Qual MZ: ", QuanQualMZ,
+                                              "<br>Ratio: ", round(QuanQualRatio, 2)),
+                                hoverinfo = "text") |>
+                        layout(title = 'Quan-to-Qual Ratio',
+                               xaxis = list(title = 'Replicate Name'),
+                               yaxis = list(title = 'Quan-to-Qual Ratio'))
                 })
 
 
@@ -565,7 +536,7 @@ CPquant <- function(...){
                         colors = "Spectral") |>
                     layout(
                         title = list(
-                            text = "Deconvoluted contributions from standards",
+                            text = "Contributions from standards to deconvoluted pattern",
                             x = 0.5,  # Center the title
                             y = 0.95  # Position slightly down from top
                         ),

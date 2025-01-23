@@ -5,18 +5,6 @@ defineVariablesUI <- function(Skyline_output){
 
     # Create the UI components
     shiny::fluidRow(
-        # shiny::h4("Define variables"),
-        # shiny::tags$br(),
-        # shiny::column(
-        #     6,
-        #     shiny::varSelectInput(
-        #         inputId = "standardAnnoColumn", #select which variable to use to define standards
-        #         label = "Variable for annotating standards",
-        #         data = Skyline_output,
-        #         selected = "Batch Name"
-        #     )
-        # ),
-        # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
         shiny::column(
             6,
             shiny::selectInput(
@@ -27,18 +15,7 @@ defineVariablesUI <- function(Skyline_output){
                 multiple = TRUE
             )
         ),
-        # shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
-        # shiny::column(
-        # 6,
-        #shiny::sliderInput(
-        #       inputId = "removeAreas", #remove low peak areas
-        #      label = "Keep absolute peak areas above this threshold (0 means keep everything)",
-        #     min = min(Skyline_output()$Area),
-        #    max = max(Skyline_output()$Area),
-        #   value = 0,
-        #  step = 10
-        # )
-        #),
+
         shiny::tags$br(), shiny::tags$br(), shiny::tags$br(), shiny::tags$br(),
         shiny::column(
             6,
