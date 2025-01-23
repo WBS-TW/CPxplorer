@@ -751,7 +751,7 @@ CPquant <- function(...){
                                      hoverinfo = "text"
                         ) |>
                             layout(
-                                title = "Sample Distribution Overlay",
+                                #title = "Sample Distribution Overlay",
                                 xaxis = list(
                                     title = "Homologue",
                                     tickangle = 45
@@ -846,7 +846,7 @@ CPquant <- function(...){
                                 shareX = TRUE,
                                 shareY = TRUE) |>
                             layout(
-                                title = "Sample Comparison",
+                                #title = "Sample Comparison",
                                 showlegend = TRUE,
                                 hovermode = 'closest',
                                 hoverlabel = list(bgcolor = "white"),

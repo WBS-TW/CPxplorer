@@ -79,7 +79,8 @@ plot_calibration_curves <- function(CPs_standards) {
         plot_list,
         nrows = subplot_rows,
         shareX = TRUE,
-        shareY = TRUE,
+        #shareY = TRUE,
+        shareY = FALSE,
         margin = 0.1
     ) |>
         layout(
