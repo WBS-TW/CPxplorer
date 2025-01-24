@@ -1,10 +1,12 @@
 CPxplorer
-
+<br>
 
 library(devtools)
-
+<br>
 devtools::load_all()
-
-Open apps:
+<br>
+Open apps: 
+<br>
 CPions()
+<br>
 CPquant()
