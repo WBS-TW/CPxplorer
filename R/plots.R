@@ -1,4 +1,28 @@
 
+
+plot_skyline_output <- function(Skyline_output){
+
+    Skyline_output |>
+        dplyr::filter(Isotope_Label_Type == "Quan") |>
+        dplyr::mutate(OrderedMolecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))) |>  # Create a composite ordering factor
+        plotly::plot_ly(
+            x = ~ OrderedMolecule,
+            y = ~ Area,
+            color = ~ Sample_Type,
+            type = "box",
+            text = ~paste(
+                "Homologue: ", PCA,
+                "<br>Sample: ", Replicate_Name,
+                "<br>Area:", round(Area, 2)
+            ),
+            hoverinfo = "text"
+        ) |>
+        plotly::layout(xaxis = list(title = 'Molecule'),
+               yaxis = list(title = 'Area'))
+}
+
+#############################################################################
+
 plot_calibration_curves <- function(CPs_standards) {
     # Unnest the data first
     CPs_standards_unnested <- CPs_standards |>
@@ -18,8 +42,8 @@ plot_calibration_curves <- function(CPs_standards) {
         group_data <- CPs_standards_unnested |>
             dplyr::filter(Quantification_Group == groups[i])
 
-        plot_list[[i]] <- plot_ly() |>
-            add_trace(
+        plot_list[[i]] <- plotly::plot_ly() |>
+            plotly::add_trace(
                 data = group_data,
                 x = ~Analyte_Concentration,
                 y = ~Area,
@@ -38,7 +62,7 @@ plot_calibration_curves <- function(CPs_standards) {
                 ),
                 hoverinfo = 'text'
             ) |>
-            add_trace(
+            plotly::add_trace(
                 data = group_data,
                 x = ~Analyte_Concentration,
                 y = ~RF * Analyte_Concentration + intercept,
@@ -78,12 +102,12 @@ plot_calibration_curves <- function(CPs_standards) {
     final_plot <- plotly::subplot(
         plot_list,
         nrows = subplot_rows,
-        shareX = TRUE,
+        shareX = FALSE,
         #shareY = TRUE,
         shareY = FALSE,
         margin = 0.1
     ) |>
-        layout(
+        plotly::layout(
             height = 400 * subplot_rows,
             showlegend = TRUE,
             annotations = annotations,
@@ -98,6 +122,165 @@ plot_calibration_curves <- function(CPs_standards) {
     return(final_plot)
 }
 
+#############################################################################
+
+plot_quanqualratio <- function(Skyline_output_filt) {
+
+    Skyline_output_filt |>
+        dplyr::group_by(Replicate_Name, Molecule) |>
+        dplyr::mutate(Quan_Area = ifelse(Isotope_Label_Type == "Quan", Area, NA)) |>
+        tidyr::fill(Quan_Area, .direction = "downup") |>
+        dplyr::mutate(QuanMZ = ifelse(Isotope_Label_Type == "Quan", Chromatogram_Precursor_MZ, NA)) |>
+        tidyr::fill(QuanMZ, .direction = "downup") |>
+        dplyr::mutate(QuanQualRatio = ifelse(Isotope_Label_Type == "Qual", Quan_Area/Area, 1)) |>
+        tidyr::replace_na(list(QuanQualRatio = 0)) |>
+        dplyr::mutate(QuanQualMZ = paste0(QuanMZ,"/",Chromatogram_Precursor_MZ)) |>
+        dplyr::ungroup() |>
+        dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio) |>
+        plotly::plot_ly(x = ~Replicate_Name, y = ~QuanQualRatio, type = 'violin', color = ~Sample_Type,
+                text = ~paste("Sample: ", Replicate_Name,
+                              "<br>Molecule List: ", Molecule_List,
+                              "<br>Molecule: ", Molecule,
+                              "<br>Quan/Qual MZ: ", QuanQualMZ,
+                              "<br>Ratio: ", round(QuanQualRatio, 2)),
+                hoverinfo = "text") |>
+        plotly::layout(title = 'Quan-to-Qual Ratio',
+               xaxis = list(title = 'Replicate Name'),
+               yaxis = list(title = 'Quan-to-Qual Ratio'))
 
 
+}
+
+##############################################################################
+
+plot_sample_contribution <- function(deconvolution) {
+
+    # How much contribution of each sample to the final deconvoluted homologue group pattern
+    plot_data <- deconvolution |>
+        unnest(deconv_coef) |>
+        unnest_longer(c(deconv_coef, Batch_Name)) |>
+        select(Replicate_Name, Batch_Name, deconv_coef)
+
+    # Create the plotly stacked bar plot
+    plotly::plot_ly(plot_data,
+            x = ~Replicate_Name,
+            y = ~deconv_coef,
+            type = "bar",
+            color = ~Batch_Name,
+            colors = "Spectral") |>
+        plotly::layout(
+            title = list(
+                text = "Contributions from standards to deconvoluted homologue pattern",
+                x = 0.5,  # Center the title
+                y = 0.95  # Position slightly down from top
+            ),
+            barmode = "stack",
+            xaxis = list(title = "Replicate Name"),
+            yaxis = list(title = "Relative Contribution",
+                         tickformat = ".2%"),
+            showlegend = TRUE,
+            legend = list(title = list(text = "Batch Name"))
+        )
+}
+
+#############################################################################
+
+plot_homologue_group_pattern_comparison <- function(Sample_distribution, input_selectedSamples){
+
+    # Filter data for selected samples and reshape data
+    selected_samples <- Sample_distribution |>
+        dplyr::filter(Replicate_Name %in% input_selectedSamples) |>
+        dplyr::mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
+
+    # Get unique homologue groups for consistent coloring
+    homologue_groups <- unique(selected_samples$C_homologue)
+
+    # Create a list of plots, one for each Replicate_Name
+    plot_list <- selected_samples |>
+        split(selected_samples$Replicate_Name) |>
+        map(function(df) {
+            # Create base plot
+            p <- plotly::plot_ly()
+
+            # Add bars for each homologue group
+            for(hg in homologue_groups) {
+                df_filtered <- df[df$C_homologue == hg,]
+                p <- p |>
+                    plotly::add_trace(
+                        data = df_filtered,
+                        x = ~Molecule,
+                        y = ~Relative_Area,
+                        name = hg,
+                        legendgroup = hg,
+                        showlegend = (df_filtered$Replicate_Name[1] == input_selectedSamples[1]),
+                        type = 'bar',
+                        opacity = 1
+                    )
+            }
+
+            # Add the black line for resolved_distribution
+            p <- p |>
+                plotly::add_trace(
+                    data = df,
+                    x = ~Molecule,
+                    y = ~resolved_distribution,
+                    name = "Deconvoluted Distribution",
+                    legendgroup = "DeconvDistr",
+                    showlegend = (df$Replicate_Name[1] == input_selectedSamples[1]),
+                    type = 'scatter',
+                    mode = 'lines+markers',
+                    line = list(color = 'black'),
+                    marker = list(color = 'black', size = 6),
+                    opacity = 0.7
+                )
+
+            # Add layout
+            p <- p |>
+                plotly::layout(
+                    xaxis = list(
+                        title = "Homologue",
+                        tickangle = 45
+                    ),
+                    yaxis = list(title = "Value"),
+                    barmode = 'group',
+                    annotations = list(
+                        x = 0.5,
+                        y = 1.1,
+                        text = unique(df$Replicate_Name),
+                        xref = 'paper',
+                        yref = 'paper',
+                        showarrow = FALSE
+                    )
+                )
+
+            return(p)
+        })
+
+    # Combine the plots using subplot
+    plotly::subplot(plot_list,
+                    nrows = ceiling(length(plot_list)/2),
+                    shareX = TRUE,
+                    shareY = TRUE) |>
+        plotly::layout(
+            #title = "Sample Comparison",
+            showlegend = TRUE,
+            hovermode = 'closest',
+            hoverlabel = list(bgcolor = "white"),
+            barmode = 'group'
+        ) |>
+        plotly::config(displayModeBar = TRUE) |>
+        htmlwidgets::onRender("
+                function(el) {
+                    var plotDiv = document.getElementById(el.id);
+                    plotDiv.on('plotly_legendclick', function(data) {
+                        Plotly.restyle(plotDiv, {
+                            visible: data.data[data.curveNumber].visible === 'legendonly' ? true : 'legendonly'
+                        }, data.fullData.map((trace, i) => i).filter(i =>
+                            data.fullData[i].legendgroup === data.fullData[data.curveNumber].legendgroup
+                        ));
+                        return false;
+                    });
+                }
+            ")
+}
 

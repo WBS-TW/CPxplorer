@@ -21,7 +21,7 @@ defineVariablesUI <- function(Skyline_output){
             6,
             shiny::sliderInput(
                 inputId = "removeRsquared", #keep only Molecule above this rsquared, zero means keep everything
-                label = 'Keep the the calibration curves that show rsquared above this threshold (0 means keep everything)',
+                label = 'Keep the the calibration curves above this rsquared (0 means keep everything)',
                 min = 0,
                 max = 1,
                 value = 0.80,
