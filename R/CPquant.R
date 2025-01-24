@@ -81,7 +81,7 @@ CPquant <- function(...){
                                 "Quantification summary",
                                 shiny::fluidPage(
                                     downloadButton("downloadResults", "Export all results to Excel"),
-                                    shiny::tags$br(),
+                                    shiny::tags$br(), shiny::tags$br(),
                                     DT::DTOutput("quantTable"),
                                     shiny::tags$br(),
                                     plotly::plotlyOutput("sampleContributionPlot")
@@ -158,7 +158,7 @@ CPquant <- function(...){
 
             progress$set(message = "WAIT! Loading data...", value = 0)
 
-            # Read the Excel file
+            # Read the Skyline output Excel file
             progress$set(value = 0.3, detail = "Reading Excel file")
             df <- readxl::read_excel(input$fileInput$datapath) #outputs a tibble
 
@@ -210,7 +210,7 @@ CPquant <- function(...){
 
             if (input$standardTypes == "Group Mixtures") {
                 df <- df |>
-                    dplyr::mutate(Quantification_Group = stringr::str_extract(Batch_Name, "^[^_]+"))
+                    dplyr::mutate(Quantification_Group = stringr::str_extract(Batch_Name, "^[^_]+")) #extract the initial sequence of characters up to, but not including, the first underscore.
             }
 
             progress$set(value = 1, detail = "Complete")
@@ -227,7 +227,6 @@ CPquant <- function(...){
         # Set reactive values from user input
 
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
-        #standardAnnoColumn <- shiny::eventReactive(input$go, {as.character(input$standardAnnoColumn)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
         Samples_Concentration <- reactiveVal() # Create a reactive value to store Samples_Concentration after deconvolution
 
@@ -244,25 +243,10 @@ CPquant <- function(...){
 
 
         # Render reactive summary statistics and plots of raw input BEFORE quantification
-
-
+        # plots.R function
         output$plot_Skyline_output <- plotly::renderPlotly({
-            Skyline_output() |>
-                dplyr::filter(Isotope_Label_Type == "Quan") |>
-                dplyr::mutate(OrderedMolecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)]))) |>  # Create a composite ordering factor
+            plot_skyline_output(Skyline_output())
 
-                plotly::plot_ly(
-                    x = ~ OrderedMolecule,
-                    y = ~ Area,
-                    color = ~ Sample_Type,
-                    type = "box",
-                    text = ~paste(
-                        "Homologue: ", PCA,
-                        "<br>Sample: ", Replicate_Name,
-                        "<br>Area:", round(Area, 2)
-                    ),
-                    hoverinfo = "text"
-                )
         })
 
 
@@ -297,16 +281,16 @@ CPquant <- function(...){
                 CPs_standards <- Skyline_output_filt |>
                     dplyr::filter(Sample_Type == "Standard",
                                   !Molecule_List %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
-                                  Isotope_Label_Type == "Quan", # use only Quant ions
+                                  Isotope_Label_Type == "Quan", # use only Quan ions
                                   Batch_Name != "NA") |>
                     dplyr::mutate(
-                        C_range = stringr::str_extract_all(Quantification_Group, "\\d+"),
+                        C_range = stringr::str_extract_all(Quantification_Group, "\\d+"), #extract all sequences of digits
                         C_min = as.numeric(purrr::map_chr(C_range, ~.x[1])),
                         C_max = as.numeric(purrr::map_chr(C_range, function(x) {if(length(x) > 1) {x[2]} else {x[1]}}))) |>
                     dplyr::select(-C_range) |>
-                    dplyr::group_by(Batch_Name, Sample_Type, Molecule, Molecule_List, C_number, Cl_number, PCA, Quantification_Group, C_min, C_max) |> #Batch_Name is default. !!sym(standardAnnoColumn) unquotes the string variable and converts it to a symbol that dplyr can understand within the group_by() function
+                    dplyr::group_by(Batch_Name, Sample_Type, Molecule, Molecule_List, C_number, Cl_number, PCA, Quantification_Group, C_min, C_max) |>
                     tidyr::nest() |>
-                    dplyr::filter(C_number >= C_min & C_number <= C_max) |>
+                    dplyr::filter(C_number >= C_min & C_number <= C_max) |> # make sure C_number stays within the Quantification_Group chain length
                     dplyr::mutate(models = purrr::map(data, ~lm(Area ~ Analyte_Concentration, data = .x))) |>
                     dplyr::mutate(coef = purrr::map(models, coef)) |>
                     dplyr::mutate(RF = purrr::map_dbl(models, ~ coef(.x)["Analyte_Concentration"]))|> #get the slope which will be the RF
@@ -317,7 +301,7 @@ CPquant <- function(...){
                     tidyr::unnest(c(RF, intercept, rsquared)) |>  #removing the list type for these variables
                     dplyr::mutate(RF = if_else(RF < 0, 0, RF)) |> # replace negative RF with 0
                     dplyr::mutate(rsquared = ifelse(is.nan(rsquared), 0, rsquared)) |>
-                    dplyr::mutate(RF = if_else(rsquared < removeRsquared(), 0, RF)) |> #keep RF only if rsquared is above removeRsquared input
+                    dplyr::mutate(RF = if_else(rsquared < removeRsquared(), 0, RF)) |> #replace RF with 0 if rsquared is below removeRsquared()
                     dplyr::ungroup() |>
                     dplyr::group_by(Batch_Name) |> #grouping by the standards
                     dplyr::mutate(Sum_RF_group = sum(RF, na.rm = TRUE)) |>
@@ -329,8 +313,7 @@ CPquant <- function(...){
                 # Prepare for deconvolution of samples
                 progress$set(value = 0.6, detail = "Preparing sample data")
 
-                # Character vector for unique Batch Name
-                #unique_chars <- unique(stringr::str_extract(CPs_standards$Batch_Name, "^[^_]+"))
+
 
                 CPs_samples <- Skyline_output_filt |>
                     dplyr::filter(
@@ -338,7 +321,6 @@ CPquant <- function(...){
                         Sample_Type %in% c("Unknown", "Blank"), #include both unknown and blank
                         !Molecule_List %in% c("IS", "RS", "VS"), # remove IS, RS, VS
                         Isotope_Label_Type == "Quan") |>
-                    # Quantification_Group
                     dplyr::group_by(Replicate_Name) |>  # Group by Replicate Name
                     dplyr::mutate(Relative_Area = Area / sum(Area, na.rm = TRUE)) |> #Relative area
                     dplyr::ungroup() |>
@@ -359,33 +341,16 @@ CPquant <- function(...){
                     dplyr::ungroup()
 
 
-                ###### Plot the calibration curves ######
-
+                ###### Plot calibration curves ######
+                # plots.R function
                 output$CalibrationCurves <- plotly::renderPlotly({
                     plot_calibration_curves(CPs_standards)
                 })
 
+                ###### Plot Quan/Qual ratios ######
+                #plots.R function
                 output$RatioQuantToQual <- plotly::renderPlotly({
-
-                    Skyline_output_filt |>
-                        dplyr::group_by(Replicate_Name, Molecule) |>
-                        dplyr::mutate(Quan_Area = ifelse(Isotope_Label_Type == "Quan", Area, NA)) |>
-                        tidyr::fill(Quan_Area, .direction = "downup") |>
-                        dplyr::mutate(QuanMZ = ifelse(Isotope_Label_Type == "Quan", Chromatogram_Precursor_MZ, NA)) |>
-                        tidyr::fill(QuanMZ, .direction = "downup") |>
-                        dplyr::mutate(QuanQualRatio = ifelse(Isotope_Label_Type == "Qual", Quan_Area/Area, 1)) |>
-                        tidyr::replace_na(list(QuanQualRatio = 0)) |>
-                        dplyr::mutate(QuanQualMZ = paste0(QuanMZ,"/",Chromatogram_Precursor_MZ)) |>
-                        dplyr::ungroup() |>
-                        dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio) |>
-                        plot_ly(x = ~Replicate_Name, y = ~QuanQualRatio, type = 'violin', color = ~Sample_Type,
-                                text = ~paste(Replicate_Name, "<br>", Molecule_List, "<br>", Molecule,
-                                              "<br>Quan/Qual MZ: ", QuanQualMZ,
-                                              "<br>Ratio: ", round(QuanQualRatio, 2)),
-                                hoverinfo = "text") |>
-                        layout(title = 'Quan-to-Qual Ratio',
-                               xaxis = list(title = 'Replicate Name'),
-                               yaxis = list(title = 'Quan-to-Qual Ratio'))
+                    plot_quanqualratio(Skyline_output_filt)
                 })
 
 
@@ -415,7 +380,7 @@ CPquant <- function(...){
 
 
 
-                # This performs deconvolution on all mixtures together. NEED TO CHECK IF perform_deconvolution ON SEPARATE SCCP, MCCP, LCCP is more correct!
+                # This performs deconvolution on all mixtures together.
 
                 deconvolution <- combined_sample |>
                     #perform_deconvolution on only Relative_Area in the nested data frame
@@ -427,7 +392,6 @@ CPquant <- function(...){
                     dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
                     dplyr::mutate(deconv_resolved = purrr::map(result, ~tibble::as_tibble(list(deconv_resolved = .x$deconv_resolved, Molecule = rownames(.x$deconv_resolved))))) |>
                     dplyr::select(-result)
-
 
 
                 #### Calculate the concentration ####
@@ -448,7 +412,7 @@ CPquant <- function(...){
             ### END: Deconvolution script
 
 
-
+            # download results from deconvolution to different excel sheets
             output$downloadResults <- shiny::downloadHandler(
                 filename = function() {
                     paste("CPquant_Results_", Sys.Date(), ".xlsx", sep = "")
@@ -496,7 +460,7 @@ CPquant <- function(...){
             # Render table
             output$quantTable <- DT::renderDT({
                 deconvolution |>
-                    dplyr::select(Replicate_Name, Sample_Type, Concentration, deconv_rsquared) |> #remove to make compact df for pivot_wider
+                    dplyr::select(Replicate_Name, Sample_Type, Concentration, deconv_rsquared) |> #select to make compact df for pivot_wider
                     dplyr::mutate(deconv_rsquared = round(deconv_rsquared, 3)) |>
                     DT::datatable(
                         filter = "top", extensions = c("Buttons", "Scroller"),
@@ -521,35 +485,7 @@ CPquant <- function(...){
 
             # render sampleContributionPlot
             output$sampleContributionPlot <- renderPlotly({
-                # How much contribution of each sample to the final deconvoluted homologue group pattern
-                plot_data <- deconvolution |>
-                    unnest(deconv_coef) |>
-                    unnest_longer(c(deconv_coef, Batch_Name)) |>
-                    select(Replicate_Name, Batch_Name, deconv_coef)
-
-                # Create the plotly stacked bar plot
-                plot_ly(plot_data,
-                        x = ~Replicate_Name,
-                        y = ~deconv_coef,
-                        type = "bar",
-                        color = ~Batch_Name,
-                        colors = "Spectral") |>
-                    layout(
-                        title = list(
-                            text = "Contributions from standards to deconvoluted pattern",
-                            x = 0.5,  # Center the title
-                            y = 0.95  # Position slightly down from top
-                        ),
-                        barmode = "stack",
-                        xaxis = list(title = "Replicate Name"),
-                        yaxis = list(title = "Relative Contribution",
-                                     tickformat = ".2%"),
-                        showlegend = TRUE,
-                        legend = list(title = list(text = "Batch Name"))
-                    )
-
-            })
-
+               plot_sample_contribution(deconvolution)})
 
 
 
@@ -713,13 +649,12 @@ CPquant <- function(...){
 
                 if (input$plotHomologueGroups == "All Samples Overview") {
                     output$plotHomologuePatternStatic <- shiny::renderPlot({
-                        #ggplot(Sample_distribution, aes(x = Molecule, y = resolved_distribution, fill = C_homologue)) +
                         ggplot(Sample_distribution, aes(x = Molecule, y = Relative_Area, fill = C_homologue)) +
                             geom_col() +
                             facet_wrap(~Replicate_Name) +
                             theme_minimal() +
                             theme(axis.text.x = element_blank()) +
-                            labs(title = "Relative Distribution",
+                            labs(title = "Relative Distribution (before deconvolution)",
                                  x = "Homologue",
                                  y = "Relative Distribution")
                     })
@@ -745,7 +680,7 @@ CPquant <- function(...){
                                      text = ~paste(
                                          "Sample:", Replicate_Name,
                                          "<br>Homologue:", Molecule,
-                                         "<br>Distribution:", round(Relative_Area, 4),
+                                         "<br>Distribution:", round(Relative_Area, 3),
                                          "<br>C-atoms:", C_homologue
                                      ),
                                      hoverinfo = "text"
@@ -770,102 +705,8 @@ CPquant <- function(...){
                 } else if (input$plotHomologueGroups == "Samples Panels") {
                     output$plotHomologuePatternComparisons <- plotly::renderPlotly({
                         req(input$selectedSamples)
-
-                        # Filter data for selected samples and reshape data
-                        selected_samples <- Sample_distribution |>
-                            filter(Replicate_Name %in% input$selectedSamples) |>
-                            mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
-
-                        # Get unique homologue groups for consistent coloring
-                        homologue_groups <- unique(selected_samples$C_homologue)
-
-                        # Create a list of plots, one for each Replicate_Name
-                        plot_list <- selected_samples |>
-                            split(selected_samples$Replicate_Name) |>
-                            map(function(df) {
-                                # Create base plot
-                                p <- plot_ly()
-
-                                # Add bars for each homologue group
-                                for(hg in homologue_groups) {
-                                    df_filtered <- df[df$C_homologue == hg,]
-                                    p <- p |> add_trace(
-                                        data = df_filtered,
-                                        x = ~Molecule,
-                                        #y = ~resolved_distribution,
-                                        y = ~Relative_Area,
-                                        name = hg,
-                                        legendgroup = hg,
-                                        showlegend = (df_filtered$Replicate_Name[1] == input$selectedSamples[1]),
-                                        type = 'bar',
-                                        opacity = 1
-                                    )
-                                }
-
-                                # Add the black line for resolved_distribution
-                                p <- p |> add_trace(
-                                    data = df,
-                                    x = ~Molecule,
-                                    #y = ~Relative_Area,
-                                    y = ~resolved_distribution,
-                                    name = "Deconvoluted Distribution",
-                                    #legendgroup = "RelativeArea",
-                                    legendgroup = "DeconvDistr",
-                                    showlegend = (df$Replicate_Name[1] == input$selectedSamples[1]),
-                                    type = 'scatter',
-                                    mode = 'lines+markers',
-                                    line = list(color = 'black'),
-                                    marker = list(color = 'black', size = 6),
-                                    opacity = 0.7
-                                )
-
-                                # Add layout
-                                p <- p |> layout(
-                                    xaxis = list(
-                                        title = "Homologue",
-                                        tickangle = 45
-                                    ),
-                                    yaxis = list(title = "Value"),
-                                    barmode = 'group',
-                                    annotations = list(
-                                        x = 0.5,
-                                        y = 1.1,
-                                        text = unique(df$Replicate_Name),
-                                        xref = 'paper',
-                                        yref = 'paper',
-                                        showarrow = FALSE
-                                    )
-                                )
-
-                                return(p)
-                            })
-
-                        # Combine the plots using subplot
-                        subplot(plot_list,
-                                nrows = ceiling(length(plot_list)/2),
-                                shareX = TRUE,
-                                shareY = TRUE) |>
-                            layout(
-                                #title = "Sample Comparison",
-                                showlegend = TRUE,
-                                hovermode = 'closest',
-                                hoverlabel = list(bgcolor = "white"),
-                                barmode = 'group'
-                            ) |>
-                            config(displayModeBar = TRUE) |>
-                            onRender("
-                function(el) {
-                    var plotDiv = document.getElementById(el.id);
-                    plotDiv.on('plotly_legendclick', function(data) {
-                        Plotly.restyle(plotDiv, {
-                            visible: data.data[data.curveNumber].visible === 'legendonly' ? true : 'legendonly'
-                        }, data.fullData.map((trace, i) => i).filter(i =>
-                            data.fullData[i].legendgroup === data.fullData[data.curveNumber].legendgroup
-                        ));
-                        return false;
-                    });
-                }
-            ")
+                        #plots.R function
+                        plot_homologue_group_pattern_comparison(Sample_distribution, input$selectedSamples)
                     })
                 }
 
