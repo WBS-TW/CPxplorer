@@ -16,8 +16,13 @@ The input excel file should be from the Skyline results table. It must include t
 `Mass Error PPM`  
 `Isotope Label Type`  
 `Chromatogram Precursor M/Z`  
-`Analyte Concentration`: this column could be in concentration or weight/amount unit depending on the user input. It will affect the final quantification unit.  
-`Batch Name`
+`Analyte Concentration`: For standards only. This is the standard concentrations/amounts. This column could be in concentration or weight/amount unit depending on the user input. It will affect the final quantification unit.  
+`Batch Name`: For standards only. This will determine which standards that belongs to a concentration series as well as which carbon chain groups to quantify with the standard.  
+The naming of the Batch Name should be: CarbonGroup_StandardName. An underscore is separator for the carbon chain group and standard name.  
+Examples:  
+C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13. This belongs to the StandardA which can be in different concentrations for the calibration series.  
+C14_StandardB. This standard will only quantify C14 carbon chains.  
+
   
   
 ## Quantification Inputs tab    
@@ -27,9 +32,11 @@ __Subtraction by blank?__: If "Yes, by avg area of blanks", then the area for ea
 __Correct with RS area?__: If "Yes", then the area of each Molecule will the normalized to the recovery standard (RS) area for each sample.  
 __Calculate recovery?__: If "Yes", requires samples with the `Sample Type` designated as "Quality Control" that include the same concentrations of IS and RS.  
 __Calculate MDL?__: If "Yes", then calculates the method detection limits based on blank samples.  
-__Types of standards__: Currently only have option to use mixtures and single chain standards to perform deconvolution. More option can be added later for other quantification strategies.
 If no blank subtraction then MDL = avg + 3 * standard deviation of blank samples.  
-If blank subtraction then MDL = 3 * standard deviation of blank samples.  
+If blank subtraction then MDL = 3 * standard deviation of blank samples.
+__Types of standards__: Currently only have option to use mixtures and single chain standards to perform deconvolution. More option can be added later for other quantification strategies.  
+
+  
   
 __Remove samples from quantification?__: You can select samples to be removed before quantification process.  
 __Keep the the calibration curves above this rsquared__: Keeping all calibration curves for every homologue groups for each standard that are above this R2 value. 
@@ -38,6 +45,12 @@ Default is 0.8 but can be changed accordingly by the user.
   
 CLICK ON __Proceed__ will quantify the samples based on the deconvolution process and the results will show in the different tabs.  
   
+_Quantification process_: The process starts by creating calibration curves for each carbon chain group for each standard mixture.
+The Batch Name in the excel file determines which carbon chain group to be included for each standard mixture. A linear regression will be fitted and the slope is used as the response factor (RF).
+If the R-squared of the fit for a homologue group for a standard series (calibration curve) is below the user input threshold (modified in the first tab), then the homologue group in that standard is not considered for subsequent quantification.  
+
+
+
 ## Input summary    
 ### Choose tab  
 Might take some time before results show up here so be patient.  

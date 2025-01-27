@@ -61,17 +61,26 @@ CPquant <- function(...){
                                 shiny::sidebarPanel(
                                     width = 2, # max 12
                                     shiny::radioButtons("navSummary", "Choose tab:",
-                                                        choices = c("Std Calibration Curves", "Quan to Qual ratio"),
+                                                        choices = c("Std Calibration Curves",
+                                                                    "Removed from Calibration",
+                                                                    "Quan to Qual ratio"),
                                                         selected = "Std Calibration Curves")
                                 ),
                                 shiny::mainPanel(
                                     width = 10,
                                     shiny::conditionalPanel(
                                         condition = "input.navSummary == 'Std Calibration Curves'",
+                                        tags$h3("Standard calibration curves"),
                                         plotly::plotlyOutput("CalibrationCurves")
                                     ),
                                     shiny::conditionalPanel(
+                                        condition = "input.navSummary == 'Removed from Calibration'",
+                                        tags$h3("Calibration series removed from quantification"),
+                                        DT::DTOutput("CalibrationRemoved")
+                                    ),
+                                    shiny::conditionalPanel(
                                         condition = "input.navSummary == 'Quan to Qual ratio'",
+                                        tags$h3("Violin plots of Quant/Qual ions"),
                                         plotly::plotlyOutput("RatioQuantToQual", height = "80vh", width = "100%")
                                     )
                                 )
@@ -309,7 +318,6 @@ CPquant <- function(...){
 
 
 
-
                 # Prepare for deconvolution of samples
                 progress$set(value = 0.6, detail = "Preparing sample data")
 
@@ -346,6 +354,20 @@ CPquant <- function(...){
                 output$CalibrationCurves <- plotly::renderPlotly({
                     plot_calibration_curves(CPs_standards)
                 })
+
+                ###### Plot CalibrationRemoved ######
+                output$CalibrationRemoved <- DT::renderDataTable({
+                    CPs_standards |>
+                        dplyr::filter(RF <= 0) |>
+                        dplyr::mutate(coef = purrr::map(models, coef)) |>
+                        dplyr::mutate(RF = purrr::map_dbl(models, ~ coef(.x)["Analyte_Concentration"]))|> #get the slope which will be the RF
+                        dplyr::mutate(intercept = purrr::map(coef, purrr::pluck("(Intercept)"))) |>
+                        dplyr::select(Batch_Name, Molecule, Quantification_Group,RF, intercept,  rsquared) |>
+                        tidyr::unnest(c(RF, intercept)) |>
+                        mutate(across(where(is.numeric), ~ signif(.x, digits = 4))) |>
+                        DT::datatable(options = list(pageLength = 25))
+                })
+
 
                 ###### Plot Quan/Qual ratios ######
                 #plots.R function
