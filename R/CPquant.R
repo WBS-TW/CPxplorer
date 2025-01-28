@@ -237,7 +237,7 @@ CPquant <- function(...){
 
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
-        Samples_Concentration <- reactiveVal() # Create a reactive value to store Samples_Concentration after deconvolution
+        Samples_Concentration <- reactiveVal() # Create a reactive value to store deconvolution object into Samples_Concentration() to allow other to access after observeEvent.
 
 
         #Render raw table
