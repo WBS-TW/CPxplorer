@@ -1,5 +1,3 @@
-README
-================
 
 <!-- Knit this README.Rmd to generate README.md -->
 
@@ -18,6 +16,7 @@ README
 <!-- install.packages("CPxplorer") -->
 <!-- ``` -->
 
+<<<<<<< HEAD
 The development version is available at
 [GitHub](github.com/WBS-TW/MSxplorer):
 
@@ -29,3 +28,20 @@ devtools::install_github("WBS-TW/CPxplorer")
 Open apps:  
 CPions()  
 CPquant()
+
+Open apps: CPions() CPquant()
+
+CPxplorer
+<br>
+
+library(devtools)
+<br>
+devtools::load_all()
+<br>
+Open apps: 
+<br>
+CPions()
+<br>
+CPquant()
+
+
