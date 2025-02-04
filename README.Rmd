@@ -1,0 +1,33 @@
+---
+title: "README"
+output: github_document
+---
+
+<!-- Knit this README.Rmd to generate README.md -->
+
+# CPxplorer
+
+<!-- badges: start -->
+<img src="man/CPxplorer_Logo.png" align="right" height="250px" />
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/README-",
+  out.width = "100%"
+)
+```
+
+<!-- badges: end -->
+
+
+## Installation
+
+library(devtools)
+load_all()
+
+Open apps:
+CPions()
+CPquant()

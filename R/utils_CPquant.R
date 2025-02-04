@@ -56,14 +56,15 @@ perform_deconvolution <- function(df, combined_standard, CPs_standards_sum_RF) {
 
 
 
-    # Calculate the Goodnes of Fit
+    # Calculate the goodness of fit by coefficient of determination (R2)
     # Calculate the total sum of squares (SST)
     sst <- sum((df_vector - mean(df_vector))^2)
     # Calculate the residual sum of squares (SSR)
     ssr <- sum((df_vector - deconv_resolved/sum(deconv_resolved))^2)
 
-    # Calculate R-squared goodnes of fit
+    # Calculate R-squared coefficient of determination
     deconv_rsquared <- 1 - (ssr / sst)
+
     # Calculate Mean Squared Error (MSE)
     mse <- mean((df_vector - deconv_resolved/sum(deconv_resolved))^2)
 
@@ -103,9 +104,6 @@ perform_deconvolution <- function(df, combined_standard, CPs_standards_sum_RF) {
 }
 
 ################################################################################
-
-
-
 
 
 

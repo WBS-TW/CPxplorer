@@ -4,12 +4,17 @@
 \name{CPxplorer-package}
 \alias{CPxplorer}
 \alias{CPxplorer-package}
-\title{CPxplorer: CPxplorer: PCAs and analogues analysis and quantification}
+\title{CPxplorer: Interactive tools for PCAs and analogues analysis and quantification}
 \description{
 Generates list of ions of PCAs and analogues for mass spectrometric analysis and perform quantification by deconvolution.
 }
 \author{
 \strong{Maintainer}: Thanh Wang \email{thanh.wang@liu.se} (\href{https://orcid.org/0000-0002-5729-1908}{ORCID})
+
+Authors:
+\itemize{
+  \item Idoia Beloqui Ezquer \email{idoia.beloqui.ezquer@liu.se}
+}
 
 }
 \keyword{internal}

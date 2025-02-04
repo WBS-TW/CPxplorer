@@ -3,10 +3,9 @@
 #'
 #' @import shiny
 #' @import htmlwidgets
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot
 #' @import readxl
 #' @import nnls
-#' @import crosstalk
 #' @import dplyr
 #' @import tibble
 #' @import tidyr
@@ -237,7 +236,7 @@ CPquant <- function(...){
 
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
-        Samples_Concentration <- reactiveVal() # Create a reactive value to store Samples_Concentration after deconvolution
+        Samples_Concentration <- reactiveVal() # Create a reactive value to store deconvolution object into Samples_Concentration() to allow other to access after observeEvent.
 
 
         #Render raw table
@@ -365,7 +364,7 @@ CPquant <- function(...){
                         dplyr::select(Batch_Name, Molecule, Quantification_Group,RF, intercept,  rsquared) |>
                         tidyr::unnest(c(RF, intercept)) |>
                         mutate(across(where(is.numeric), ~ signif(.x, digits = 4))) |>
-                        DT::datatable(options = list(pageLength = 25))
+                        DT::datatable(options = list(pageLength = 40))
                 })
 
 
@@ -416,8 +415,8 @@ CPquant <- function(...){
                     dplyr::select(-result)
 
 
-                #### Calculate the concentration ####
 
+                #### Calculate the concentration ####
 
                 progress$set(value = 0.9, detail = "Calculating final results")
 

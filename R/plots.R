@@ -1,5 +1,5 @@
 
-
+#############################################################################
 plot_skyline_output <- function(Skyline_output){
 
     Skyline_output |>
@@ -58,7 +58,7 @@ plot_calibration_curves <- function(CPs_standards) {
                     "Molecule:", Molecule,
                     "<br>Area:", round(Area, 2),
                     "<br>Concentration:", round(Analyte_Concentration, 2),
-                    "<br>R²:", round(rsquared, 3)
+                    "<br>R2:", round(rsquared, 3)
                 ),
                 hoverinfo = 'text'
             ) |>
