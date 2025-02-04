@@ -1,5 +1,3 @@
-README
-================
 
 <!-- Knit this README.Rmd to generate README.md. -->
 
