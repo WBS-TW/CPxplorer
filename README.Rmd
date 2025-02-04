@@ -6,10 +6,10 @@ output: github_document
 <!-- Knit this README.Rmd to generate README.md -->
 
 # CPxplorer
-
+  
 <!-- badges: start -->
 <img src="man/CPxplorer_Logo.png" align="right" height="250px" />
-
+  
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -19,15 +19,25 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-
+  
 <!-- badges: end -->
 
 
 ## Installation
+  
+<!-- You can install the released version of MSXploreR from [CRAN](https://CRAN.R-project.org) with: -->
 
-library(devtools)
-load_all()
-
-Open apps:
-CPions()
-CPquant()
+<!-- ``` r -->
+<!-- install.packages("CPxplorer") -->
+<!-- ``` -->
+  
+The development version is available at [GitHub](github.com/WBS-TW/MSxplorer):
+  
+``` r
+# install.packages("devtools")
+devtools::install_github("WBS-TW/CPxplorer")
+```
+  
+Open apps:  
+CPions()  
+CPquant()  
