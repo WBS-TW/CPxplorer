@@ -1,5 +1,5 @@
 
-<!-- Knit this README.Rmd to generate README.md. -->
+<!-- Knit this README.Rmd to generate README.md -->
 
 # CPxplorer
 
@@ -11,7 +11,23 @@
 
 ## Installation
 
-library(devtools) load_all()
+<!-- You can install the released version of MSXploreR from [CRAN](https://CRAN.R-project.org) with: -->
+<!-- ``` r -->
+<!-- install.packages("CPxplorer") -->
+<!-- ``` -->
+
+<<<<<<< HEAD
+The development version is available at
+[GitHub](github.com/WBS-TW/MSxplorer):
+
+``` r
+# install.packages("devtools")
+devtools::install_github("WBS-TW/CPxplorer")
+```
+
+Open apps:  
+CPions()  
+CPquant()
 
 Open apps: CPions() CPquant()
 
@@ -27,4 +43,5 @@ Open apps:
 CPions()
 <br>
 CPquant()
+
 
