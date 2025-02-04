@@ -1,9 +1,18 @@
-CPxplorer
+README
+================
 
+<!-- Knit this README.Rmd to generate README.md. -->
 
-library(devtools)
-load_all()
+# CPxplorer
 
-Open apps:
-CPions()
-CPquant()
+<!-- badges: start -->
+
+<img src="man/CPxplorer_Logo.png" align="right" height="250px" />
+
+<!-- badges: end -->
+
+## Installation
+
+library(devtools) load_all()
+
+Open apps: CPions() CPquant()
