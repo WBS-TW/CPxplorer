@@ -7,7 +7,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-5729-1908")),
     person("Idoia", "Beloqui Ezquer", , "idoia.beloqui.ezquer@liu.se", role = "aut")
   )
-Description: Generates list of ions of PCAs and analogues for mass
+Description: Generates list of ions of selected PCAs and analogues for mass
     spectrometric analysis and perform quantification by deconvolution.
 License: CC BY 4.0
 Depends: 
