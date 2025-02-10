@@ -7,25 +7,28 @@ README
 
 <!-- badges: start -->
 
-<img src="man/CPxplorer_Logo.png" align="right" height="250px" />
+<img src="data/CPxplorer_Logo.png" align="right" height="150px" />
 
 <!-- badges: end -->
 
-## Installation
+### Installation
 
-<!-- You can install the released version of MSXploreR from [CRAN](https://CRAN.R-project.org) with: -->
+<!-- You can install the released version of CPxplorer from [CRAN](https://CRAN.R-project.org) with: -->
 <!-- ``` r -->
 <!-- install.packages("CPxplorer") -->
 <!-- ``` -->
 
 The development version is available at
-[GitHub](github.com/WBS-TW/MSxplorer):
+[GitHub](github.com/WBS-TW/CPxplorer):
+
+To install this R package directly from Github:
 
 ``` r
-# install.packages("devtools")
+install.packages("devtools")
 devtools::install_github("WBS-TW/CPxplorer")
 ```
 
-Open apps:  
-CPions()  
-CPquant()
+After installation, these functions will be available:  
+`CPions()`: opens a shiny app to generate ions of PCAs and analogues  
+`CPquant()`: opens a shiny app to analyze and quantify output from
+Skyline

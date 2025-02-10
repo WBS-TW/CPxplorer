@@ -6,7 +6,7 @@
 \alias{CPxplorer-package}
 \title{CPxplorer: Interactive tools for PCAs and analogues analysis and quantification}
 \description{
-Generates list of ions of PCAs and analogues for mass spectrometric analysis and perform quantification by deconvolution.
+Generates list of ions of selected PCAs and analogues for mass spectrometric analysis and perform quantification by deconvolution.
 }
 \author{
 \strong{Maintainer}: Thanh Wang \email{thanh.wang@liu.se} (\href{https://orcid.org/0000-0002-5729-1908}{ORCID})
