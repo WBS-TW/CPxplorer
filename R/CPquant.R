@@ -3,7 +3,7 @@
 #'
 #' @import shiny
 #' @import htmlwidgets
-#' @importFrom ggplot2 ggplot
+#' @import ggplot2
 #' @import readxl
 #' @import nnls
 #' @import dplyr
