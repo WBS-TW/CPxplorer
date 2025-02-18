@@ -1,3 +1,3 @@
-# CPxplorer 1.0
+# CPxplorer 0.9
 
 * Initial CRAN submission.
