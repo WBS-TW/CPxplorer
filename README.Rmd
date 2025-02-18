@@ -10,7 +10,7 @@ output: github_document
 <!-- badges: start -->
   
    
-<img src="data/CPxplorer_Logo.png" align="right" height="150px" />
+<img src="inst/CPxplorer_Logo.png" align="right" height="150px" />
   
   
 ```{r, include = FALSE}

@@ -7,7 +7,7 @@ README
 
 <!-- badges: start -->
 
-<img src="data/CPxplorer_Logo.png" align="right" height="150px" />
+<img src="inst/CPxplorer_Logo.png" align="right" height="150px" />
 
 <!-- badges: end -->
 
@@ -18,9 +18,6 @@ README
 <!-- install.packages("CPxplorer") -->
 <!-- ``` -->
 
-The development version is available at
-[GitHub](github.com/WBS-TW/CPxplorer):
-
 To install this R package directly from Github:
 
 ``` r
@@ -28,7 +25,13 @@ install.packages("devtools")
 devtools::install_github("WBS-TW/CPxplorer")
 ```
 
-After installation, these functions will be available:  
+After installation, attach the package by:
+
+``` r
+library(CPxplorer)
+```
+
+These functions will then be available:  
 `CPions()`: opens a shiny app to generate ions of PCAs and analogues  
 `CPquant()`: opens a shiny app to analyze and quantify output from
 Skyline
