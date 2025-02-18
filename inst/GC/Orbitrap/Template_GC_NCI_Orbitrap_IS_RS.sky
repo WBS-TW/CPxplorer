@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<srm_settings format_version="24.1" software_version="Skyline (64-bit) 24.1.0.199 (6a0775ef83)">
+  <settings_summary name="Default">
+    <peptide_settings>
+      <enzyme name="Trypsin" cut="KR" no_cut="P" sense="C" />
+      <digest_settings max_missed_cleavages="0" />
+      <peptide_prediction use_measured_rts="true" measured_rt_window="2" />
+      <peptide_filter start="25" min_length="8" max_length="25" auto_select="true">
+        <peptide_exclusions />
+      </peptide_filter>
+      <peptide_libraries pick="library" />
+      <peptide_modifications max_variable_mods="3" max_neutral_losses="1" internal_standard="Quan">
+        <static_modifications>
+          <static_modification name="Carbamidomethyl (C)" aminoacid="C" formula="H3C2NO" unimod_id="4" short_name="CAM" />
+        </static_modifications>
+        <heavy_modifications isotope_label="Quan" />
+        <heavy_modifications isotope_label="Qual" />
+      </peptide_modifications>
+    </peptide_settings>
+    <transition_settings>
+      <transition_prediction precursor_mass_type="Monoisotopic" fragment_mass_type="Monoisotopic" optimize_by="None" />
+      <transition_filter precursor_charges="2" product_charges="1" precursor_adducts="[M-]" product_adducts="[M-]" fragment_types="y,p" small_molecule_fragment_types="p" fragment_range_first="m/z &gt; precursor" fragment_range_last="3 ions" precursor_mz_window="0" auto_select="true">
+        <measured_ion name="N-terminal to Proline" cut="P" sense="N" min_length="3" />
+      </transition_filter>
+      <transition_libraries ion_match_tolerance="2" ion_match_tolerance_unit="ppm" min_ion_count="0" ion_count="3" pick_from="all" />
+      <transition_integration integrate_all="true" />
+      <transition_instrument min_mz="50" max_mz="1500" mz_match_tolerance="0.055" triggered_acquisition="true" />
+      <transition_full_scan precursor_isotopes="Count" precursor_isotope_filter="1" precursor_mass_analyzer="orbitrap" precursor_res="60000" precursor_res_mz="400" retention_time_filter_type="ms2_ids" retention_time_filter_length="5">
+        <isotope_enrichments name="Default">
+          <atom_percent_enrichment symbol="H'">0.98</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="C'">0.995</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="C&quot;">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="N'">0.995</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="O&quot;">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="O'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="Cl'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="Br'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="P'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="S&quot;">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="S'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="H&quot;">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="Cu'">0.99</atom_percent_enrichment>
+        </isotope_enrichments>
+      </transition_full_scan>
+    </transition_settings>
+    <data_settings document_guid="9ab04037-06f1-41a6-a52c-b8c5318c7fdd" audit_logging="true" />
+  </settings_summary>
+  <peptide_list label_name="RS" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="319.99518902009055" neutral_mass_monoisotopic="319.99518902009055" custom_ion_name="[13C]10H16Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="319.995738" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="319.99518902009055" neutral_mass_monoisotopic="319.99518902009055" custom_ion_name="[13C]10H16Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="319.99518902009055" neutral_mass_monoisotopic="319.99518902009055" custom_ion_name="[13C]10H16Cl6" isotope_dist_rank="1" isotope_dist_proportion="1">
+          <note>RS</note>
+          <precursor_mz>319.995738</precursor_mz>
+          <product_mz>319.995738</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="321.992788" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="319.99518902009055" neutral_mass_monoisotopic="319.99518902009055" custom_ion_name="[13C]10H16Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="319.99518902009055" neutral_mass_monoisotopic="319.99518902009055" custom_ion_name="[13C]10H16Cl6" isotope_dist_rank="1" isotope_dist_proportion="1">
+          <note>RS</note>
+          <precursor_mz>321.992788</precursor_mz>
+          <product_mz>321.992788</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="323.989838" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="319.99518902009055" neutral_mass_monoisotopic="319.99518902009055" custom_ion_name="[13C]10H16Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="319.99518902009055" neutral_mass_monoisotopic="319.99518902009055" custom_ion_name="[13C]10H16Cl6" isotope_dist_rank="1" isotope_dist_proportion="1">
+          <note>RS</note>
+          <precursor_mz>323.989838</precursor_mz>
+          <product_mz>323.989838</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="IS" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="419.95230442009057" neutral_mass_monoisotopic="419.95230442009057" custom_ion_name="[13C]12H18Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="419.952853" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="419.95230442009057" neutral_mass_monoisotopic="419.95230442009057" custom_ion_name="[13C]12H18Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="419.95230442009057" neutral_mass_monoisotopic="419.95230442009057" custom_ion_name="[13C]12H18Cl8" isotope_dist_rank="1" isotope_dist_proportion="1">
+          <note>IS</note>
+          <precursor_mz>419.952853</precursor_mz>
+          <product_mz>419.952853</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="421.949903" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="419.95230442009057" neutral_mass_monoisotopic="419.95230442009057" custom_ion_name="[13C]12H18Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="419.95230442009057" neutral_mass_monoisotopic="419.95230442009057" custom_ion_name="[13C]12H18Cl8" isotope_dist_rank="1" isotope_dist_proportion="1">
+          <note>IS</note>
+          <precursor_mz>421.949903</precursor_mz>
+          <product_mz>421.949903</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="423.946953" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="419.95230442009057" neutral_mass_monoisotopic="419.95230442009057" custom_ion_name="[13C]12H18Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="419.95230442009057" neutral_mass_monoisotopic="419.95230442009057" custom_ion_name="[13C]12H18Cl8" isotope_dist_rank="1" isotope_dist_proportion="1">
+          <note>IS</note>
+          <precursor_mz>423.946953</precursor_mz>
+          <product_mz>423.946953</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+</srm_settings>
