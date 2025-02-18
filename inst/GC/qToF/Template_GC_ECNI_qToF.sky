@@ -1,0 +1,2302 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<srm_settings format_version="24.1" software_version="Skyline (64-bit) 24.1.0.199 (6a0775ef83)">
+  <settings_summary name="Default">
+    <peptide_settings>
+      <enzyme name="Trypsin" cut="KR" no_cut="P" sense="C" />
+      <digest_settings max_missed_cleavages="0" />
+      <peptide_prediction use_measured_rts="true" measured_rt_window="2" />
+      <peptide_filter start="25" min_length="8" max_length="25" auto_select="true">
+        <peptide_exclusions />
+      </peptide_filter>
+      <peptide_libraries pick="library" />
+      <peptide_modifications max_variable_mods="3" max_neutral_losses="1">
+        <internal_standard name="Quan" />
+        <internal_standard name="Qual" />
+        <static_modifications>
+          <static_modification name="Carbamidomethyl (C)" aminoacid="C" formula="H3C2NO" unimod_id="4" short_name="CAM" />
+        </static_modifications>
+        <heavy_modifications isotope_label="Quan" />
+        <heavy_modifications isotope_label="Qual" />
+      </peptide_modifications>
+    </peptide_settings>
+    <transition_settings>
+      <transition_prediction precursor_mass_type="Monoisotopic" fragment_mass_type="Monoisotopic" optimize_by="None" />
+      <transition_filter precursor_charges="2" product_charges="1" precursor_adducts="[M-]" product_adducts="[M-]" fragment_types="y,p" small_molecule_fragment_types="p" fragment_range_first="m/z &gt; precursor" fragment_range_last="3 ions" precursor_mz_window="0" auto_select="true">
+        <measured_ion name="N-terminal to Proline" cut="P" sense="N" min_length="3" />
+      </transition_filter>
+      <transition_libraries ion_match_tolerance="2" ion_match_tolerance_unit="ppm" min_ion_count="0" ion_count="3" pick_from="all" />
+      <transition_integration integrate_all="true">
+        <synchronize_integration group_by="" all="true" />
+      </transition_integration>
+      <transition_instrument min_mz="50" max_mz="1500" mz_match_tolerance="0.055" triggered_acquisition="true" />
+      <transition_full_scan precursor_isotopes="Count" precursor_isotope_filter="1" precursor_mass_analyzer="tof" precursor_res="30000" retention_time_filter_type="ms2_ids" retention_time_filter_length="5">
+        <isotope_enrichments name="Default">
+          <atom_percent_enrichment symbol="H'">0.98</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="C'">0.995</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="C&quot;">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="N'">0.995</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="O&quot;">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="O'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="Cl'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="Br'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="P'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="S&quot;">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="S'">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="H&quot;">0.99</atom_percent_enrichment>
+          <atom_percent_enrichment symbol="Cu'">0.99</atom_percent_enrichment>
+        </isotope_enrichments>
+      </transition_full_scan>
+    </transition_settings>
+    <data_settings document_guid="e3ebcf2e-084a-487f-aca0-dd34732e49bb" audit_logging="true" />
+  </settings_summary>
+  <peptide_list label_name="PCA-C10" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="209.08638142009053" neutral_mass_monoisotopic="209.08638142009053" custom_ion_name="C10H19Cl3">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="209.08693" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="209.08638142009053" neutral_mass_monoisotopic="209.08638142009053" custom_ion_name="C10H19Cl3">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="209.08638142009053" neutral_mass_monoisotopic="209.08638142009053" custom_ion_name="C10H19Cl3">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>209.08693</precursor_mz>
+          <product_mz>209.08693</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="211.08398" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="209.08638142009053" neutral_mass_monoisotopic="209.08638142009053" custom_ion_name="C10H19Cl3">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="209.08638142009053" neutral_mass_monoisotopic="209.08638142009053" custom_ion_name="C10H19Cl3">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>211.08398</precursor_mz>
+          <product_mz>211.08398</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="243.04740842009053" neutral_mass_monoisotopic="243.04740842009053" custom_ion_name="C10H18Cl4">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="243.047957" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="243.04740842009053" neutral_mass_monoisotopic="243.04740842009053" custom_ion_name="C10H18Cl4">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="243.04740842009053" neutral_mass_monoisotopic="243.04740842009053" custom_ion_name="C10H18Cl4">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>243.047957</precursor_mz>
+          <product_mz>243.047957</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="245.045007" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="243.04740842009053" neutral_mass_monoisotopic="243.04740842009053" custom_ion_name="C10H18Cl4">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="243.04740842009053" neutral_mass_monoisotopic="243.04740842009053" custom_ion_name="C10H18Cl4">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>245.045007</precursor_mz>
+          <product_mz>245.045007</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="277.00843642009056" neutral_mass_monoisotopic="277.00843642009056" custom_ion_name="C10H17Cl5">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="277.008985" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="277.00843642009056" neutral_mass_monoisotopic="277.00843642009056" custom_ion_name="C10H17Cl5">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="277.00843642009056" neutral_mass_monoisotopic="277.00843642009056" custom_ion_name="C10H17Cl5">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>277.008985</precursor_mz>
+          <product_mz>277.008985</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="279.006035" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="277.00843642009056" neutral_mass_monoisotopic="277.00843642009056" custom_ion_name="C10H17Cl5">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="277.00843642009056" neutral_mass_monoisotopic="277.00843642009056" custom_ion_name="C10H17Cl5">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>279.006035</precursor_mz>
+          <product_mz>279.006035</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="310.96946442009056" neutral_mass_monoisotopic="310.96946442009056" custom_ion_name="C10H16Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="310.970013" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="310.96946442009056" neutral_mass_monoisotopic="310.96946442009056" custom_ion_name="C10H16Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="310.96946442009056" neutral_mass_monoisotopic="310.96946442009056" custom_ion_name="C10H16Cl6">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>310.970013</precursor_mz>
+          <product_mz>310.970013</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="312.967063" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="310.96946442009056" neutral_mass_monoisotopic="310.96946442009056" custom_ion_name="C10H16Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="310.96946442009056" neutral_mass_monoisotopic="310.96946442009056" custom_ion_name="C10H16Cl6">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>312.967063</precursor_mz>
+          <product_mz>312.967063</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="314.964113" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="310.96946442009056" neutral_mass_monoisotopic="310.96946442009056" custom_ion_name="C10H16Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="310.96946442009056" neutral_mass_monoisotopic="310.96946442009056" custom_ion_name="C10H16Cl6">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>314.964113</precursor_mz>
+          <product_mz>314.964113</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="344.93049142009056" neutral_mass_monoisotopic="344.93049142009056" custom_ion_name="C10H15Cl7">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="344.93104" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="344.93049142009056" neutral_mass_monoisotopic="344.93049142009056" custom_ion_name="C10H15Cl7">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="344.93049142009056" neutral_mass_monoisotopic="344.93049142009056" custom_ion_name="C10H15Cl7">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>344.93104</precursor_mz>
+          <product_mz>344.93104</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="346.92809" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="344.93049142009056" neutral_mass_monoisotopic="344.93049142009056" custom_ion_name="C10H15Cl7">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="344.93049142009056" neutral_mass_monoisotopic="344.93049142009056" custom_ion_name="C10H15Cl7">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>346.92809</precursor_mz>
+          <product_mz>346.92809</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="348.92514" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="344.93049142009056" neutral_mass_monoisotopic="344.93049142009056" custom_ion_name="C10H15Cl7">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="344.93049142009056" neutral_mass_monoisotopic="344.93049142009056" custom_ion_name="C10H15Cl7">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>348.92514</precursor_mz>
+          <product_mz>348.92514</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="380.88856942009056" neutral_mass_monoisotopic="380.88856942009056" custom_ion_name="C10H14Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="380.889118" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="380.88856942009056" neutral_mass_monoisotopic="380.88856942009056" custom_ion_name="C10H14Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="380.88856942009056" neutral_mass_monoisotopic="380.88856942009056" custom_ion_name="C10H14Cl8">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>380.889118</precursor_mz>
+          <product_mz>380.889118</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="382.886168" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="380.88856942009056" neutral_mass_monoisotopic="380.88856942009056" custom_ion_name="C10H14Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="380.88856942009056" neutral_mass_monoisotopic="380.88856942009056" custom_ion_name="C10H14Cl8">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>382.886168</precursor_mz>
+          <product_mz>382.886168</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="384.883218" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="380.88856942009056" neutral_mass_monoisotopic="380.88856942009056" custom_ion_name="C10H14Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="380.88856942009056" neutral_mass_monoisotopic="380.88856942009056" custom_ion_name="C10H14Cl8">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>384.883218</precursor_mz>
+          <product_mz>384.883218</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="414.84959742009056" neutral_mass_monoisotopic="414.84959742009056" custom_ion_name="C10H13Cl9">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="414.850146" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="414.84959742009056" neutral_mass_monoisotopic="414.84959742009056" custom_ion_name="C10H13Cl9">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="414.84959742009056" neutral_mass_monoisotopic="414.84959742009056" custom_ion_name="C10H13Cl9">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>414.850146</precursor_mz>
+          <product_mz>414.850146</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="416.847196" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="414.84959742009056" neutral_mass_monoisotopic="414.84959742009056" custom_ion_name="C10H13Cl9">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="414.84959742009056" neutral_mass_monoisotopic="414.84959742009056" custom_ion_name="C10H13Cl9">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>416.847196</precursor_mz>
+          <product_mz>416.847196</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="418.844246" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="414.84959742009056" neutral_mass_monoisotopic="414.84959742009056" custom_ion_name="C10H13Cl9">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="414.84959742009056" neutral_mass_monoisotopic="414.84959742009056" custom_ion_name="C10H13Cl9">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>418.844246</precursor_mz>
+          <product_mz>418.844246</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="448.81062442009056" neutral_mass_monoisotopic="448.81062442009056" custom_ion_name="C10H12Cl10">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="448.811173" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="448.81062442009056" neutral_mass_monoisotopic="448.81062442009056" custom_ion_name="C10H12Cl10">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="448.81062442009056" neutral_mass_monoisotopic="448.81062442009056" custom_ion_name="C10H12Cl10">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>448.811173</precursor_mz>
+          <product_mz>448.811173</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="450.808223" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="448.81062442009056" neutral_mass_monoisotopic="448.81062442009056" custom_ion_name="C10H12Cl10">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="448.81062442009056" neutral_mass_monoisotopic="448.81062442009056" custom_ion_name="C10H12Cl10">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>450.808223</precursor_mz>
+          <product_mz>450.808223</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="452.805273" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="448.81062442009056" neutral_mass_monoisotopic="448.81062442009056" custom_ion_name="C10H12Cl10">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="448.81062442009056" neutral_mass_monoisotopic="448.81062442009056" custom_ion_name="C10H12Cl10">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>452.805273</precursor_mz>
+          <product_mz>452.805273</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCA-C11" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="223.10203142009053" neutral_mass_monoisotopic="223.10203142009053" custom_ion_name="C11H21Cl3">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="223.10258" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="223.10203142009053" neutral_mass_monoisotopic="223.10203142009053" custom_ion_name="C11H21Cl3">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="223.10203142009053" neutral_mass_monoisotopic="223.10203142009053" custom_ion_name="C11H21Cl3">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>223.10258</precursor_mz>
+          <product_mz>223.10258</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="225.09963" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="223.10203142009053" neutral_mass_monoisotopic="223.10203142009053" custom_ion_name="C11H21Cl3">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="223.10203142009053" neutral_mass_monoisotopic="223.10203142009053" custom_ion_name="C11H21Cl3">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>225.09963</precursor_mz>
+          <product_mz>225.09963</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="257.06305842009056" neutral_mass_monoisotopic="257.06305842009056" custom_ion_name="C11H20Cl4">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="257.063607" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="257.06305842009056" neutral_mass_monoisotopic="257.06305842009056" custom_ion_name="C11H20Cl4">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="257.06305842009056" neutral_mass_monoisotopic="257.06305842009056" custom_ion_name="C11H20Cl4">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>257.063607</precursor_mz>
+          <product_mz>257.063607</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="259.060657" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="257.06305842009056" neutral_mass_monoisotopic="257.06305842009056" custom_ion_name="C11H20Cl4">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="257.06305842009056" neutral_mass_monoisotopic="257.06305842009056" custom_ion_name="C11H20Cl4">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>259.060657</precursor_mz>
+          <product_mz>259.060657</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="291.02408642009055" neutral_mass_monoisotopic="291.02408642009055" custom_ion_name="C11H19Cl5">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="291.024635" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="291.02408642009055" neutral_mass_monoisotopic="291.02408642009055" custom_ion_name="C11H19Cl5">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="291.02408642009055" neutral_mass_monoisotopic="291.02408642009055" custom_ion_name="C11H19Cl5">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>291.024635</precursor_mz>
+          <product_mz>291.024635</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="293.021685" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="291.02408642009055" neutral_mass_monoisotopic="291.02408642009055" custom_ion_name="C11H19Cl5">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="291.02408642009055" neutral_mass_monoisotopic="291.02408642009055" custom_ion_name="C11H19Cl5">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>293.021685</precursor_mz>
+          <product_mz>293.021685</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="324.98511442009055" neutral_mass_monoisotopic="324.98511442009055" custom_ion_name="C11H18Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="324.985663" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="324.98511442009055" neutral_mass_monoisotopic="324.98511442009055" custom_ion_name="C11H18Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="324.98511442009055" neutral_mass_monoisotopic="324.98511442009055" custom_ion_name="C11H18Cl6">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>324.985663</precursor_mz>
+          <product_mz>324.985663</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="326.982713" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="324.98511442009055" neutral_mass_monoisotopic="324.98511442009055" custom_ion_name="C11H18Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="324.98511442009055" neutral_mass_monoisotopic="324.98511442009055" custom_ion_name="C11H18Cl6">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>326.982713</precursor_mz>
+          <product_mz>326.982713</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="328.979763" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="324.98511442009055" neutral_mass_monoisotopic="324.98511442009055" custom_ion_name="C11H18Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="324.98511442009055" neutral_mass_monoisotopic="324.98511442009055" custom_ion_name="C11H18Cl6">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>328.979763</precursor_mz>
+          <product_mz>328.979763</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="358.94614142009056" neutral_mass_monoisotopic="358.94614142009056" custom_ion_name="C11H17Cl7">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="358.94669" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="358.94614142009056" neutral_mass_monoisotopic="358.94614142009056" custom_ion_name="C11H17Cl7">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="358.94614142009056" neutral_mass_monoisotopic="358.94614142009056" custom_ion_name="C11H17Cl7">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>358.94669</precursor_mz>
+          <product_mz>358.94669</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="360.94374" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="358.94614142009056" neutral_mass_monoisotopic="358.94614142009056" custom_ion_name="C11H17Cl7">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="358.94614142009056" neutral_mass_monoisotopic="358.94614142009056" custom_ion_name="C11H17Cl7">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>360.94374</precursor_mz>
+          <product_mz>360.94374</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="362.94079" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="358.94614142009056" neutral_mass_monoisotopic="358.94614142009056" custom_ion_name="C11H17Cl7">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="358.94614142009056" neutral_mass_monoisotopic="358.94614142009056" custom_ion_name="C11H17Cl7">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>362.94079</precursor_mz>
+          <product_mz>362.94079</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="394.90421942009056" neutral_mass_monoisotopic="394.90421942009056" custom_ion_name="C11H16Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="394.904768" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="394.90421942009056" neutral_mass_monoisotopic="394.90421942009056" custom_ion_name="C11H16Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="394.90421942009056" neutral_mass_monoisotopic="394.90421942009056" custom_ion_name="C11H16Cl8">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>394.904768</precursor_mz>
+          <product_mz>394.904768</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="396.901818" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="394.90421942009056" neutral_mass_monoisotopic="394.90421942009056" custom_ion_name="C11H16Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="394.90421942009056" neutral_mass_monoisotopic="394.90421942009056" custom_ion_name="C11H16Cl8">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>396.901818</precursor_mz>
+          <product_mz>396.901818</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="398.898868" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="394.90421942009056" neutral_mass_monoisotopic="394.90421942009056" custom_ion_name="C11H16Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="394.90421942009056" neutral_mass_monoisotopic="394.90421942009056" custom_ion_name="C11H16Cl8">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>398.898868</precursor_mz>
+          <product_mz>398.898868</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="428.86524742009055" neutral_mass_monoisotopic="428.86524742009055" custom_ion_name="C11H15Cl9">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="428.865796" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="428.86524742009055" neutral_mass_monoisotopic="428.86524742009055" custom_ion_name="C11H15Cl9">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="428.86524742009055" neutral_mass_monoisotopic="428.86524742009055" custom_ion_name="C11H15Cl9">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>428.865796</precursor_mz>
+          <product_mz>428.865796</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="430.862846" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="428.86524742009055" neutral_mass_monoisotopic="428.86524742009055" custom_ion_name="C11H15Cl9">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="428.86524742009055" neutral_mass_monoisotopic="428.86524742009055" custom_ion_name="C11H15Cl9">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>430.862846</precursor_mz>
+          <product_mz>430.862846</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="432.859896" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="428.86524742009055" neutral_mass_monoisotopic="428.86524742009055" custom_ion_name="C11H15Cl9">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="428.86524742009055" neutral_mass_monoisotopic="428.86524742009055" custom_ion_name="C11H15Cl9">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>432.859896</precursor_mz>
+          <product_mz>432.859896</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="462.82627442009056" neutral_mass_monoisotopic="462.82627442009056" custom_ion_name="C11H14Cl10">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="462.826823" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="462.82627442009056" neutral_mass_monoisotopic="462.82627442009056" custom_ion_name="C11H14Cl10">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="462.82627442009056" neutral_mass_monoisotopic="462.82627442009056" custom_ion_name="C11H14Cl10">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>462.826823</precursor_mz>
+          <product_mz>462.826823</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="464.823873" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="462.82627442009056" neutral_mass_monoisotopic="462.82627442009056" custom_ion_name="C11H14Cl10">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="462.82627442009056" neutral_mass_monoisotopic="462.82627442009056" custom_ion_name="C11H14Cl10">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>464.823873</precursor_mz>
+          <product_mz>464.823873</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="466.820923" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="462.82627442009056" neutral_mass_monoisotopic="462.82627442009056" custom_ion_name="C11H14Cl10">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="462.82627442009056" neutral_mass_monoisotopic="462.82627442009056" custom_ion_name="C11H14Cl10">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>466.820923</precursor_mz>
+          <product_mz>466.820923</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="496.78730242009055" neutral_mass_monoisotopic="496.78730242009055" custom_ion_name="C11H13Cl11">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="496.787851" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="496.78730242009055" neutral_mass_monoisotopic="496.78730242009055" custom_ion_name="C11H13Cl11">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="496.78730242009055" neutral_mass_monoisotopic="496.78730242009055" custom_ion_name="C11H13Cl11">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>496.787851</precursor_mz>
+          <product_mz>496.787851</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="498.784901" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="496.78730242009055" neutral_mass_monoisotopic="496.78730242009055" custom_ion_name="C11H13Cl11">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="496.78730242009055" neutral_mass_monoisotopic="496.78730242009055" custom_ion_name="C11H13Cl11">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>498.784901</precursor_mz>
+          <product_mz>498.784901</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="500.781951" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="496.78730242009055" neutral_mass_monoisotopic="496.78730242009055" custom_ion_name="C11H13Cl11">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="496.78730242009055" neutral_mass_monoisotopic="496.78730242009055" custom_ion_name="C11H13Cl11">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>500.781951</precursor_mz>
+          <product_mz>500.781951</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCA-C12" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="237.11768142009055" neutral_mass_monoisotopic="237.11768142009055" custom_ion_name="C12H23Cl3">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="237.11823" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="237.11768142009055" neutral_mass_monoisotopic="237.11768142009055" custom_ion_name="C12H23Cl3">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="237.11768142009055" neutral_mass_monoisotopic="237.11768142009055" custom_ion_name="C12H23Cl3">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>237.11823</precursor_mz>
+          <product_mz>237.11823</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="239.11528" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="237.11768142009055" neutral_mass_monoisotopic="237.11768142009055" custom_ion_name="C12H23Cl3">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="237.11768142009055" neutral_mass_monoisotopic="237.11768142009055" custom_ion_name="C12H23Cl3">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>239.11528</precursor_mz>
+          <product_mz>239.11528</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="271.07870842009055" neutral_mass_monoisotopic="271.07870842009055" custom_ion_name="C12H22Cl4">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="271.079257" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="271.07870842009055" neutral_mass_monoisotopic="271.07870842009055" custom_ion_name="C12H22Cl4">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="271.07870842009055" neutral_mass_monoisotopic="271.07870842009055" custom_ion_name="C12H22Cl4">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>271.079257</precursor_mz>
+          <product_mz>271.079257</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="273.076307" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="271.07870842009055" neutral_mass_monoisotopic="271.07870842009055" custom_ion_name="C12H22Cl4">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="271.07870842009055" neutral_mass_monoisotopic="271.07870842009055" custom_ion_name="C12H22Cl4">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>273.076307</precursor_mz>
+          <product_mz>273.076307</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="305.03973642009055" neutral_mass_monoisotopic="305.03973642009055" custom_ion_name="C12H21Cl5">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="305.040285" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="305.03973642009055" neutral_mass_monoisotopic="305.03973642009055" custom_ion_name="C12H21Cl5">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="305.03973642009055" neutral_mass_monoisotopic="305.03973642009055" custom_ion_name="C12H21Cl5">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>305.040285</precursor_mz>
+          <product_mz>305.040285</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="307.037335" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="305.03973642009055" neutral_mass_monoisotopic="305.03973642009055" custom_ion_name="C12H21Cl5">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="305.03973642009055" neutral_mass_monoisotopic="305.03973642009055" custom_ion_name="C12H21Cl5">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>307.037335</precursor_mz>
+          <product_mz>307.037335</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="339.00076442009055" neutral_mass_monoisotopic="339.00076442009055" custom_ion_name="C12H20Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="339.001313" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="339.00076442009055" neutral_mass_monoisotopic="339.00076442009055" custom_ion_name="C12H20Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="339.00076442009055" neutral_mass_monoisotopic="339.00076442009055" custom_ion_name="C12H20Cl6">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>339.001313</precursor_mz>
+          <product_mz>339.001313</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="340.998363" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="339.00076442009055" neutral_mass_monoisotopic="339.00076442009055" custom_ion_name="C12H20Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="339.00076442009055" neutral_mass_monoisotopic="339.00076442009055" custom_ion_name="C12H20Cl6">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>340.998363</precursor_mz>
+          <product_mz>340.998363</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="342.995413" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="339.00076442009055" neutral_mass_monoisotopic="339.00076442009055" custom_ion_name="C12H20Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="339.00076442009055" neutral_mass_monoisotopic="339.00076442009055" custom_ion_name="C12H20Cl6">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>342.995413</precursor_mz>
+          <product_mz>342.995413</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="372.96179142009055" neutral_mass_monoisotopic="372.96179142009055" custom_ion_name="C12H19Cl7">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="372.96234" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="372.96179142009055" neutral_mass_monoisotopic="372.96179142009055" custom_ion_name="C12H19Cl7">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="372.96179142009055" neutral_mass_monoisotopic="372.96179142009055" custom_ion_name="C12H19Cl7">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>372.96234</precursor_mz>
+          <product_mz>372.96234</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="374.95939" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="372.96179142009055" neutral_mass_monoisotopic="372.96179142009055" custom_ion_name="C12H19Cl7">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="372.96179142009055" neutral_mass_monoisotopic="372.96179142009055" custom_ion_name="C12H19Cl7">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>374.95939</precursor_mz>
+          <product_mz>374.95939</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="376.95644" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="372.96179142009055" neutral_mass_monoisotopic="372.96179142009055" custom_ion_name="C12H19Cl7">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="372.96179142009055" neutral_mass_monoisotopic="372.96179142009055" custom_ion_name="C12H19Cl7">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>376.95644</precursor_mz>
+          <product_mz>376.95644</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="408.91986942009055" neutral_mass_monoisotopic="408.91986942009055" custom_ion_name="C12H18Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="408.920418" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="408.91986942009055" neutral_mass_monoisotopic="408.91986942009055" custom_ion_name="C12H18Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="408.91986942009055" neutral_mass_monoisotopic="408.91986942009055" custom_ion_name="C12H18Cl8">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>408.920418</precursor_mz>
+          <product_mz>408.920418</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="410.917468" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="408.91986942009055" neutral_mass_monoisotopic="408.91986942009055" custom_ion_name="C12H18Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="408.91986942009055" neutral_mass_monoisotopic="408.91986942009055" custom_ion_name="C12H18Cl8">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>410.917468</precursor_mz>
+          <product_mz>410.917468</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="412.914518" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="408.91986942009055" neutral_mass_monoisotopic="408.91986942009055" custom_ion_name="C12H18Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="408.91986942009055" neutral_mass_monoisotopic="408.91986942009055" custom_ion_name="C12H18Cl8">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>412.914518</precursor_mz>
+          <product_mz>412.914518</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="442.88089742009055" neutral_mass_monoisotopic="442.88089742009055" custom_ion_name="C12H17Cl9">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="442.881446" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="442.88089742009055" neutral_mass_monoisotopic="442.88089742009055" custom_ion_name="C12H17Cl9">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="442.88089742009055" neutral_mass_monoisotopic="442.88089742009055" custom_ion_name="C12H17Cl9">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>442.881446</precursor_mz>
+          <product_mz>442.881446</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="444.878496" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="442.88089742009055" neutral_mass_monoisotopic="442.88089742009055" custom_ion_name="C12H17Cl9">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="442.88089742009055" neutral_mass_monoisotopic="442.88089742009055" custom_ion_name="C12H17Cl9">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>444.878496</precursor_mz>
+          <product_mz>444.878496</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="446.875546" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="442.88089742009055" neutral_mass_monoisotopic="442.88089742009055" custom_ion_name="C12H17Cl9">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="442.88089742009055" neutral_mass_monoisotopic="442.88089742009055" custom_ion_name="C12H17Cl9">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>446.875546</precursor_mz>
+          <product_mz>446.875546</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="476.84192442009055" neutral_mass_monoisotopic="476.84192442009055" custom_ion_name="C12H16Cl10">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="476.842473" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="476.84192442009055" neutral_mass_monoisotopic="476.84192442009055" custom_ion_name="C12H16Cl10">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="476.84192442009055" neutral_mass_monoisotopic="476.84192442009055" custom_ion_name="C12H16Cl10">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>476.842473</precursor_mz>
+          <product_mz>476.842473</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="478.839523" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="476.84192442009055" neutral_mass_monoisotopic="476.84192442009055" custom_ion_name="C12H16Cl10">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="476.84192442009055" neutral_mass_monoisotopic="476.84192442009055" custom_ion_name="C12H16Cl10">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>478.839523</precursor_mz>
+          <product_mz>478.839523</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="480.836573" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="476.84192442009055" neutral_mass_monoisotopic="476.84192442009055" custom_ion_name="C12H16Cl10">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="476.84192442009055" neutral_mass_monoisotopic="476.84192442009055" custom_ion_name="C12H16Cl10">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>480.836573</precursor_mz>
+          <product_mz>480.836573</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="510.80295242009055" neutral_mass_monoisotopic="510.80295242009055" custom_ion_name="C12H15Cl11">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="510.803501" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="510.80295242009055" neutral_mass_monoisotopic="510.80295242009055" custom_ion_name="C12H15Cl11">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="510.80295242009055" neutral_mass_monoisotopic="510.80295242009055" custom_ion_name="C12H15Cl11">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>510.803501</precursor_mz>
+          <product_mz>510.803501</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="512.800551" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="510.80295242009055" neutral_mass_monoisotopic="510.80295242009055" custom_ion_name="C12H15Cl11">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="510.80295242009055" neutral_mass_monoisotopic="510.80295242009055" custom_ion_name="C12H15Cl11">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>512.800551</precursor_mz>
+          <product_mz>512.800551</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="514.797601" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="510.80295242009055" neutral_mass_monoisotopic="510.80295242009055" custom_ion_name="C12H15Cl11">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="510.80295242009055" neutral_mass_monoisotopic="510.80295242009055" custom_ion_name="C12H15Cl11">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>514.797601</precursor_mz>
+          <product_mz>514.797601</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="544.764529" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>544.764529</precursor_mz>
+          <product_mz>544.764529</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="546.761579" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>546.761579</precursor_mz>
+          <product_mz>546.761579</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="548.758629" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>548.758629</precursor_mz>
+          <product_mz>548.758629</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="550.755679" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="544.76398042009055" neutral_mass_monoisotopic="544.76398042009055" custom_ion_name="C12H14Cl12">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>550.755679</precursor_mz>
+          <product_mz>550.755679</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCA-C13" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="251.13333142009054" neutral_mass_monoisotopic="251.13333142009054" custom_ion_name="C13H25Cl3">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="251.13388" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="251.13333142009054" neutral_mass_monoisotopic="251.13333142009054" custom_ion_name="C13H25Cl3">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="251.13333142009054" neutral_mass_monoisotopic="251.13333142009054" custom_ion_name="C13H25Cl3">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>251.13388</precursor_mz>
+          <product_mz>251.13388</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="253.13093" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="251.13333142009054" neutral_mass_monoisotopic="251.13333142009054" custom_ion_name="C13H25Cl3">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="251.13333142009054" neutral_mass_monoisotopic="251.13333142009054" custom_ion_name="C13H25Cl3">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>253.13093</precursor_mz>
+          <product_mz>253.13093</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="285.09435842009054" neutral_mass_monoisotopic="285.09435842009054" custom_ion_name="C13H24Cl4">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="285.094907" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="285.09435842009054" neutral_mass_monoisotopic="285.09435842009054" custom_ion_name="C13H24Cl4">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="285.09435842009054" neutral_mass_monoisotopic="285.09435842009054" custom_ion_name="C13H24Cl4">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>285.094907</precursor_mz>
+          <product_mz>285.094907</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="287.091957" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="285.09435842009054" neutral_mass_monoisotopic="285.09435842009054" custom_ion_name="C13H24Cl4">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="285.09435842009054" neutral_mass_monoisotopic="285.09435842009054" custom_ion_name="C13H24Cl4">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>287.091957</precursor_mz>
+          <product_mz>287.091957</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="319.05538642009054" neutral_mass_monoisotopic="319.05538642009054" custom_ion_name="C13H23Cl5">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="319.055935" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="319.05538642009054" neutral_mass_monoisotopic="319.05538642009054" custom_ion_name="C13H23Cl5">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="319.05538642009054" neutral_mass_monoisotopic="319.05538642009054" custom_ion_name="C13H23Cl5">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>319.055935</precursor_mz>
+          <product_mz>319.055935</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="321.052985" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="319.05538642009054" neutral_mass_monoisotopic="319.05538642009054" custom_ion_name="C13H23Cl5">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="319.05538642009054" neutral_mass_monoisotopic="319.05538642009054" custom_ion_name="C13H23Cl5">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>321.052985</precursor_mz>
+          <product_mz>321.052985</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="353.01641442009054" neutral_mass_monoisotopic="353.01641442009054" custom_ion_name="C13H22Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="353.016963" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="353.01641442009054" neutral_mass_monoisotopic="353.01641442009054" custom_ion_name="C13H22Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="353.01641442009054" neutral_mass_monoisotopic="353.01641442009054" custom_ion_name="C13H22Cl6">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>353.016963</precursor_mz>
+          <product_mz>353.016963</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="355.014013" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="353.01641442009054" neutral_mass_monoisotopic="353.01641442009054" custom_ion_name="C13H22Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="353.01641442009054" neutral_mass_monoisotopic="353.01641442009054" custom_ion_name="C13H22Cl6">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>355.014013</precursor_mz>
+          <product_mz>355.014013</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="357.011063" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="353.01641442009054" neutral_mass_monoisotopic="353.01641442009054" custom_ion_name="C13H22Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="353.01641442009054" neutral_mass_monoisotopic="353.01641442009054" custom_ion_name="C13H22Cl6">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>357.011063</precursor_mz>
+          <product_mz>357.011063</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="386.97744242009054" neutral_mass_monoisotopic="386.97744242009054" custom_ion_name="C13H21Cl7">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="386.977991" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="386.97744242009054" neutral_mass_monoisotopic="386.97744242009054" custom_ion_name="C13H21Cl7">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="386.97744242009054" neutral_mass_monoisotopic="386.97744242009054" custom_ion_name="C13H21Cl7">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>386.977991</precursor_mz>
+          <product_mz>386.977991</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="388.975041" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="386.97744242009054" neutral_mass_monoisotopic="386.97744242009054" custom_ion_name="C13H21Cl7">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="386.97744242009054" neutral_mass_monoisotopic="386.97744242009054" custom_ion_name="C13H21Cl7">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>388.975041</precursor_mz>
+          <product_mz>388.975041</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="390.972091" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="386.97744242009054" neutral_mass_monoisotopic="386.97744242009054" custom_ion_name="C13H21Cl7">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="386.97744242009054" neutral_mass_monoisotopic="386.97744242009054" custom_ion_name="C13H21Cl7">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>390.972091</precursor_mz>
+          <product_mz>390.972091</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="422.93551942009054" neutral_mass_monoisotopic="422.93551942009054" custom_ion_name="C13H20Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="422.936068" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="422.93551942009054" neutral_mass_monoisotopic="422.93551942009054" custom_ion_name="C13H20Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="422.93551942009054" neutral_mass_monoisotopic="422.93551942009054" custom_ion_name="C13H20Cl8">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>422.936068</precursor_mz>
+          <product_mz>422.936068</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="424.933118" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="422.93551942009054" neutral_mass_monoisotopic="422.93551942009054" custom_ion_name="C13H20Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="422.93551942009054" neutral_mass_monoisotopic="422.93551942009054" custom_ion_name="C13H20Cl8">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>424.933118</precursor_mz>
+          <product_mz>424.933118</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="426.930168" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="422.93551942009054" neutral_mass_monoisotopic="422.93551942009054" custom_ion_name="C13H20Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="422.93551942009054" neutral_mass_monoisotopic="422.93551942009054" custom_ion_name="C13H20Cl8">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>426.930168</precursor_mz>
+          <product_mz>426.930168</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="456.89654742009054" neutral_mass_monoisotopic="456.89654742009054" custom_ion_name="C13H19Cl9">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="456.897096" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="456.89654742009054" neutral_mass_monoisotopic="456.89654742009054" custom_ion_name="C13H19Cl9">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="456.89654742009054" neutral_mass_monoisotopic="456.89654742009054" custom_ion_name="C13H19Cl9">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>456.897096</precursor_mz>
+          <product_mz>456.897096</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="458.894146" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="456.89654742009054" neutral_mass_monoisotopic="456.89654742009054" custom_ion_name="C13H19Cl9">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="456.89654742009054" neutral_mass_monoisotopic="456.89654742009054" custom_ion_name="C13H19Cl9">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>458.894146</precursor_mz>
+          <product_mz>458.894146</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="460.891196" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="456.89654742009054" neutral_mass_monoisotopic="456.89654742009054" custom_ion_name="C13H19Cl9">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="456.89654742009054" neutral_mass_monoisotopic="456.89654742009054" custom_ion_name="C13H19Cl9">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>460.891196</precursor_mz>
+          <product_mz>460.891196</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="490.85757442009054" neutral_mass_monoisotopic="490.85757442009054" custom_ion_name="C13H18Cl10">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="490.858123" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="490.85757442009054" neutral_mass_monoisotopic="490.85757442009054" custom_ion_name="C13H18Cl10">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="490.85757442009054" neutral_mass_monoisotopic="490.85757442009054" custom_ion_name="C13H18Cl10">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>490.858123</precursor_mz>
+          <product_mz>490.858123</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="492.855173" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="490.85757442009054" neutral_mass_monoisotopic="490.85757442009054" custom_ion_name="C13H18Cl10">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="490.85757442009054" neutral_mass_monoisotopic="490.85757442009054" custom_ion_name="C13H18Cl10">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>492.855173</precursor_mz>
+          <product_mz>492.855173</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="494.852223" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="490.85757442009054" neutral_mass_monoisotopic="490.85757442009054" custom_ion_name="C13H18Cl10">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="490.85757442009054" neutral_mass_monoisotopic="490.85757442009054" custom_ion_name="C13H18Cl10">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>494.852223</precursor_mz>
+          <product_mz>494.852223</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="524.81860242009054" neutral_mass_monoisotopic="524.81860242009054" custom_ion_name="C13H17Cl11">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="524.819151" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="524.81860242009054" neutral_mass_monoisotopic="524.81860242009054" custom_ion_name="C13H17Cl11">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="524.81860242009054" neutral_mass_monoisotopic="524.81860242009054" custom_ion_name="C13H17Cl11">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>524.819151</precursor_mz>
+          <product_mz>524.819151</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="526.816201" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="524.81860242009054" neutral_mass_monoisotopic="524.81860242009054" custom_ion_name="C13H17Cl11">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="524.81860242009054" neutral_mass_monoisotopic="524.81860242009054" custom_ion_name="C13H17Cl11">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>526.816201</precursor_mz>
+          <product_mz>526.816201</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="528.813251" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="524.81860242009054" neutral_mass_monoisotopic="524.81860242009054" custom_ion_name="C13H17Cl11">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="524.81860242009054" neutral_mass_monoisotopic="524.81860242009054" custom_ion_name="C13H17Cl11">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>528.813251</precursor_mz>
+          <product_mz>528.813251</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="558.780179" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>558.780179</precursor_mz>
+          <product_mz>558.780179</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="560.777229" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>560.777229</precursor_mz>
+          <product_mz>560.777229</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="562.774279" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>562.774279</precursor_mz>
+          <product_mz>562.774279</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="564.771329" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="558.77963042009048" neutral_mass_monoisotopic="558.77963042009048" custom_ion_name="C13H16Cl12">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>564.771329</precursor_mz>
+          <product_mz>564.771329</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="592.741206" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>592.741206</precursor_mz>
+          <product_mz>592.741206</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="594.738256" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>594.738256</precursor_mz>
+          <product_mz>594.738256</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="596.735306" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>596.735306</precursor_mz>
+          <product_mz>596.735306</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="598.732356" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="592.74065742009054" neutral_mass_monoisotopic="592.74065742009054" custom_ion_name="C13H15Cl13">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>598.732356</precursor_mz>
+          <product_mz>598.732356</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCA-C14" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="265.14898142009059" neutral_mass_monoisotopic="265.14898142009059" custom_ion_name="C14H27Cl3">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="265.14953" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="265.14898142009059" neutral_mass_monoisotopic="265.14898142009059" custom_ion_name="C14H27Cl3">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="265.14898142009059" neutral_mass_monoisotopic="265.14898142009059" custom_ion_name="C14H27Cl3">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>265.14953</precursor_mz>
+          <product_mz>265.14953</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="267.14658" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="265.14898142009059" neutral_mass_monoisotopic="265.14898142009059" custom_ion_name="C14H27Cl3">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="265.14898142009059" neutral_mass_monoisotopic="265.14898142009059" custom_ion_name="C14H27Cl3">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>267.14658</precursor_mz>
+          <product_mz>267.14658</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="299.11000942009059" neutral_mass_monoisotopic="299.11000942009059" custom_ion_name="C14H26Cl4">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="299.110558" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="299.11000942009059" neutral_mass_monoisotopic="299.11000942009059" custom_ion_name="C14H26Cl4">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="299.11000942009059" neutral_mass_monoisotopic="299.11000942009059" custom_ion_name="C14H26Cl4">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>299.110558</precursor_mz>
+          <product_mz>299.110558</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="301.107608" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="299.11000942009059" neutral_mass_monoisotopic="299.11000942009059" custom_ion_name="C14H26Cl4">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="299.11000942009059" neutral_mass_monoisotopic="299.11000942009059" custom_ion_name="C14H26Cl4">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>301.107608</precursor_mz>
+          <product_mz>301.107608</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="333.07103642009059" neutral_mass_monoisotopic="333.07103642009059" custom_ion_name="C14H25Cl5">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="333.071585" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="333.07103642009059" neutral_mass_monoisotopic="333.07103642009059" custom_ion_name="C14H25Cl5">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="333.07103642009059" neutral_mass_monoisotopic="333.07103642009059" custom_ion_name="C14H25Cl5">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>333.071585</precursor_mz>
+          <product_mz>333.071585</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="335.068635" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="333.07103642009059" neutral_mass_monoisotopic="333.07103642009059" custom_ion_name="C14H25Cl5">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="333.07103642009059" neutral_mass_monoisotopic="333.07103642009059" custom_ion_name="C14H25Cl5">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>335.068635</precursor_mz>
+          <product_mz>335.068635</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="367.03206442009059" neutral_mass_monoisotopic="367.03206442009059" custom_ion_name="C14H24Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="367.032613" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="367.03206442009059" neutral_mass_monoisotopic="367.03206442009059" custom_ion_name="C14H24Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="367.03206442009059" neutral_mass_monoisotopic="367.03206442009059" custom_ion_name="C14H24Cl6">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>367.032613</precursor_mz>
+          <product_mz>367.032613</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="369.029663" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="367.03206442009059" neutral_mass_monoisotopic="367.03206442009059" custom_ion_name="C14H24Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="367.03206442009059" neutral_mass_monoisotopic="367.03206442009059" custom_ion_name="C14H24Cl6">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>369.029663</precursor_mz>
+          <product_mz>369.029663</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="371.026713" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="367.03206442009059" neutral_mass_monoisotopic="367.03206442009059" custom_ion_name="C14H24Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="367.03206442009059" neutral_mass_monoisotopic="367.03206442009059" custom_ion_name="C14H24Cl6">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>371.026713</precursor_mz>
+          <product_mz>371.026713</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="400.99309242009059" neutral_mass_monoisotopic="400.99309242009059" custom_ion_name="C14H23Cl7">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="400.993641" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="400.99309242009059" neutral_mass_monoisotopic="400.99309242009059" custom_ion_name="C14H23Cl7">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="400.99309242009059" neutral_mass_monoisotopic="400.99309242009059" custom_ion_name="C14H23Cl7">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>400.993641</precursor_mz>
+          <product_mz>400.993641</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="402.990691" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="400.99309242009059" neutral_mass_monoisotopic="400.99309242009059" custom_ion_name="C14H23Cl7">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="400.99309242009059" neutral_mass_monoisotopic="400.99309242009059" custom_ion_name="C14H23Cl7">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>402.990691</precursor_mz>
+          <product_mz>402.990691</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="404.987741" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="400.99309242009059" neutral_mass_monoisotopic="400.99309242009059" custom_ion_name="C14H23Cl7">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="400.99309242009059" neutral_mass_monoisotopic="400.99309242009059" custom_ion_name="C14H23Cl7">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>404.987741</precursor_mz>
+          <product_mz>404.987741</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="436.95116942009059" neutral_mass_monoisotopic="436.95116942009059" custom_ion_name="C14H22Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="436.951718" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="436.95116942009059" neutral_mass_monoisotopic="436.95116942009059" custom_ion_name="C14H22Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="436.95116942009059" neutral_mass_monoisotopic="436.95116942009059" custom_ion_name="C14H22Cl8">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>436.951718</precursor_mz>
+          <product_mz>436.951718</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="438.948768" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="436.95116942009059" neutral_mass_monoisotopic="436.95116942009059" custom_ion_name="C14H22Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="436.95116942009059" neutral_mass_monoisotopic="436.95116942009059" custom_ion_name="C14H22Cl8">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>438.948768</precursor_mz>
+          <product_mz>438.948768</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="440.945818" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="436.95116942009059" neutral_mass_monoisotopic="436.95116942009059" custom_ion_name="C14H22Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="436.95116942009059" neutral_mass_monoisotopic="436.95116942009059" custom_ion_name="C14H22Cl8">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>440.945818</precursor_mz>
+          <product_mz>440.945818</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="470.91219742009059" neutral_mass_monoisotopic="470.91219742009059" custom_ion_name="C14H21Cl9">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="470.912746" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="470.91219742009059" neutral_mass_monoisotopic="470.91219742009059" custom_ion_name="C14H21Cl9">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="470.91219742009059" neutral_mass_monoisotopic="470.91219742009059" custom_ion_name="C14H21Cl9">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>470.912746</precursor_mz>
+          <product_mz>470.912746</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="472.90979599999997" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="470.91219742009059" neutral_mass_monoisotopic="470.91219742009059" custom_ion_name="C14H21Cl9">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="470.91219742009059" neutral_mass_monoisotopic="470.91219742009059" custom_ion_name="C14H21Cl9">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>472.90979599999997</precursor_mz>
+          <product_mz>472.90979599999997</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="474.906846" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="470.91219742009059" neutral_mass_monoisotopic="470.91219742009059" custom_ion_name="C14H21Cl9">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="470.91219742009059" neutral_mass_monoisotopic="470.91219742009059" custom_ion_name="C14H21Cl9">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>474.906846</precursor_mz>
+          <product_mz>474.906846</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="504.87322442009059" neutral_mass_monoisotopic="504.87322442009059" custom_ion_name="C14H20Cl10">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="504.873773" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="504.87322442009059" neutral_mass_monoisotopic="504.87322442009059" custom_ion_name="C14H20Cl10">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="504.87322442009059" neutral_mass_monoisotopic="504.87322442009059" custom_ion_name="C14H20Cl10">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>504.873773</precursor_mz>
+          <product_mz>504.873773</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="506.870823" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="504.87322442009059" neutral_mass_monoisotopic="504.87322442009059" custom_ion_name="C14H20Cl10">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="504.87322442009059" neutral_mass_monoisotopic="504.87322442009059" custom_ion_name="C14H20Cl10">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>506.870823</precursor_mz>
+          <product_mz>506.870823</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="508.867873" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="504.87322442009059" neutral_mass_monoisotopic="504.87322442009059" custom_ion_name="C14H20Cl10">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="504.87322442009059" neutral_mass_monoisotopic="504.87322442009059" custom_ion_name="C14H20Cl10">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>508.867873</precursor_mz>
+          <product_mz>508.867873</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="538.83425242009048" neutral_mass_monoisotopic="538.83425242009048" custom_ion_name="C14H19Cl11">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="538.834801" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="538.83425242009048" neutral_mass_monoisotopic="538.83425242009048" custom_ion_name="C14H19Cl11">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="538.83425242009048" neutral_mass_monoisotopic="538.83425242009048" custom_ion_name="C14H19Cl11">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>538.834801</precursor_mz>
+          <product_mz>538.834801</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="540.831851" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="538.83425242009048" neutral_mass_monoisotopic="538.83425242009048" custom_ion_name="C14H19Cl11">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="538.83425242009048" neutral_mass_monoisotopic="538.83425242009048" custom_ion_name="C14H19Cl11">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>540.831851</precursor_mz>
+          <product_mz>540.831851</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="542.828901" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="538.83425242009048" neutral_mass_monoisotopic="538.83425242009048" custom_ion_name="C14H19Cl11">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="538.83425242009048" neutral_mass_monoisotopic="538.83425242009048" custom_ion_name="C14H19Cl11">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>542.828901</precursor_mz>
+          <product_mz>542.828901</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="572.795829" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>572.795829</precursor_mz>
+          <product_mz>572.795829</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="574.792879" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>574.792879</precursor_mz>
+          <product_mz>574.792879</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="576.789929" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>576.789929</precursor_mz>
+          <product_mz>576.789929</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="578.786979" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="572.79528042009053" neutral_mass_monoisotopic="572.79528042009053" custom_ion_name="C14H18Cl12">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>578.786979</precursor_mz>
+          <product_mz>578.786979</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="606.756857" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>606.756857</precursor_mz>
+          <product_mz>606.756857</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="608.753907" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>608.753907</precursor_mz>
+          <product_mz>608.753907</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="610.750957" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>610.750957</precursor_mz>
+          <product_mz>610.750957</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="612.748007" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="606.75630842009048" neutral_mass_monoisotopic="606.75630842009048" custom_ion_name="C14H17Cl13">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>612.748007</precursor_mz>
+          <product_mz>612.748007</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="642.71438542009048" neutral_mass_monoisotopic="642.71438542009048" custom_ion_name="C14H16Cl14">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="642.714934" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="642.71438542009048" neutral_mass_monoisotopic="642.71438542009048" custom_ion_name="C14H16Cl14">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="642.71438542009048" neutral_mass_monoisotopic="642.71438542009048" custom_ion_name="C14H16Cl14">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>642.714934</precursor_mz>
+          <product_mz>642.714934</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="644.711984" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="642.71438542009048" neutral_mass_monoisotopic="642.71438542009048" custom_ion_name="C14H16Cl14">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="642.71438542009048" neutral_mass_monoisotopic="642.71438542009048" custom_ion_name="C14H16Cl14">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>644.711984</precursor_mz>
+          <product_mz>644.711984</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="646.709034" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="642.71438542009048" neutral_mass_monoisotopic="642.71438542009048" custom_ion_name="C14H16Cl14">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="642.71438542009048" neutral_mass_monoisotopic="642.71438542009048" custom_ion_name="C14H16Cl14">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>646.709034</precursor_mz>
+          <product_mz>646.709034</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCA-C15" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="279.16463142009059" neutral_mass_monoisotopic="279.16463142009059" custom_ion_name="C15H29Cl3">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="279.16518" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="279.16463142009059" neutral_mass_monoisotopic="279.16463142009059" custom_ion_name="C15H29Cl3">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="279.16463142009059" neutral_mass_monoisotopic="279.16463142009059" custom_ion_name="C15H29Cl3">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>279.16518</precursor_mz>
+          <product_mz>279.16518</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="281.16223" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="279.16463142009059" neutral_mass_monoisotopic="279.16463142009059" custom_ion_name="C15H29Cl3">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="279.16463142009059" neutral_mass_monoisotopic="279.16463142009059" custom_ion_name="C15H29Cl3">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>281.16223</precursor_mz>
+          <product_mz>281.16223</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="313.12565942009059" neutral_mass_monoisotopic="313.12565942009059" custom_ion_name="C15H28Cl4">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="313.126208" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="313.12565942009059" neutral_mass_monoisotopic="313.12565942009059" custom_ion_name="C15H28Cl4">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="313.12565942009059" neutral_mass_monoisotopic="313.12565942009059" custom_ion_name="C15H28Cl4">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>313.126208</precursor_mz>
+          <product_mz>313.126208</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="315.123258" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="313.12565942009059" neutral_mass_monoisotopic="313.12565942009059" custom_ion_name="C15H28Cl4">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="313.12565942009059" neutral_mass_monoisotopic="313.12565942009059" custom_ion_name="C15H28Cl4">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>315.123258</precursor_mz>
+          <product_mz>315.123258</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="347.08668642009059" neutral_mass_monoisotopic="347.08668642009059" custom_ion_name="C15H27Cl5">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="347.087235" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="347.08668642009059" neutral_mass_monoisotopic="347.08668642009059" custom_ion_name="C15H27Cl5">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="347.08668642009059" neutral_mass_monoisotopic="347.08668642009059" custom_ion_name="C15H27Cl5">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>347.087235</precursor_mz>
+          <product_mz>347.087235</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="349.084285" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="347.08668642009059" neutral_mass_monoisotopic="347.08668642009059" custom_ion_name="C15H27Cl5">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="347.08668642009059" neutral_mass_monoisotopic="347.08668642009059" custom_ion_name="C15H27Cl5">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>349.084285</precursor_mz>
+          <product_mz>349.084285</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="381.04771442009059" neutral_mass_monoisotopic="381.04771442009059" custom_ion_name="C15H26Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="381.048263" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="381.04771442009059" neutral_mass_monoisotopic="381.04771442009059" custom_ion_name="C15H26Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="381.04771442009059" neutral_mass_monoisotopic="381.04771442009059" custom_ion_name="C15H26Cl6">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>381.048263</precursor_mz>
+          <product_mz>381.048263</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="383.045313" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="381.04771442009059" neutral_mass_monoisotopic="381.04771442009059" custom_ion_name="C15H26Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="381.04771442009059" neutral_mass_monoisotopic="381.04771442009059" custom_ion_name="C15H26Cl6">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>383.045313</precursor_mz>
+          <product_mz>383.045313</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="385.042363" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="381.04771442009059" neutral_mass_monoisotopic="381.04771442009059" custom_ion_name="C15H26Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="381.04771442009059" neutral_mass_monoisotopic="381.04771442009059" custom_ion_name="C15H26Cl6">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>385.042363</precursor_mz>
+          <product_mz>385.042363</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="415.00874242009058" neutral_mass_monoisotopic="415.00874242009058" custom_ion_name="C15H25Cl7">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="415.009291" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="415.00874242009058" neutral_mass_monoisotopic="415.00874242009058" custom_ion_name="C15H25Cl7">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="415.00874242009058" neutral_mass_monoisotopic="415.00874242009058" custom_ion_name="C15H25Cl7">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>415.009291</precursor_mz>
+          <product_mz>415.009291</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="417.006341" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="415.00874242009058" neutral_mass_monoisotopic="415.00874242009058" custom_ion_name="C15H25Cl7">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="415.00874242009058" neutral_mass_monoisotopic="415.00874242009058" custom_ion_name="C15H25Cl7">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>417.006341</precursor_mz>
+          <product_mz>417.006341</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="419.003391" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="415.00874242009058" neutral_mass_monoisotopic="415.00874242009058" custom_ion_name="C15H25Cl7">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="415.00874242009058" neutral_mass_monoisotopic="415.00874242009058" custom_ion_name="C15H25Cl7">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>419.003391</precursor_mz>
+          <product_mz>419.003391</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="450.96681942009059" neutral_mass_monoisotopic="450.96681942009059" custom_ion_name="C15H24Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="450.967368" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="450.96681942009059" neutral_mass_monoisotopic="450.96681942009059" custom_ion_name="C15H24Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="450.96681942009059" neutral_mass_monoisotopic="450.96681942009059" custom_ion_name="C15H24Cl8">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>450.967368</precursor_mz>
+          <product_mz>450.967368</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="452.964418" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="450.96681942009059" neutral_mass_monoisotopic="450.96681942009059" custom_ion_name="C15H24Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="450.96681942009059" neutral_mass_monoisotopic="450.96681942009059" custom_ion_name="C15H24Cl8">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>452.964418</precursor_mz>
+          <product_mz>452.964418</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="454.961468" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="450.96681942009059" neutral_mass_monoisotopic="450.96681942009059" custom_ion_name="C15H24Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="450.96681942009059" neutral_mass_monoisotopic="450.96681942009059" custom_ion_name="C15H24Cl8">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>454.961468</precursor_mz>
+          <product_mz>454.961468</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="484.92784742009059" neutral_mass_monoisotopic="484.92784742009059" custom_ion_name="C15H23Cl9">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="484.928396" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="484.92784742009059" neutral_mass_monoisotopic="484.92784742009059" custom_ion_name="C15H23Cl9">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="484.92784742009059" neutral_mass_monoisotopic="484.92784742009059" custom_ion_name="C15H23Cl9">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>484.928396</precursor_mz>
+          <product_mz>484.928396</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="486.925446" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="484.92784742009059" neutral_mass_monoisotopic="484.92784742009059" custom_ion_name="C15H23Cl9">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="484.92784742009059" neutral_mass_monoisotopic="484.92784742009059" custom_ion_name="C15H23Cl9">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>486.925446</precursor_mz>
+          <product_mz>486.925446</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="488.922496" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="484.92784742009059" neutral_mass_monoisotopic="484.92784742009059" custom_ion_name="C15H23Cl9">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="484.92784742009059" neutral_mass_monoisotopic="484.92784742009059" custom_ion_name="C15H23Cl9">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>488.922496</precursor_mz>
+          <product_mz>488.922496</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="518.88887542009047" neutral_mass_monoisotopic="518.88887542009047" custom_ion_name="C15H22Cl10">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="518.889424" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="518.88887542009047" neutral_mass_monoisotopic="518.88887542009047" custom_ion_name="C15H22Cl10">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="518.88887542009047" neutral_mass_monoisotopic="518.88887542009047" custom_ion_name="C15H22Cl10">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>518.889424</precursor_mz>
+          <product_mz>518.889424</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="520.886474" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="518.88887542009047" neutral_mass_monoisotopic="518.88887542009047" custom_ion_name="C15H22Cl10">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="518.88887542009047" neutral_mass_monoisotopic="518.88887542009047" custom_ion_name="C15H22Cl10">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>520.886474</precursor_mz>
+          <product_mz>520.886474</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="522.883524" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="518.88887542009047" neutral_mass_monoisotopic="518.88887542009047" custom_ion_name="C15H22Cl10">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="518.88887542009047" neutral_mass_monoisotopic="518.88887542009047" custom_ion_name="C15H22Cl10">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>522.883524</precursor_mz>
+          <product_mz>522.883524</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="552.84990242009053" neutral_mass_monoisotopic="552.84990242009053" custom_ion_name="C15H21Cl11">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="552.850451" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="552.84990242009053" neutral_mass_monoisotopic="552.84990242009053" custom_ion_name="C15H21Cl11">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="552.84990242009053" neutral_mass_monoisotopic="552.84990242009053" custom_ion_name="C15H21Cl11">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>552.850451</precursor_mz>
+          <product_mz>552.850451</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="554.847501" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="552.84990242009053" neutral_mass_monoisotopic="552.84990242009053" custom_ion_name="C15H21Cl11">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="552.84990242009053" neutral_mass_monoisotopic="552.84990242009053" custom_ion_name="C15H21Cl11">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>554.847501</precursor_mz>
+          <product_mz>554.847501</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="556.844551" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="552.84990242009053" neutral_mass_monoisotopic="552.84990242009053" custom_ion_name="C15H21Cl11">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="552.84990242009053" neutral_mass_monoisotopic="552.84990242009053" custom_ion_name="C15H21Cl11">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>556.844551</precursor_mz>
+          <product_mz>556.844551</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="586.811479" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>586.811479</precursor_mz>
+          <product_mz>586.811479</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="588.808529" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>588.808529</precursor_mz>
+          <product_mz>588.808529</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="590.805579" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>590.805579</precursor_mz>
+          <product_mz>590.805579</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="592.802629" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="586.81093042009047" neutral_mass_monoisotopic="586.81093042009047" custom_ion_name="C15H20Cl12">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>592.802629</precursor_mz>
+          <product_mz>592.802629</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="620.772507" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>620.772507</precursor_mz>
+          <product_mz>620.772507</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="622.769557" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>622.769557</precursor_mz>
+          <product_mz>622.769557</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="624.766607" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>624.766607</precursor_mz>
+          <product_mz>624.766607</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="626.763657" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="620.77195842009053" neutral_mass_monoisotopic="620.77195842009053" custom_ion_name="C15H19Cl13">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>626.763657</precursor_mz>
+          <product_mz>626.763657</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="656.73003542009053" neutral_mass_monoisotopic="656.73003542009053" custom_ion_name="C15H18Cl14">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="656.730584" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="656.73003542009053" neutral_mass_monoisotopic="656.73003542009053" custom_ion_name="C15H18Cl14">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="656.73003542009053" neutral_mass_monoisotopic="656.73003542009053" custom_ion_name="C15H18Cl14">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>656.730584</precursor_mz>
+          <product_mz>656.730584</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="658.727634" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="656.73003542009053" neutral_mass_monoisotopic="656.73003542009053" custom_ion_name="C15H18Cl14">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="656.73003542009053" neutral_mass_monoisotopic="656.73003542009053" custom_ion_name="C15H18Cl14">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>658.727634</precursor_mz>
+          <product_mz>658.727634</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="660.724684" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="656.73003542009053" neutral_mass_monoisotopic="656.73003542009053" custom_ion_name="C15H18Cl14">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="656.73003542009053" neutral_mass_monoisotopic="656.73003542009053" custom_ion_name="C15H18Cl14">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>660.724684</precursor_mz>
+          <product_mz>660.724684</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="690.691612" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>690.691612</precursor_mz>
+          <product_mz>690.691612</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="692.688662" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>692.688662</precursor_mz>
+          <product_mz>692.688662</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="694.685712" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>694.685712</precursor_mz>
+          <product_mz>694.685712</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="696.682762" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="690.69106342009047" neutral_mass_monoisotopic="690.69106342009047" custom_ion_name="C15H17Cl15">
+          <note>[PCA-Cl]- +10</note>
+          <precursor_mz>696.682762</precursor_mz>
+          <product_mz>696.682762</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCA-C16" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="293.18028142009058" neutral_mass_monoisotopic="293.18028142009058" custom_ion_name="C16H31Cl3">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="293.18083" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="293.18028142009058" neutral_mass_monoisotopic="293.18028142009058" custom_ion_name="C16H31Cl3">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="293.18028142009058" neutral_mass_monoisotopic="293.18028142009058" custom_ion_name="C16H31Cl3">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>293.18083</precursor_mz>
+          <product_mz>293.18083</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="295.17788" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="293.18028142009058" neutral_mass_monoisotopic="293.18028142009058" custom_ion_name="C16H31Cl3">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="293.18028142009058" neutral_mass_monoisotopic="293.18028142009058" custom_ion_name="C16H31Cl3">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>295.17788</precursor_mz>
+          <product_mz>295.17788</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="327.14130942009058" neutral_mass_monoisotopic="327.14130942009058" custom_ion_name="C16H30Cl4">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="327.141858" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="327.14130942009058" neutral_mass_monoisotopic="327.14130942009058" custom_ion_name="C16H30Cl4">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="327.14130942009058" neutral_mass_monoisotopic="327.14130942009058" custom_ion_name="C16H30Cl4">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>327.141858</precursor_mz>
+          <product_mz>327.141858</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="329.138908" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="327.14130942009058" neutral_mass_monoisotopic="327.14130942009058" custom_ion_name="C16H30Cl4">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="327.14130942009058" neutral_mass_monoisotopic="327.14130942009058" custom_ion_name="C16H30Cl4">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>329.138908</precursor_mz>
+          <product_mz>329.138908</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="361.10233642009058" neutral_mass_monoisotopic="361.10233642009058" custom_ion_name="C16H29Cl5">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="361.102885" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="361.10233642009058" neutral_mass_monoisotopic="361.10233642009058" custom_ion_name="C16H29Cl5">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="361.10233642009058" neutral_mass_monoisotopic="361.10233642009058" custom_ion_name="C16H29Cl5">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>361.102885</precursor_mz>
+          <product_mz>361.102885</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="363.099935" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="361.10233642009058" neutral_mass_monoisotopic="361.10233642009058" custom_ion_name="C16H29Cl5">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="361.10233642009058" neutral_mass_monoisotopic="361.10233642009058" custom_ion_name="C16H29Cl5">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>363.099935</precursor_mz>
+          <product_mz>363.099935</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="395.06336442009058" neutral_mass_monoisotopic="395.06336442009058" custom_ion_name="C16H28Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="395.063913" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="395.06336442009058" neutral_mass_monoisotopic="395.06336442009058" custom_ion_name="C16H28Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="395.06336442009058" neutral_mass_monoisotopic="395.06336442009058" custom_ion_name="C16H28Cl6">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>395.063913</precursor_mz>
+          <product_mz>395.063913</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="397.060963" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="395.06336442009058" neutral_mass_monoisotopic="395.06336442009058" custom_ion_name="C16H28Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="395.06336442009058" neutral_mass_monoisotopic="395.06336442009058" custom_ion_name="C16H28Cl6">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>397.060963</precursor_mz>
+          <product_mz>397.060963</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="399.058013" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="395.06336442009058" neutral_mass_monoisotopic="395.06336442009058" custom_ion_name="C16H28Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="395.06336442009058" neutral_mass_monoisotopic="395.06336442009058" custom_ion_name="C16H28Cl6">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>399.058013</precursor_mz>
+          <product_mz>399.058013</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="429.02439242009058" neutral_mass_monoisotopic="429.02439242009058" custom_ion_name="C16H27Cl7">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="429.024941" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="429.02439242009058" neutral_mass_monoisotopic="429.02439242009058" custom_ion_name="C16H27Cl7">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="429.02439242009058" neutral_mass_monoisotopic="429.02439242009058" custom_ion_name="C16H27Cl7">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>429.024941</precursor_mz>
+          <product_mz>429.024941</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="431.021991" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="429.02439242009058" neutral_mass_monoisotopic="429.02439242009058" custom_ion_name="C16H27Cl7">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="429.02439242009058" neutral_mass_monoisotopic="429.02439242009058" custom_ion_name="C16H27Cl7">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>431.021991</precursor_mz>
+          <product_mz>431.021991</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="433.019041" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="429.02439242009058" neutral_mass_monoisotopic="429.02439242009058" custom_ion_name="C16H27Cl7">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="429.02439242009058" neutral_mass_monoisotopic="429.02439242009058" custom_ion_name="C16H27Cl7">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>433.019041</precursor_mz>
+          <product_mz>433.019041</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="464.98246942009058" neutral_mass_monoisotopic="464.98246942009058" custom_ion_name="C16H26Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="464.983018" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="464.98246942009058" neutral_mass_monoisotopic="464.98246942009058" custom_ion_name="C16H26Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="464.98246942009058" neutral_mass_monoisotopic="464.98246942009058" custom_ion_name="C16H26Cl8">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>464.983018</precursor_mz>
+          <product_mz>464.983018</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="466.980068" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="464.98246942009058" neutral_mass_monoisotopic="464.98246942009058" custom_ion_name="C16H26Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="464.98246942009058" neutral_mass_monoisotopic="464.98246942009058" custom_ion_name="C16H26Cl8">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>466.980068</precursor_mz>
+          <product_mz>466.980068</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="468.977118" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="464.98246942009058" neutral_mass_monoisotopic="464.98246942009058" custom_ion_name="C16H26Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="464.98246942009058" neutral_mass_monoisotopic="464.98246942009058" custom_ion_name="C16H26Cl8">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>468.977118</precursor_mz>
+          <product_mz>468.977118</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="498.94349742009058" neutral_mass_monoisotopic="498.94349742009058" custom_ion_name="C16H25Cl9">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="498.944046" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="498.94349742009058" neutral_mass_monoisotopic="498.94349742009058" custom_ion_name="C16H25Cl9">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="498.94349742009058" neutral_mass_monoisotopic="498.94349742009058" custom_ion_name="C16H25Cl9">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>498.944046</precursor_mz>
+          <product_mz>498.944046</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="500.941096" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="498.94349742009058" neutral_mass_monoisotopic="498.94349742009058" custom_ion_name="C16H25Cl9">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="498.94349742009058" neutral_mass_monoisotopic="498.94349742009058" custom_ion_name="C16H25Cl9">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>500.941096</precursor_mz>
+          <product_mz>500.941096</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="502.938146" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="498.94349742009058" neutral_mass_monoisotopic="498.94349742009058" custom_ion_name="C16H25Cl9">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="498.94349742009058" neutral_mass_monoisotopic="498.94349742009058" custom_ion_name="C16H25Cl9">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>502.938146</precursor_mz>
+          <product_mz>502.938146</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="532.90452542009052" neutral_mass_monoisotopic="532.90452542009052" custom_ion_name="C16H24Cl10">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="532.905074" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="532.90452542009052" neutral_mass_monoisotopic="532.90452542009052" custom_ion_name="C16H24Cl10">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="532.90452542009052" neutral_mass_monoisotopic="532.90452542009052" custom_ion_name="C16H24Cl10">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>532.905074</precursor_mz>
+          <product_mz>532.905074</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="534.902124" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="532.90452542009052" neutral_mass_monoisotopic="532.90452542009052" custom_ion_name="C16H24Cl10">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="532.90452542009052" neutral_mass_monoisotopic="532.90452542009052" custom_ion_name="C16H24Cl10">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>534.902124</precursor_mz>
+          <product_mz>534.902124</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="536.899174" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="532.90452542009052" neutral_mass_monoisotopic="532.90452542009052" custom_ion_name="C16H24Cl10">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="532.90452542009052" neutral_mass_monoisotopic="532.90452542009052" custom_ion_name="C16H24Cl10">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>536.899174</precursor_mz>
+          <product_mz>536.899174</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="566.86555242009047" neutral_mass_monoisotopic="566.86555242009047" custom_ion_name="C16H23Cl11">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="566.866101" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="566.86555242009047" neutral_mass_monoisotopic="566.86555242009047" custom_ion_name="C16H23Cl11">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="566.86555242009047" neutral_mass_monoisotopic="566.86555242009047" custom_ion_name="C16H23Cl11">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>566.866101</precursor_mz>
+          <product_mz>566.866101</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="568.863151" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="566.86555242009047" neutral_mass_monoisotopic="566.86555242009047" custom_ion_name="C16H23Cl11">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="566.86555242009047" neutral_mass_monoisotopic="566.86555242009047" custom_ion_name="C16H23Cl11">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>568.863151</precursor_mz>
+          <product_mz>568.863151</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="570.860201" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="566.86555242009047" neutral_mass_monoisotopic="566.86555242009047" custom_ion_name="C16H23Cl11">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="566.86555242009047" neutral_mass_monoisotopic="566.86555242009047" custom_ion_name="C16H23Cl11">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>570.860201</precursor_mz>
+          <product_mz>570.860201</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="600.827129" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>600.827129</precursor_mz>
+          <product_mz>600.827129</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="602.824179" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>602.824179</precursor_mz>
+          <product_mz>602.824179</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="604.821229" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>604.821229</precursor_mz>
+          <product_mz>604.821229</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="606.818279" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="600.82658042009052" neutral_mass_monoisotopic="600.82658042009052" custom_ion_name="C16H22Cl12">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>606.818279</precursor_mz>
+          <product_mz>606.818279</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="634.788157" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>634.788157</precursor_mz>
+          <product_mz>634.788157</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="636.785207" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>636.785207</precursor_mz>
+          <product_mz>636.785207</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="638.782257" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>638.782257</precursor_mz>
+          <product_mz>638.782257</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="640.779307" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="634.78760842009046" neutral_mass_monoisotopic="634.78760842009046" custom_ion_name="C16H21Cl13">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>640.779307</precursor_mz>
+          <product_mz>640.779307</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="670.74568542009047" neutral_mass_monoisotopic="670.74568542009047" custom_ion_name="C16H20Cl14">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="670.746234" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="670.74568542009047" neutral_mass_monoisotopic="670.74568542009047" custom_ion_name="C16H20Cl14">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="670.74568542009047" neutral_mass_monoisotopic="670.74568542009047" custom_ion_name="C16H20Cl14">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>670.746234</precursor_mz>
+          <product_mz>670.746234</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="672.743284" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="670.74568542009047" neutral_mass_monoisotopic="670.74568542009047" custom_ion_name="C16H20Cl14">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="670.74568542009047" neutral_mass_monoisotopic="670.74568542009047" custom_ion_name="C16H20Cl14">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>672.743284</precursor_mz>
+          <product_mz>672.743284</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="674.740334" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="670.74568542009047" neutral_mass_monoisotopic="670.74568542009047" custom_ion_name="C16H20Cl14">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="670.74568542009047" neutral_mass_monoisotopic="670.74568542009047" custom_ion_name="C16H20Cl14">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>674.740334</precursor_mz>
+          <product_mz>674.740334</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="704.707262" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>704.707262</precursor_mz>
+          <product_mz>704.707262</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="706.704312" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>706.704312</precursor_mz>
+          <product_mz>706.704312</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="708.701362" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>708.701362</precursor_mz>
+          <product_mz>708.701362</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="710.698412" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="704.70671342009052" neutral_mass_monoisotopic="704.70671342009052" custom_ion_name="C16H19Cl15">
+          <note>[PCA-Cl]- +10</note>
+          <precursor_mz>710.698412</precursor_mz>
+          <product_mz>710.698412</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+  <peptide_list label_name="PCA-C17" label_description="" websearch_status="X" auto_manage_children="false">
+    <molecule auto_manage_children="false" neutral_mass_average="307.19593142009057" neutral_mass_monoisotopic="307.19593142009057" custom_ion_name="C17H33Cl3">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="307.19648" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="307.19593142009057" neutral_mass_monoisotopic="307.19593142009057" custom_ion_name="C17H33Cl3">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="307.19593142009057" neutral_mass_monoisotopic="307.19593142009057" custom_ion_name="C17H33Cl3">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>307.19648</precursor_mz>
+          <product_mz>307.19648</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="309.19353" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="307.19593142009057" neutral_mass_monoisotopic="307.19593142009057" custom_ion_name="C17H33Cl3">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="307.19593142009057" neutral_mass_monoisotopic="307.19593142009057" custom_ion_name="C17H33Cl3">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>309.19353</precursor_mz>
+          <product_mz>309.19353</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="341.15695942009057" neutral_mass_monoisotopic="341.15695942009057" custom_ion_name="C17H32Cl4">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="341.157508" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="341.15695942009057" neutral_mass_monoisotopic="341.15695942009057" custom_ion_name="C17H32Cl4">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="341.15695942009057" neutral_mass_monoisotopic="341.15695942009057" custom_ion_name="C17H32Cl4">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>341.157508</precursor_mz>
+          <product_mz>341.157508</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="343.154558" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="341.15695942009057" neutral_mass_monoisotopic="341.15695942009057" custom_ion_name="C17H32Cl4">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="341.15695942009057" neutral_mass_monoisotopic="341.15695942009057" custom_ion_name="C17H32Cl4">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>343.154558</precursor_mz>
+          <product_mz>343.154558</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="375.11798642009057" neutral_mass_monoisotopic="375.11798642009057" custom_ion_name="C17H31Cl5">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="375.118535" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="375.11798642009057" neutral_mass_monoisotopic="375.11798642009057" custom_ion_name="C17H31Cl5">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="375.11798642009057" neutral_mass_monoisotopic="375.11798642009057" custom_ion_name="C17H31Cl5">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>375.118535</precursor_mz>
+          <product_mz>375.118535</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="377.115585" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="375.11798642009057" neutral_mass_monoisotopic="375.11798642009057" custom_ion_name="C17H31Cl5">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="375.11798642009057" neutral_mass_monoisotopic="375.11798642009057" custom_ion_name="C17H31Cl5">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>377.115585</precursor_mz>
+          <product_mz>377.115585</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="409.07901442009057" neutral_mass_monoisotopic="409.07901442009057" custom_ion_name="C17H30Cl6">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="409.079563" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="409.07901442009057" neutral_mass_monoisotopic="409.07901442009057" custom_ion_name="C17H30Cl6">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="409.07901442009057" neutral_mass_monoisotopic="409.07901442009057" custom_ion_name="C17H30Cl6">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>409.079563</precursor_mz>
+          <product_mz>409.079563</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="411.076613" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="409.07901442009057" neutral_mass_monoisotopic="409.07901442009057" custom_ion_name="C17H30Cl6">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="409.07901442009057" neutral_mass_monoisotopic="409.07901442009057" custom_ion_name="C17H30Cl6">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>411.076613</precursor_mz>
+          <product_mz>411.076613</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="413.073663" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="409.07901442009057" neutral_mass_monoisotopic="409.07901442009057" custom_ion_name="C17H30Cl6">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="409.07901442009057" neutral_mass_monoisotopic="409.07901442009057" custom_ion_name="C17H30Cl6">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>413.073663</precursor_mz>
+          <product_mz>413.073663</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="443.04004242009057" neutral_mass_monoisotopic="443.04004242009057" custom_ion_name="C17H29Cl7">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="443.040591" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="443.04004242009057" neutral_mass_monoisotopic="443.04004242009057" custom_ion_name="C17H29Cl7">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="443.04004242009057" neutral_mass_monoisotopic="443.04004242009057" custom_ion_name="C17H29Cl7">
+          <note>[PCA-Cl]-</note>
+          <precursor_mz>443.040591</precursor_mz>
+          <product_mz>443.040591</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="445.037641" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="443.04004242009057" neutral_mass_monoisotopic="443.04004242009057" custom_ion_name="C17H29Cl7">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="443.04004242009057" neutral_mass_monoisotopic="443.04004242009057" custom_ion_name="C17H29Cl7">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>445.037641</precursor_mz>
+          <product_mz>445.037641</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="447.034691" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="443.04004242009057" neutral_mass_monoisotopic="443.04004242009057" custom_ion_name="C17H29Cl7">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="443.04004242009057" neutral_mass_monoisotopic="443.04004242009057" custom_ion_name="C17H29Cl7">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>447.034691</precursor_mz>
+          <product_mz>447.034691</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="478.99811942009057" neutral_mass_monoisotopic="478.99811942009057" custom_ion_name="C17H28Cl8">
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="478.998668" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="478.99811942009057" neutral_mass_monoisotopic="478.99811942009057" custom_ion_name="C17H28Cl8">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="478.99811942009057" neutral_mass_monoisotopic="478.99811942009057" custom_ion_name="C17H28Cl8">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>478.998668</precursor_mz>
+          <product_mz>478.998668</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="480.995718" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="478.99811942009057" neutral_mass_monoisotopic="478.99811942009057" custom_ion_name="C17H28Cl8">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="478.99811942009057" neutral_mass_monoisotopic="478.99811942009057" custom_ion_name="C17H28Cl8">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>480.995718</precursor_mz>
+          <product_mz>480.995718</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="482.992768" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="478.99811942009057" neutral_mass_monoisotopic="478.99811942009057" custom_ion_name="C17H28Cl8">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="478.99811942009057" neutral_mass_monoisotopic="478.99811942009057" custom_ion_name="C17H28Cl8">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>482.992768</precursor_mz>
+          <product_mz>482.992768</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="512.95914742009052" neutral_mass_monoisotopic="512.95914742009052" custom_ion_name="C17H27Cl9">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="512.959696" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="512.95914742009052" neutral_mass_monoisotopic="512.95914742009052" custom_ion_name="C17H27Cl9">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="512.95914742009052" neutral_mass_monoisotopic="512.95914742009052" custom_ion_name="C17H27Cl9">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>512.959696</precursor_mz>
+          <product_mz>512.959696</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="514.956746" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="512.95914742009052" neutral_mass_monoisotopic="512.95914742009052" custom_ion_name="C17H27Cl9">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="512.95914742009052" neutral_mass_monoisotopic="512.95914742009052" custom_ion_name="C17H27Cl9">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>514.956746</precursor_mz>
+          <product_mz>514.956746</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="516.953796" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="512.95914742009052" neutral_mass_monoisotopic="512.95914742009052" custom_ion_name="C17H27Cl9">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="512.95914742009052" neutral_mass_monoisotopic="512.95914742009052" custom_ion_name="C17H27Cl9">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>516.953796</precursor_mz>
+          <product_mz>516.953796</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="546.92017542009046" neutral_mass_monoisotopic="546.92017542009046" custom_ion_name="C17H26Cl10">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="546.920724" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="546.92017542009046" neutral_mass_monoisotopic="546.92017542009046" custom_ion_name="C17H26Cl10">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="546.92017542009046" neutral_mass_monoisotopic="546.92017542009046" custom_ion_name="C17H26Cl10">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>546.920724</precursor_mz>
+          <product_mz>546.920724</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="548.917774" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="546.92017542009046" neutral_mass_monoisotopic="546.92017542009046" custom_ion_name="C17H26Cl10">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="546.92017542009046" neutral_mass_monoisotopic="546.92017542009046" custom_ion_name="C17H26Cl10">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>548.917774</precursor_mz>
+          <product_mz>548.917774</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="550.914824" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="546.92017542009046" neutral_mass_monoisotopic="546.92017542009046" custom_ion_name="C17H26Cl10">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="546.92017542009046" neutral_mass_monoisotopic="546.92017542009046" custom_ion_name="C17H26Cl10">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>550.914824</precursor_mz>
+          <product_mz>550.914824</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="580.88120242009052" neutral_mass_monoisotopic="580.88120242009052" custom_ion_name="C17H25Cl11">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="580.881751" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="580.88120242009052" neutral_mass_monoisotopic="580.88120242009052" custom_ion_name="C17H25Cl11">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="580.88120242009052" neutral_mass_monoisotopic="580.88120242009052" custom_ion_name="C17H25Cl11">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>580.881751</precursor_mz>
+          <product_mz>580.881751</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="582.878801" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="580.88120242009052" neutral_mass_monoisotopic="580.88120242009052" custom_ion_name="C17H25Cl11">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="580.88120242009052" neutral_mass_monoisotopic="580.88120242009052" custom_ion_name="C17H25Cl11">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>582.878801</precursor_mz>
+          <product_mz>582.878801</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="584.875851" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="580.88120242009052" neutral_mass_monoisotopic="580.88120242009052" custom_ion_name="C17H25Cl11">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="580.88120242009052" neutral_mass_monoisotopic="580.88120242009052" custom_ion_name="C17H25Cl11">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>584.875851</precursor_mz>
+          <product_mz>584.875851</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="614.842779" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>614.842779</precursor_mz>
+          <product_mz>614.842779</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="616.839829" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>616.839829</precursor_mz>
+          <product_mz>616.839829</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="618.836879" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>618.836879</precursor_mz>
+          <product_mz>618.836879</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="620.833929" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="614.84223042009046" neutral_mass_monoisotopic="614.84223042009046" custom_ion_name="C17H24Cl12">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>620.833929</precursor_mz>
+          <product_mz>620.833929</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="648.803807" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+          <note>[PCA-Cl]- +2</note>
+          <precursor_mz>648.803807</precursor_mz>
+          <product_mz>648.803807</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="650.800857" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>650.800857</precursor_mz>
+          <product_mz>650.800857</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="652.797907" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>652.797907</precursor_mz>
+          <product_mz>652.797907</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="654.794957" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="648.80325842009051" neutral_mass_monoisotopic="648.80325842009051" custom_ion_name="C17H23Cl13">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>654.794957</precursor_mz>
+          <product_mz>654.794957</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="684.76133542009052" neutral_mass_monoisotopic="684.76133542009052" custom_ion_name="C17H22Cl14">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="684.761884" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="684.76133542009052" neutral_mass_monoisotopic="684.76133542009052" custom_ion_name="C17H22Cl14">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="684.76133542009052" neutral_mass_monoisotopic="684.76133542009052" custom_ion_name="C17H22Cl14">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>684.761884</precursor_mz>
+          <product_mz>684.761884</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="686.758934" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="684.76133542009052" neutral_mass_monoisotopic="684.76133542009052" custom_ion_name="C17H22Cl14">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="684.76133542009052" neutral_mass_monoisotopic="684.76133542009052" custom_ion_name="C17H22Cl14">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>686.758934</precursor_mz>
+          <product_mz>686.758934</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="688.755984" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="684.76133542009052" neutral_mass_monoisotopic="684.76133542009052" custom_ion_name="C17H22Cl14">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="684.76133542009052" neutral_mass_monoisotopic="684.76133542009052" custom_ion_name="C17H22Cl14">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>688.755984</precursor_mz>
+          <product_mz>688.755984</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+    <molecule auto_manage_children="false" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="718.722912" auto_manage_children="false" collision_energy="0" ion_formula="[M-]" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+        <transition fragment_type="precursor" ion_formula="[M-]" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+          <note>[PCA-Cl]- +4</note>
+          <precursor_mz>718.722912</precursor_mz>
+          <product_mz>718.722912</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Quan" precursor_mz="720.719962" auto_manage_children="false" collision_energy="0" ion_formula="[M1.99705-]" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+        <transition fragment_type="precursor" ion_formula="[M1.99705-]" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+          <note>[PCA-Cl]- +6</note>
+          <precursor_mz>720.719962</precursor_mz>
+          <product_mz>720.719962</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="722.717012" auto_manage_children="false" collision_energy="0" ion_formula="[M3.9941-]" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+        <transition fragment_type="precursor" ion_formula="[M3.9941-]" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+          <note>[PCA-Cl]- +8</note>
+          <precursor_mz>722.717012</precursor_mz>
+          <product_mz>722.717012</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+      <precursor charge="-1" isotope_label="Qual" precursor_mz="724.714062" auto_manage_children="false" collision_energy="0" ion_formula="[M5.99115-]" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+        <transition fragment_type="precursor" ion_formula="[M5.99115-]" neutral_mass_average="718.72236342009046" neutral_mass_monoisotopic="718.72236342009046" custom_ion_name="C17H21Cl15">
+          <note>[PCA-Cl]- +10</note>
+          <precursor_mz>724.714062</precursor_mz>
+          <product_mz>724.714062</product_mz>
+          <collision_energy>0</collision_energy>
+        </transition>
+      </precursor>
+    </molecule>
+  </peptide_list>
+</srm_settings>
