@@ -32,6 +32,16 @@ library(CPxplorer)
 ```
 
 These functions will then be available:  
-`CPions()`: opens a shiny app to generate ions of PCAs and analogues  
+`CPions()`: opens a shiny app to generate ions of PCAs and analogues.  
 `CPquant()`: opens a shiny app to analyze and quantify output from
-Skyline
+Skyline.
+
+Server versions is available at shinyapp.io:  
+CPions: <https://wbs-tw.shinyapps.io/CPions20250218/>  
+CPquant: <https://wbs-tw.shinyapps.io/CPquant20250218/>
+
+The apps can also be opened and run in a local computer from these
+sites:
+
+<https://wbs-tw.github.io/CPions_Shinylive/>  
+<https://wbs-tw.github.io/CPquant_Shinylive/>
