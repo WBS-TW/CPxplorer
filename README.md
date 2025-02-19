@@ -36,12 +36,13 @@ These functions will then be available:
 `CPquant()`: opens a shiny app to analyze and quantify output from
 Skyline.
 
-Server versions is available at shinyapp.io:  
+Server versions is available at shinyapp.io (this is a free tier account
+and therefore subjected to monthly limit for the server calculations):  
 CPions: <https://wbs-tw.shinyapps.io/CPions20250218/>  
 CPquant: <https://wbs-tw.shinyapps.io/CPquant20250218/>
 
-The apps can also be opened and run in a local computer from these
-sites:
+The apps can also be opened directly in a web browser of the local
+computer from these sites (no need to install the R package):
 
 <https://wbs-tw.github.io/CPions_Shinylive/>  
 <https://wbs-tw.github.io/CPquant_Shinylive/>
