@@ -171,15 +171,33 @@ CPquant <- function(...){
             df <- readxl::read_excel(input$fileInput$datapath) #outputs a tibble
 
             progress$set(value = 0.6, detail = "Processing data")
+            # df <- df |>
+            #     dplyr::rename(Replicate_Name = `Replicate Name`) |>
+            #     dplyr::rename(Sample_Type = `Sample Type`) |>
+            #     dplyr::rename(Molecule_List = `Molecule List`) |>
+            #     dplyr::rename(Mass_Error_PPM = `Mass Error PPM`) |>
+            #     dplyr::rename(Isotope_Label_Type = `Isotope Label Type`) |>
+            #     dplyr::rename(Chromatogram_Precursor_MZ = `Chromatogram Precursor M/Z`) |>
+            #     dplyr::rename(Analyte_Concentration = `Analyte Concentration`) |>
+            #     dplyr::rename(Batch_Name = `Batch Name`) |>
+            #     dplyr::mutate(Analyte_Concentration = as.numeric(Analyte_Concentration)) |>
+            #     dplyr::mutate(Area = as.numeric(Area)) |>
+            #     dplyr::mutate(Area = replace_na(Area, 0)) |>
+            #     dplyr::mutate(C_homologue = stringr::str_extract(Molecule, "C\\d+"),
+            #                   Cl_homologue = stringr::str_extract(Molecule, "Cl\\d+"),
+            #                   C_number = as.numeric(stringr::str_extract(C_homologue, "\\d+")),
+            #                   Cl_number = as.numeric(stringr::str_extract(Cl_homologue, "\\d+")),
+            #                   PCA = stringr::str_c(C_homologue, Cl_homologue, sep = ""))
+
             df <- df |>
-                dplyr::rename(Replicate_Name = `Replicate Name`) |>
-                dplyr::rename(Sample_Type = `Sample Type`) |>
-                dplyr::rename(Molecule_List = `Molecule List`) |>
-                dplyr::rename(Mass_Error_PPM = `Mass Error PPM`) |>
-                dplyr::rename(Isotope_Label_Type = `Isotope Label Type`) |>
-                dplyr::rename(Chromatogram_Precursor_MZ = `Chromatogram Precursor M/Z`) |>
-                dplyr::rename(Analyte_Concentration = `Analyte Concentration`) |>
-                dplyr::rename(Batch_Name = `Batch Name`) |>
+                dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName"))) |>
+                dplyr::rename(Sample_Type = tidyr::any_of(c("Sample Type", "SampleType"))) |>
+                dplyr::rename(Molecule_List = tidyr::any_of(c("Molecule List", "MoleculeList"))) |>
+                dplyr::rename(Mass_Error_PPM = tidyr::any_of(c("Mass Error PPM", "MassErrorPPM"))) |>
+                dplyr::rename(Isotope_Label_Type = tidyr::any_of(c("Isotope Label Type", "IsotopeLabelType"))) |>
+                dplyr::rename(Chromatogram_Precursor_MZ = tidyr::any_of(c("Chromatogram Precursor M/Z", "ChromatogramPrecursorMz"))) |>
+                dplyr::rename(Analyte_Concentration = tidyr::any_of(c("Analyte Concentration", "AnalyteConcentration"))) |>
+                dplyr::rename(Batch_Name = tidyr::any_of(c("Batch Name", "BatchName"))) |>
                 dplyr::mutate(Analyte_Concentration = as.numeric(Analyte_Concentration)) |>
                 dplyr::mutate(Area = as.numeric(Area)) |>
                 dplyr::mutate(Area = replace_na(Area, 0)) |>
