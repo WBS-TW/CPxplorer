@@ -2,12 +2,12 @@
 #'
 #' @param ...
 #'
-#' @import shiny
+#' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #' @import shinythemes
 #' @import DT
 #' @import plotly
 #' @import dplyr
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except=c(last_plot))
 #' @import purrr
 #' @import readr
 #' @import stringr
@@ -62,7 +62,7 @@ ui <- shiny::navbarPage(
                             shiny::actionButton("go1", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
-                            DT::dataTableOutput("Table_norm", width = "100%")
+                            DT::DTOutput("Table_norm", width = "100%")
                         )
                     )
                     )),
@@ -108,7 +108,7 @@ ui <- shiny::navbarPage(
                             shiny::actionButton("go_adv", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
-                            DT::dataTableOutput("Table_adv", width = "100%")
+                            DT::DTOutput("Table_adv", width = "100%")
                         )
                     )
                     )),
@@ -123,7 +123,7 @@ ui <- shiny::navbarPage(
                         shiny::mainPanel(
                             plotly::plotlyOutput("Plotly"),
                             plotly::plotlyOutput("Plotly2"),
-                            DT::dataTableOutput("Table2", width = "100%")
+                            DT::DTOutput("Table2", width = "100%")
 
                         )
                     )
@@ -140,7 +140,7 @@ ui <- shiny::navbarPage(
                             width = 4
                         ),
                         shiny::mainPanel(
-                            DT::dataTableOutput("Table3", width = "100%")
+                            DT::DTOutput("Table3", width = "100%")
 
                         )
                     )

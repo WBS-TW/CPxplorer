@@ -1,9 +1,9 @@
 #' CPquant: Shiny CPs Quantification for Skyline Output
 #' @param ...
 #'
-#' @import shiny
+#' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #' @import htmlwidgets
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except=c(last_plot))
 #' @import readxl
 #' @import nnls
 #' @import dplyr
@@ -373,7 +373,7 @@ CPquant <- function(...){
                 })
 
                 ###### Plot CalibrationRemoved ######
-                output$CalibrationRemoved <- DT::renderDataTable({
+                output$CalibrationRemoved <- DT::renderDT({
                     CPs_standards |>
                         dplyr::filter(RF <= 0) |>
                         dplyr::mutate(coef = purrr::map(models, coef)) |>
