@@ -12,19 +12,18 @@ In CPquant, the deconvolution is performed using the nnls package (https://cran.
 ## Input file  
 The input excel file should be from the Skyline results table. It must include the following column with the names:  
 `Replicate Name`: sample name  
-`Sample Type`: the following characters can be used, _Unknown_ (which is the sample to be quantified), _Blank_, _Standard_, _Quality Control_  
+`Sample Type`: the following characters can be used, _Unknown_ (which is the sample to be quantified), _Blank_ (field blanks and procedural blanks are not distinguished), _Standard_ (standard used for quantification), _Quality Control_ (standard/sample used to determine the recovery).  
 `Molecule List`  
-`Molecule`  
-`Area`  
-`Mass Error PPM`  
+`Molecule`: homologue group.  
+`Area`: integrated area from Skyline.  
+`Mass Error PPM`: might be exported from Skyline but currently not used by CPquant.  
 `Isotope Label Type`  
 `Chromatogram Precursor M/Z`  
 `Analyte Concentration`: For standards only. This is the standard concentrations/amounts. This column could be in concentration or weight/amount unit depending on the user input. It will affect the final quantification unit.  
-`Batch Name`: For standards only. This will determine which standards that belongs to a concentration series as well as which carbon chain groups to quantify with the standard.  
-The naming of the Batch Name should be: CarbonGroups_StandardName. An underscore is separator for the carbon chain group and standard name.  
-Examples:  
-C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13. This belongs to the StandardA which can be in different concentrations for the calibration series.  
-C14_52%Cl. This standard will only quantify C14 carbon chains. It specifies 52% chlorine content (this information is not needed for quantification).  
+`Batch Name`: For standards only (leave blank for Unknown). This will determine which standards that belongs to a calibration series as well as which carbon chain groups to quantify with the standard.  
+The naming of the Batch Name should be: CarbonGroups_StandardName. An underscore is a separator for the carbon chain group and standard name.  
+Example A: C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13. This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series.  
+Example B: C14_52%Cl. This standard will only quantify C14 carbon chains. It specifies 52% chlorine content (although this information is not needed for quantification).  
   
   
 ## Quantification Inputs tab  
@@ -58,6 +57,7 @@ If the R-squared of the fit for a homologue group for a standard series (calibra
 ### Choose tab  
 The display might take some time before results show up here so be patient.  
 __Std Calibration Curves__: The calibration curves for different standards will be shown. Only those with rsquared above the initial cutoff will be shown.  
+__Removed from Calibration__: A table showing individual homologue groups from specific standards that are removed from the quantification process, due to negative RF or calibration curve R2 values below limit.   
 __Quan to Qual ratio__: Violin plots showing the ratio Quan/Qual area to detect outliers and thus help in assessing quality of data.  
   
   
@@ -73,12 +73,14 @@ Plots the relative distribution (relative area) of the samples.
 __All Samples Overview__: gives a quick overview on homologue group patterns of all samples in a static plot.  
 __Samples Overlay__: overlays all selected samples in one plot.
 __Samples Panels__: plots one panel for each selected sample. Also compares the relative distribution of homologue groups of the sample with the reconstructed pattern 
-by the deconvolution process (as scatter lines in the Deconvoluted Distribution legend group).
+by the deconvolution process (as scatter lines in the Deconvoluted Distribution legend group).  
+
 BE AWARE: CURRENTLY THE COLORS OF THE CARBON CHAIN GROUPS DOES NOT MATCH BETWEEN DIFFERENT SAMPLES  
   
   
 ## QA/QC  
 Various QA/QC results will show depending on the choices in the input tab. These include recovery and MDL calculations.  
+  
 
 
 
