@@ -10,19 +10,19 @@ In CPquant, the deconvolution is performed using the nnls package (https://cran.
   
   
 ## Input file  
-The input excel file should be from the Skyline results table. It must include the following column with the names:  
+The input excel file should be exported from the Skyline results table. It should include the following column with the names:  
 `Replicate Name`: sample name  
 `Sample Type`: the following characters can be used, _Unknown_ (which is the sample to be quantified), _Blank_ (field blanks and procedural blanks are not distinguished), _Standard_ (standard used for quantification), _Quality Control_ (standard/sample used to determine the recovery).  
-`Molecule List`  
-`Molecule`: homologue group.  
+`Molecule List`: compounds used internal standards are denoted `IS`, recovery standards as `RS`.  
+`Molecule`: PCA homologue group.  
 `Area`: integrated area from Skyline.  
 `Mass Error PPM`: might be exported from Skyline but currently not used by CPquant.  
-`Isotope Label Type`  
-`Chromatogram Precursor M/Z`  
+`Isotope Label Type`: Quan or Qual.  
+`Chromatogram Precursor M/Z`: might be exported from Skyline but currently not used by CPquant.  
 `Analyte Concentration`: For standards only. This is the standard concentrations/amounts. This column could be in concentration or weight/amount unit depending on the user input. It will affect the final quantification unit.  
 `Batch Name`: For standards only (leave blank for Unknown). This will determine which standards that belongs to a calibration series as well as which carbon chain groups to quantify with the standard.  
 The naming of the Batch Name should be: CarbonGroups_StandardName. An underscore is a separator for the carbon chain group and standard name.  
-Example A: C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13. This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series.  
+Example A: C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13 (the hyphen specify the range of carbon chains). This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series.  
 Example B: C14_52%Cl. This standard will only quantify C14 carbon chains. It specifies 52% chlorine content (although this information is not needed for quantification).  
   
   
@@ -49,7 +49,7 @@ __Proceed__: pressing this button will quantify the samples based on the deconvo
 ### Quantification process  
 The process starts by creating calibration curves for each carbon chain group for each standard mixture. 
 The Batch Name in the excel file determines which carbon chain group to be included for each standard mixture. A linear regression will be fitted and the slope is used as the response factor (RF).
-If the R-squared of the fit for a homologue group for a standard series (calibration curve) is below the user input threshold (modified in the first tab), then the homologue group in that standard is not considered for subsequent quantification.  
+If the R-squared of the goodnes of fit for a homologue group for a standard series (calibration curve) is below the user input threshold (modified in the first tab), then the homologue group in that standard is not considered for subsequent quantification.  
 
 
 

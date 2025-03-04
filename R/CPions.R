@@ -59,6 +59,8 @@ ui <- shiny::navbarPage(
                                         width = NULL,
                                         size = NULL),
                             shiny::numericInput("threshold", "Isotope rel ab threshold (5-99%)", value = 5, min = 0, max = 99),
+                            shiny::textAreaInput("ISRS_input", "Optional: add ion formula for IS/RS",
+                                              placeholder = "Enter one formula per line (e.g., )", height = "150px"),
                             shiny::actionButton("go1", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
@@ -98,7 +100,7 @@ ui <- shiny::navbarPage(
                                         width = NULL,
                                         size = NULL),
                             selectInput("TP_adv", "Transformation product?",
-                                        choices = c("None", "-Cl+OH", "-2Cl+2OH", "+OH", "+2OH", "+SO4"),
+                                        choices = c("None", "-Cl+OH", "-2Cl+2OH", "+OH", "+2OH", "-2H+O", "+SO4H"),
                                         selected = "None",
                                         multiple = TRUE,
                                         selectize = TRUE,
@@ -181,6 +183,7 @@ server = function(input, output, session) {
     Brmin <- shiny::eventReactive(input$go1, {as.integer(input$Brmin)})
     Brmax <- shiny::eventReactive(input$go1, {as.integer(input$Brmax)})
     threshold <- shiny::eventReactive(input$go1, {as.integer(input$threshold)})
+    ISRS_input <- shiny::eventReactive(input$go1, {as.character(input$ISRS_input)})
 
 
     # ADVANCED
@@ -189,7 +192,7 @@ server = function(input, output, session) {
     selectedCharge_adv <- shiny::eventReactive(input$go_adv, {as.character((input$Charge_adv))})
     selectedTP_adv <- shiny::eventReactive(input$go_adv, {as.character((input$TP_adv))})
 
-    C_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Cmin:input$Cmax_adv)})
+    C_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Cmin_adv:input$Cmax_adv)})
     Cl_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Clmin:input$Clmax_adv)})
     Clmin_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Clmin_adv)})
     Clmax_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Clmax_adv)})
@@ -224,6 +227,11 @@ server = function(input, output, session) {
             }
             CP_allions <- dplyr::full_join(CP_allions, input)
         }
+
+        # Add the ISRS if they exist
+        # ISRS <- unlist(str_split(ISRS_input(), "\n"))
+        # browser()
+
         return(CP_allions)
     })
 
@@ -359,7 +367,7 @@ server = function(input, output, session) {
                         hoverinfo = "text",
                         hovertext = paste("Molecule_Formula:", CP_allions_compl2$Molecule_Formula,
                                           '<br>',
-                                          "Adduct/Fragment ion:", CP_allions_compl2$Adduct,
+                                          "Adduct/Fragment ion:", CP_allions_compl2$Adduct_Annotation,
                                           '<br>',
                                           "Ion Formula:", CP_allions_compl2$Adduct_Formula,
                                           '<br>',
@@ -383,7 +391,7 @@ server = function(input, output, session) {
                         hoverinfo = "text",
                         hovertext = paste("Molecule_Formula:", CP_allions_compl2$Molecule_Formula,
                                           '<br>',
-                                          "Adduct/Fragment ion:", CP_allions_compl2$Adduct,
+                                          "Adduct/Fragment ion:", CP_allions_compl2$Adduct_Annotation,
                                           '<br>',
                                           "Ion Formula:", CP_allions_compl2$Adduct_Formula,
                                           '<br>',
@@ -411,7 +419,7 @@ server = function(input, output, session) {
                     hoverinfo = "text",
                     hovertext = paste("Molecule_Formula:", CP_allions_compl2$Molecule_Formula,
                                       '<br>',
-                                      "Adduct/Fragment ion:", CP_allions_compl2$Adduct,
+                                      "Adduct/Fragment ion:", CP_allions_compl2$Adduct_Annotation,
                                       '<br>',
                                       "Ion Formula:", CP_allions_compl2$Adduct_Formula,
                                       '<br>',
@@ -438,7 +446,7 @@ server = function(input, output, session) {
                     hoverinfo = "text",
                     hovertext = paste("Molecule_Formula:", CP_allions_compl2$Molecule_Formula,
                                       '<br>',
-                                      "Adduct/Fragment ion:", CP_allions_compl2$Adduct,
+                                      "Adduct/Fragment ion:", CP_allions_compl2$Adduct_Annotation,
                                       '<br>',
                                       "Ion Formula:", CP_allions_compl2$Adduct_Formula,
                                       '<br>',

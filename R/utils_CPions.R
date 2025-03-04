@@ -249,13 +249,14 @@ generateInput_Envipat_advanced <- function(data = data, Compounds = Compounds, A
         dplyr::mutate(O = dplyr::case_when(
             TP == "+OH" ~ 1,
             TP == "+2OH" ~ 2,
-            TP == "+SO4" ~ 4,
+            TP == "+SO4H" ~ 4,
             TP == "-Cl+OH" ~ 1,
             TP == "-2Cl+2OH" ~ 2,
+            TP == "-2H+O" ~ 1,
             .default = 0
         )) |>
         dplyr::mutate(S = dplyr::case_when(
-            TP == "+SO4" ~ 1,
+            TP == "+SO4H" ~ 1,
             .default = 0)) |>
         dplyr::mutate(Adduct_Formula = create_formula(C, H, Cl, Br, S, O))|>
         dplyr::rowwise() |>
@@ -552,12 +553,13 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
             dplyr::filter(C >= Cl) |> # filter so Cl dont exceed C atoms
             dplyr::filter(Cl <= Clmax) |> # limit chlorine atoms.
             dplyr::mutate(H = dplyr::case_when(# add H atoms
-                TP == "None" ~ 2*C+2-Cl,
+                TP == "None" ~ 2*C+2-Cl, #PCA general formula 2*C+2-Cl
                 TP == "+OH" ~ 2*C+2-Cl,
                 TP == "+2OH" ~ 2*C+2-Cl,
                 TP == "-Cl+OH" ~ 2*C+2-Cl+1,
                 TP == "-2Cl+2OH" ~ 2*C+2-Cl+2,
-                TP == "+SO4" ~ 2*C+2-Cl-1))  |>
+                TP == "-2H+O" ~ 2*C-Cl,
+                TP == "+SO4H" ~ 2*C+2-Cl))  |>
             dplyr::mutate(Cl = dplyr::case_when(
                 TP == "-Cl+OH" ~ Cl-1,
                 TP == "-2Cl+2OH" ~ Cl-2,
@@ -569,7 +571,8 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
                 TP == "+2OH" ~ paste0("C", C, "H", H, "Cl", Cl, "O2"),
                 TP == "-Cl+OH" ~ paste0("C", C, "H", H, "Cl", Cl, "O"),
                 TP == "-2Cl+2OH" ~ paste0("C", C, "H", H, "Cl", Cl, "O2"),
-                TP == "+SO4" ~ paste0("C", C, "H", H, "Cl", Cl, "SO4")))
+                TP == "-2H+O" ~ paste0("C", C, "H", H, "Cl", Cl,"O"),
+                TP == "+SO4H" ~ paste0("C", C, "H", H, "Cl", Cl, "SO4")))
 
     } else if (Compounds == "PCO") {
         data <- crossing(C, Cl) |>
@@ -581,7 +584,8 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
                 TP == "+2OH" ~ 2*C-Cl,
                 TP == "-Cl+OH" ~ 2*C-Cl+1,
                 TP == "-2Cl+2OH" ~ 2*C-Cl+2,
-                TP == "+SO4" ~ 2*C-Cl-1))  |>
+                TP == "-2H+O" ~ 2*C-Cl-2,
+                TP == "+SO4H" ~ 2*C-Cl))  |>
             dplyr::mutate(Cl = dplyr::case_when(
                 TP == "-Cl+OH" ~ Cl-1,
                 TP == "-2Cl+2OH" ~ Cl-2,
@@ -593,7 +597,8 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
                 TP == "+2OH" ~ paste0("C", C, "H", H, "Cl", Cl, "O2"),
                 TP == "-Cl+OH" ~ paste0("C", C, "H", H, "Cl", Cl, "O"),
                 TP == "-2Cl+2OH" ~ paste0("C", C, "H", H, "Cl", Cl, "O2"),
-                TP == "+SO4" ~ paste0("C", C, "H", H, "Cl", Cl, "SO4")))
+                TP == "-2H+O" ~ paste0("C", C, "H", H, "Cl", Cl,"O"),
+                TP == "+SO4H" ~ paste0("C", C, "H", H, "Cl", Cl, "SO4")))
 
     } else if (Compounds == "BCA") {
         data <- tidyr::crossing(C, Cl, Br) |>  #get combinations of C, Cl, Br
@@ -607,14 +612,16 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
                 TP == "+2OH" ~ 2*C+2-Cl-Br,
                 TP == "-Cl+OH" ~ 2*C+2-Cl-Br+1,
                 TP == "-2Cl+2OH" ~ 2*C+2-Cl-Br+2,
-                TP == "+SO4" ~ 2*C+2-Cl-Br-1))  |>
+                TP == "-2H+O" ~ 2*C-Cl-Br,
+                TP == "+SO4H" ~ 2*C+2-Cl-Br))  |>
             dplyr::mutate(Molecule_Formula = dplyr::case_when( #DOUBLE CHECK THE FORMULA IS CORRECT!!!!!
                 TP == "None" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br),
                 TP == "+OH" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "O"),
                 TP == "+2OH" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "O2"),
                 TP == "-Cl+OH" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "O"),
                 TP == "-2Cl+2OH" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "O2"),
-                TP == "+SO4" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "SO4")))
+                TP == "-2H+O" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "O"),
+                TP == "+SO4H" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "SO4")))
 
 
     }
@@ -719,7 +726,7 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
 ########################################################################
 ########################################################################
 
-
+# from envipat
 isotopes <- structure(list(element = c("H", "H", "He", "He", "Li", "Li",
                            "Be", "B", "B", "C", "C", "N", "N", "O", "O", "O", "F", "Ne",
                            "Ne", "Ne", "Na", "Mg", "Mg", "Mg", "Al", "Si", "Si", "Si", "P",
