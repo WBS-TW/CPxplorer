@@ -133,7 +133,6 @@ ui <- shiny::navbarPage(
     shiny::tabPanel("Skyline",
                     shiny::fluidPage(shiny::sidebarLayout(
                         shiny::sidebarPanel(
-                            #shiny::numericInput("MSresolution2", "MS Resolution", value = 60000, min = 100, max = 3000000),
                             shiny::radioButtons("QuantIon", label = "Use as Quant Ion", choices = c("Most intense")),
                             #shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz", "IonFormula")),
                             shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz")),
@@ -193,10 +192,10 @@ server = function(input, output, session) {
     selectedTP_adv <- shiny::eventReactive(input$go_adv, {as.character((input$TP_adv))})
 
     C_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Cmin_adv:input$Cmax_adv)})
-    Cl_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Clmin:input$Clmax_adv)})
+    Cl_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Clmin_adv:input$Clmax_adv)})
     Clmin_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Clmin_adv)})
     Clmax_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Clmax_adv)})
-    Br_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Brmin:input$Brmax_adv)})
+    Br_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Brmin_adv:input$Brmax_adv)})
     Brmin_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Brmin_adv)})
     Brmax_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Brmax_adv)})
     threshold_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$threshold_adv)})
