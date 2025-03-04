@@ -2,16 +2,15 @@
 # Introduction
 This app generates a list of mass-over-charges (m/z) for PCAs and structural analogues to investigate potential overlapping m/z during mass spectrometric analysis.
 It utilizes the isopattern function of the R package Envipat (Loos et al, Analytical Chemistry, 2015, 87, 5738-5744) to generate isotopic patterns from chemical formula and adducts. The app will also generate a list of m/z for selected adducts which can be used as a transition list in the Skyline software for quantification purposes.
-Several adducts have been included and more can be added upon request.
-
-
-
+Several adducts have been included and more can be added upon request.  
+  
 ## Instructions    
-Choose the parameters in the _Initial settings_ tab. Press submit and wait for calculation to finish. A table will then be generated with all ions that conform with the initial setting parameters. The table can be exported to excel by clicking on the "Excel" button at the top.  
-The _Interfering ions_ tab can be used to check for ions that interfer with each other at the set resolution of the mass spectrometer. Default is set to R=60,000. The plots and tables are interactive and the user can filter the _"Interference at MS res?"_ by clicking on _FALSE_ on the plot legend (and thereby keeping all _TRUE_ ions, which will remove all ions that can be resolved by the set MS resolution).
+Choose the parameters in the _Normal settings_ or _Advanced settings_ tab. Press submit and wait for calculation to finish. A table will then be generated with all ions that conform with the initial setting parameters. The table can be exported to excel by clicking on the "Excel" button at the top.  
+The _Interfering ions_ tab can be used to check for ions that interfer with each other at the set resolution of the mass spectrometer. Default is set to R=60,000. The plots and tables are interactive and the user can filter the _"Interference at MS res?"_ by clicking on _FALSE_ on the plot legend (and thereby keeping all _TRUE_ ions, which will remove all ions that can be resolved by the set MS resolution).  
+The generated ion tables can be exported using the Skyline tab for data processing of MS data.  
 
 
-## Initial settings tab
+## Normal settings tab
   
 __C atoms min__ and __C atoms max__: the range of carbon atoms.
   
@@ -33,11 +32,15 @@ _Note that [M+Cl-HCl]- can also be written as [M-H]-_
   
 __Isotope rel ab threshold (%)__: is the threshold for relative abundance for isotopologues for each chemical formula of the adduct/fragment ion. Ions below this threshold will not be included into the generated ion table.
   
+  
+## Advanced settings tab  
+Mostly same initial parameters as Normal settings. In advanced settings, there is more flexibility to combine and mix the `Compound Class`, `Adduct`, `Charge`, and `Transformation product`.  
+  
 ### Output table  
   
 __Parent_Formula__: the chemical formula of the molecular ion.  
 
-__Halo_perc__: for only chlorinated main groups, the chlorination degree (mass percentage of Cl). If BCA, then it is the combined Cl+Br percentage.
+__Halo_perc__: for PCA, PCO chlorinated groups, the chlorination degree (mass percentage of Cl). If BCA, then it is the combined Cl+Br percentage.
   
 __Charge__: The charge of the ion.  
   
@@ -75,7 +78,8 @@ __reslag & reslead (prev and next)__: the MS resolution needed to resolve previo
   
 ## Skyline tab  
 
-This will output a transition list for import in Skyline for integration and quantification.
+This will output a transition list for import in Skyline for integration and quantification. User need to indicate either the _Normal setting_ or _Advanced setting_ as input.  
+
   
   
 
