@@ -27,7 +27,7 @@ ui <- shiny::navbarPage(
     shiny::tabPanel("Normal settings",
                     shiny::fluidPage(shiny::sidebarLayout(
                         shiny::sidebarPanel(
-                            shiny::numericInput("Cmin", "C atoms min (allowed 3-40)", value = 9, min = 3, max = 40),
+                            shiny::numericInput("Cmin", "C atoms min (allowed 3-40)", value = 10, min = 3, max = 40),
                             shiny::numericInput("Cmax", "C atoms max (allowed 4-40)", value = 30, min = 4, max = 40),
                             shiny::numericInput("Clmin", "Cl atoms min (allowed 1-15))", value = 3, min = 1, max = 15),
                             shiny::numericInput("Clmax", "Cl atoms max (allowed 1-15)", value = 15, min = 1, max = 15),
@@ -53,14 +53,14 @@ ui <- shiny::navbarPage(
                                                     "[PCA-Cl-3HCl]+",
                                                     "[PCA-Cl-4HCl]+"
                                         ),
-                                        selected = "[PCA-Cl]-",
+                                        selected = "[PCA+Cl]-",
                                         multiple = TRUE,
                                         selectize = TRUE,
                                         width = NULL,
                                         size = NULL),
                             shiny::numericInput("threshold", "Isotope rel ab threshold (5-99%)", value = 5, min = 0, max = 99),
                             shiny::textAreaInput("ISRS_input", "Optional: add ion formula for IS/RS",
-                                              placeholder = "Enter one formula per line (e.g., )", height = "150px"),
+                                               placeholder = "Enter one formula per line. Indicate IS or RS isotopic formula and charge separated by space. Example: IS [13]C2C8H17Cl5 -    or   RS [13]C12H17Br6 -" , height = "150px"),
                             shiny::actionButton("go1", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
@@ -71,7 +71,7 @@ ui <- shiny::navbarPage(
     shiny::tabPanel("Advanced settings",
                     shiny::fluidPage(shiny::sidebarLayout(
                         shiny::sidebarPanel(
-                            shiny::numericInput("Cmin_adv", "C atoms min (allowed 3-40)", value = 9, min = 3, max = 40),
+                            shiny::numericInput("Cmin_adv", "C atoms min (allowed 3-40)", value = 10, min = 3, max = 40),
                             shiny::numericInput("Cmax_adv", "C atoms max (allowed 4-40)", value = 30, min = 4, max = 40),
                             shiny::numericInput("Clmin_adv", "Cl atoms min (allowed 1-15))", value = 3, min = 1, max = 15),
                             shiny::numericInput("Clmax_adv", "Cl atoms max (allowed 1-15)", value = 15, min = 1, max = 15),
@@ -99,14 +99,17 @@ ui <- shiny::navbarPage(
                                         selectize = TRUE,
                                         width = NULL,
                                         size = NULL),
-                            selectInput("TP_adv", "Transformation product?",
-                                        choices = c("None", "-Cl+OH", "-2Cl+2OH", "+OH", "+2OH", "-2H+O", "+SO4H"),
+                            selectInput("TP_adv", "Transformation product",
+                                        choices = c("None", "-Cl+OH", "-2Cl+2OH", "-H+OH", "-2H+2OH", "-2H+O", "-H+SO4H"),
                                         selected = "None",
                                         multiple = TRUE,
                                         selectize = TRUE,
                                         width = NULL,
                                         size = NULL),
                             shiny::numericInput("threshold_adv", "Isotope rel ab threshold (0-99%)", value = 50, min = 0, max = 99),
+                            shiny::textAreaInput("ISRS_input_adv", "Optional: add ion formula for IS/RS",
+                                                 placeholder = "Enter one formula per line. Indicate IS or RS isotopic formula and charge separated by space. Example: IS [13]C2C8H17Cl5 -    or   RS [13]C12H17Br6 -" , height = "150px"),
+
                             shiny::actionButton("go_adv", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
@@ -199,6 +202,7 @@ server = function(input, output, session) {
     Brmin_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Brmin_adv)})
     Brmax_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Brmax_adv)})
     threshold_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$threshold_adv)})
+    ISRS_input_adv <- shiny::eventReactive(input$go_adv, {as.character(input$ISRS_input_adv)})
 
 
     #----Outputs_Start
@@ -227,16 +231,15 @@ server = function(input, output, session) {
             CP_allions <- dplyr::full_join(CP_allions, input)
         }
 
-        # Add the ISRS if they exist
-        # ISRS <- unlist(str_split(ISRS_input(), "\n"))
-        # browser()
+
+        # Add ISRS if textinput is not empty ""
+        if(ISRS_input() != ""){
+        CP_allions <- addISRS(ISRS_input(), CP_allions, threshold())
+        }
+
 
         return(CP_allions)
     })
-
-    #############################################################
-    ### go1: Calculate the isotopes from initial settings tab ###
-    #############################################################
 
     shiny::observeEvent(input$go1, {
         output$Table_norm <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherwise excel download the visible rows of the table, but this will also give warning about large tables
@@ -296,7 +299,14 @@ server = function(input, output, session) {
                 }
             }
         }
+
+        # Add ISRS if textinput is not empty ""
+        if(ISRS_input_adv() != ""){
+            CP_allions <- addISRS(ISRS_input_adv(), CP_allions, threshold_adv())
+        }
+
         return(CP_allions)
+
     })
 
     ### go_adv: Calculate the isotopes from initial settings tab ###
@@ -359,7 +369,7 @@ server = function(input, output, session) {
                     dplyr::mutate(`81Br` = tidyr::replace_na(`81Br`, 0)) |>
                     plotly::plot_ly(
                         x = ~ (`12C`+`13C`),
-                        y = ~(`35Cl`+`37Cl`+`79Br`+`81Br`), # need to incorporate Br later
+                        y = ~(`35Cl`+`37Cl`+`79Br`+`81Br`),
                         type = "scatter",
                         mode = "markers",
                         color = ~interference,
@@ -495,13 +505,16 @@ server = function(input, output, session) {
     shiny::observeEvent(input$go3, {
 
 
-        if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not compatible with [M-Cl]- (adduct not available in skyline)
+        if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not compatible with [M-Cl]- (adduct not available in current skyline)
 
             if (input$skyline_NormAdv == "advanced") {
                 CP_allions_skyline <- CP_allions_glob_adv() |>
-                    dplyr::mutate(`Molecule List Name` = dplyr::case_when(Compound_Class == "PCA" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                                                            Compound_Class == "PCO" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                                                            Compound_Class == "BCA" ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")))) |>
+                    dplyr::mutate(`Molecule List Name` = dplyr::case_when(
+                        Compound_Class == "PCA" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        Compound_Class == "PCO" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        Compound_Class == "BCA" ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
+                        stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
                     dplyr::rename(`Molecule Name` = Molecule_Formula) |>
                     dplyr::mutate(`Precursor m/z` = `m/z`) |>
                     # mutate(Note = str_replace(Adduct, "\\].*", "]")) |>
@@ -523,9 +536,12 @@ server = function(input, output, session) {
                            Note)
             } else if (input$skyline_NormAdv == "normal") {
                 CP_allions_skyline <- CP_allions_glob() |>
-                    dplyr::mutate(`Molecule List Name` = dplyr::case_when(stringr::str_detect(Adduct, "(?<=.)PCA(?=.)") == TRUE ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                                                            stringr::str_detect(Adduct, "(?<=.)PCO(?=.)") == TRUE ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                                                            stringr::str_detect(Adduct, "(?<=.)BCA(?=.)") == TRUE ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")))) |>
+                    dplyr::mutate(`Molecule List Name` = dplyr::case_when(
+                        stringr::str_detect(Adduct, "(?<=.)PCA(?=.)") == TRUE ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        stringr::str_detect(Adduct, "(?<=.)PCO(?=.)") == TRUE ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        stringr::str_detect(Adduct, "(?<=.)BCA(?=.)") == TRUE ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
+                        stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
                     dplyr::rename(`Molecule Name` = Molecule_Formula) |>
                     dplyr::mutate(`Precursor m/z` = `m/z`) |>
                     dplyr::rename(Note = Adduct) |>

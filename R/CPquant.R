@@ -20,7 +20,7 @@
 CPquant <- function(...){
     options(shiny.maxRequestSize = 500 * 1024^2)
 
-    ui <- shiny::navbarPage("Quantification by deconvolution from Skyline output",
+    ui <- shiny::navbarPage("CPquant",
                             shiny::tabPanel("Quantification Inputs",
                                             shiny::fluidPage(shiny::sidebarLayout(
                                                 shiny::sidebarPanel(
@@ -36,6 +36,7 @@ CPquant <- function(...){
                                                     shiny::radioButtons("calculateRecovery",
                                                                         label = "Calculate recovery? (req QC samples)",
                                                                         choices = c("Yes", "No"), selected = "No"),
+                                                    shiny::uiOutput("recoveryUI"), # render UI if correctwithRS == "Yes"
                                                     shiny::radioButtons("calculateMDL",
                                                                         label = "Calculate MDL? (req blank samples)",
                                                                         choices = c("Yes", "No"), selected = "No"),
@@ -157,6 +158,13 @@ CPquant <- function(...){
     ################################################################################
     server <- function(input, output, session) {
 
+        # define RS
+        output$recoveryUI <- shiny::renderUI({
+            if(input$correctWithRS == "Yes") {
+                defineRecoveryUI(Skyline_output()) }
+        })
+        #chooseRS <- shiny::reactive(as.character(input$chooseRS))
+
         Skyline_output <- reactive({
             req(input$fileInput) #requires that the input is available
 
@@ -171,24 +179,6 @@ CPquant <- function(...){
             df <- readxl::read_excel(input$fileInput$datapath) #outputs a tibble
 
             progress$set(value = 0.6, detail = "Processing data")
-            # df <- df |>
-            #     dplyr::rename(Replicate_Name = `Replicate Name`) |>
-            #     dplyr::rename(Sample_Type = `Sample Type`) |>
-            #     dplyr::rename(Molecule_List = `Molecule List`) |>
-            #     dplyr::rename(Mass_Error_PPM = `Mass Error PPM`) |>
-            #     dplyr::rename(Isotope_Label_Type = `Isotope Label Type`) |>
-            #     dplyr::rename(Chromatogram_Precursor_MZ = `Chromatogram Precursor M/Z`) |>
-            #     dplyr::rename(Analyte_Concentration = `Analyte Concentration`) |>
-            #     dplyr::rename(Batch_Name = `Batch Name`) |>
-            #     dplyr::mutate(Analyte_Concentration = as.numeric(Analyte_Concentration)) |>
-            #     dplyr::mutate(Area = as.numeric(Area)) |>
-            #     dplyr::mutate(Area = replace_na(Area, 0)) |>
-            #     dplyr::mutate(C_homologue = stringr::str_extract(Molecule, "C\\d+"),
-            #                   Cl_homologue = stringr::str_extract(Molecule, "Cl\\d+"),
-            #                   C_number = as.numeric(stringr::str_extract(C_homologue, "\\d+")),
-            #                   Cl_number = as.numeric(stringr::str_extract(Cl_homologue, "\\d+")),
-            #                   PCA = stringr::str_c(C_homologue, Cl_homologue, sep = ""))
-
             df <- df |>
                 dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName"))) |>
                 dplyr::rename(Sample_Type = tidyr::any_of(c("Sample Type", "SampleType"))) |>
@@ -209,12 +199,19 @@ CPquant <- function(...){
 
             progress$set(value = 0.8, detail = "Applying corrections")
 
-            #  Normalize data based on 'Correct with RS' input
-            if (input$correctWithRS == "Yes" & any(df$Molecule_List == "RS")){
-                df <- df |>
-                    dplyr::group_by(Replicate_Name) |>
-                    dplyr::mutate(Area = Area / first(Area[Molecule_List== "RS" & Isotope_Label_Type == "Quan"])) |>
-                    dplyr::ungroup()
+
+            # Normalize data based on 'Correct with RS' input
+            if (input$correctWithRS == "Yes" && any(df$Molecule_List == "RS")) {
+                # Only proceed with RS correction if chooseRS input is available
+                if (!is.null(input$chooseRS) && input$chooseRS != "") {
+                    # Use input$chooseRS directly instead of the reactive
+                    df <- df |>
+                        dplyr::group_by(Replicate_Name) |>
+                        dplyr::mutate(Area = Area / first(Area[Molecule == input$chooseRS &
+                                                                   Molecule_List == "RS" &
+                                                                   Isotope_Label_Type == "Quan"])) |>
+                        dplyr::ungroup()
+                }
             }
 
             # Calculate the average blank value
@@ -254,6 +251,7 @@ CPquant <- function(...){
 
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
+        #chooseRS <- shiny::eventReactive(input$go, {as.character(input$chooseRS)})
         Samples_Concentration <- reactiveVal() # Create a reactive value to store deconvolution object into Samples_Concentration() to allow other to access after observeEvent.
 
 

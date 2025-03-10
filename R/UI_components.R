@@ -33,4 +33,21 @@ defineVariablesUI <- function(Skyline_output){
 ### END FUNCTION
 
 
+defineRecoveryUI <- function(Skyline_output){
+    ###START: Define UI components
+
+    # Create the UI components
+    shiny::fluidRow(
+        shiny::column(
+            6,
+            shiny::selectInput(
+                inputId = "chooseRS", #select which will be the RS
+                label = 'Choose RS',
+                choices = unique(Skyline_output$Molecule[Skyline_output$Molecule_List == "RS"]),
+                selected = NULL,
+                multiple = FALSE
+            )
+        ))
+}
+### END FUNCTION
 
