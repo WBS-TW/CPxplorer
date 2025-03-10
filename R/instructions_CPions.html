@@ -408,6 +408,17 @@ of the ion (limited to single charged species, +1 or -1).</p>
 relative abundance for isotopologues for each chemical formula of the
 adduct/fragment ion. Ions below this threshold will not be included into
 the generated ion table.</p>
+<p><strong>Optional: add ion formula for IS/RS</strong>: input the ion
+formula for IS or RS if needed. Enter one formula per line. Indicate IS
+or RS isotopic formula and charge separated by space. <em>The ion
+formula should be for the adduct ion</em> and not the neutral chemical
+formula.<br />
+The input for the ion formula is written in three parts, each separated
+by a <code>blank space</code>, the IS or RS, the ion formula where heavy
+isotopes are indicated by [13C] or [2H], and the charge (+ or -).<br />
+Example:<br />
+IS [13]C2C8H17Cl5 -<br />
+RS [13]C12H17Br6 -</p>
 </div>
 <div id="advanced-settings-tab" class="section level2">
 <h2>Advanced settings tab</h2>
@@ -419,7 +430,7 @@ and <code>Transformation product</code>.</p>
 <h3>Output table</h3>
 <p><strong>Parent_Formula</strong>: the chemical formula of the
 molecular ion.</p>
-<p><strong>Halo_perc</strong>: for only chlorinated main groups, the
+<p><strong>Halo_perc</strong>: for PCA, PCO chlorinated groups, the
 chlorination degree (mass percentage of Cl). If BCA, then it is the
 combined Cl+Br percentage.</p>
 <p><strong>Charge</strong>: The charge of the ion.</p>
@@ -474,7 +485,8 @@ highest m/z).</p>
 <div id="skyline-tab" class="section level2">
 <h2>Skyline tab</h2>
 <p>This will output a transition list for import in Skyline for
-integration and quantification.</p>
+integration and quantification. User need to indicate either the
+<em>Normal setting</em> or <em>Advanced setting</em> as input.</p>
 </div>
 </div>
 

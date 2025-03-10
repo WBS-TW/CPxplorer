@@ -32,6 +32,12 @@ _Note that [M+Cl-HCl]- can also be written as [M-H]-_
   
 __Isotope rel ab threshold (%)__: is the threshold for relative abundance for isotopologues for each chemical formula of the adduct/fragment ion. Ions below this threshold will not be included into the generated ion table.
   
+__Optional: add ion formula for IS/RS__: input the ion formula for IS or RS if needed. Enter one formula per line. Indicate IS or RS isotopic formula and charge separated by space. _The ion formula should be for the adduct ion_ and not the neutral chemical formula.  
+The input for the ion formula is written in three parts, each separated by a `blank space`, the IS or RS, the ion formula where heavy isotopes are indicated by [13C] or [2H], and the charge (+ or -).  
+Example:  
+IS [13]C2C8H17Cl5 -  
+RS [13]C12H17Br6 -  
+_(make sure there is no empty last line)_  
   
 ## Advanced settings tab  
 Mostly same initial parameters as Normal settings. In advanced settings, there is more flexibility to combine and mix the `Compound Class`, `Adduct`, `Charge`, and `Transformation product`.  
@@ -65,8 +71,15 @@ __difflag__, __difflead__: internal calculations for the difference in m/z value
 __reslag__, __reslead__: internal calculations for the MS resolution needed to separate the two nearest ions. If "interference at MS res?" filter has been used, then the previous/next ions might not be shown.  
   
 __interference__: indicate whether or not the m/z two nearest ions can interfere with each other at the set MS resolution value. _"false"_ means no interference and _"true"_ means there is interference (and therefore the MS resolution cannot resolve these peaks).  
-  
 
+__Optional: add ion formula for IS/RS__: input the ion formula for IS or RS if needed. Enter one formula per line. Indicate IS or RS isotopic formula and charge separated by space. _The ion formula should be for the adduct ion_ and not the neutral chemical formula.  
+The input for the ion formula is written in three parts, each separated by a `blank space`, the IS or RS, the ion formula where heavy isotopes are indicated by [13C] or [2H], and the charge (+ or -).  
+Example:  
+IS [13]C2C8H17Cl5 -  
+RS [13]C12H17Br6 -  
+_(make sure there is no empty last line)_
+  
+  
 ### Plot outputs  
   
 Note: Some bars can exceed 100% in relative abundance in the y-axis, and this indicates that some isotopologues have the exact same ion formula. You can hover over the different segments of these bars to check the overlapping mass ions.

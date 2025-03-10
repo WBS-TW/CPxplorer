@@ -38,8 +38,8 @@ Skyline.
 
 Server versions is available at shinyapp.io (this is a free tier account
 and therefore subjected to monthly limit for the server calculations):  
-CPions: <https://wbs-tw.shinyapps.io/CPions20250218/>  
-CPquant: <https://wbs-tw.shinyapps.io/CPquant20250218/>
+CPions: <https://wbs-tw.shinyapps.io/CPions/>  
+CPquant: <https://wbs-tw.shinyapps.io/CPquant/>
 
 The apps can also be opened directly in a web browser of the local
 computer from these sites (no need to install the R package):
