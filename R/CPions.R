@@ -60,7 +60,7 @@ ui <- shiny::navbarPage(
                                         size = NULL),
                             shiny::numericInput("threshold", "Isotope rel ab threshold (5-99%)", value = 5, min = 0, max = 99),
                             shiny::textAreaInput("ISRS_input", "Optional: add ion formula for IS/RS",
-                                               placeholder = "Enter one formula per line. Indicate IS or RS isotopic formula and charge separated by space. Example: IS [13]C2C8H17Cl5 -    or   RS [13]C12H17Br6 -" , height = "150px"),
+                                               placeholder = "See Instructions", height = "150px"),
                             shiny::actionButton("go1", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
@@ -108,7 +108,7 @@ ui <- shiny::navbarPage(
                                         size = NULL),
                             shiny::numericInput("threshold_adv", "Isotope rel ab threshold (0-99%)", value = 50, min = 0, max = 99),
                             shiny::textAreaInput("ISRS_input_adv", "Optional: add ion formula for IS/RS",
-                                                 placeholder = "Enter one formula per line. Indicate IS or RS isotopic formula and charge separated by space. Example: IS [13]C2C8H17Cl5 -    or   RS [13]C12H17Br6 -" , height = "150px"),
+                                                 placeholder = "See Instructions" , height = "150px"),
 
                             shiny::actionButton("go_adv", "Submit", width = "100%"),
                             width = 3),

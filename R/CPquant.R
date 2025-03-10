@@ -33,10 +33,10 @@ CPquant <- function(...){
                                                                         choices = c("Yes, by avg area of blanks", "No"), selected = "No"),
                                                     shiny::radioButtons("correctWithRS", label = "Correct with RS area?",
                                                                         choices = c("Yes", "No"), selected = "No"),
+                                                    shiny::uiOutput("recoveryUI"), # render UI if correctwithRS == "Yes"
                                                     shiny::radioButtons("calculateRecovery",
                                                                         label = "Calculate recovery? (req QC samples)",
                                                                         choices = c("Yes", "No"), selected = "No"),
-                                                    shiny::uiOutput("recoveryUI"), # render UI if correctwithRS == "Yes"
                                                     shiny::radioButtons("calculateMDL",
                                                                         label = "Calculate MDL? (req blank samples)",
                                                                         choices = c("Yes", "No"), selected = "No"),
@@ -179,6 +179,7 @@ CPquant <- function(...){
             df <- readxl::read_excel(input$fileInput$datapath) #outputs a tibble
 
             progress$set(value = 0.6, detail = "Processing data")
+            # Tidy the input file
             df <- df |>
                 dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName"))) |>
                 dplyr::rename(Sample_Type = tidyr::any_of(c("Sample Type", "SampleType"))) |>
@@ -522,7 +523,7 @@ CPquant <- function(...){
 
             # render sampleContributionPlot
             output$sampleContributionPlot <- renderPlotly({
-               plot_sample_contribution(deconvolution)})
+                plot_sample_contribution(deconvolution)})
 
 
 
