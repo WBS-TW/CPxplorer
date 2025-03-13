@@ -23,7 +23,7 @@ plot_skyline_output <- function(Skyline_output){
 
 #############################################################################
 
-plot_calibration_curves <- function(CPs_standards) {
+plot_calibration_curves <- function(CPs_standards, quantUnit) {
     # Unnest the data first
     CPs_standards_unnested <- CPs_standards |>
         dplyr::filter(RF > 0) |>
@@ -116,7 +116,8 @@ plot_calibration_curves <- function(CPs_standards) {
                 groupclick = "togglegroup",  # Changed from "toggleitem" to "togglegroup"
                 tracegroupgap = 10,
                 itemsizing = "constant"
-            )
+            ),
+            xaxis = list(title = paste0("Analyte Concentration/Amount (", quantUnit, ")"))  # Use the reactive value for x-axis label
         )
 
     return(final_plot)

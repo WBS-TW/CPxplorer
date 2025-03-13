@@ -25,7 +25,7 @@ install.packages("devtools")
 devtools::install_github("WBS-TW/CPxplorer")
 ```
 
-After installation, attach the package by:
+After installation, attach the package in RStudio by:
 
 ``` r
 library(CPxplorer)
@@ -42,7 +42,8 @@ CPions: <https://wbs-tw.shinyapps.io/CPions/>
 CPquant: <https://wbs-tw.shinyapps.io/CPquant/>
 
 The apps can also be opened directly in a web browser of the local
-computer from these sites (no need to install the R package):
+computer from these sites (no need to install the R package and verified
+to work with Chrome):
 
 <https://wbs-tw.github.io/CPions_Shinylive/>  
 <https://wbs-tw.github.io/CPquant_Shinylive/> *(currently Shinylive
