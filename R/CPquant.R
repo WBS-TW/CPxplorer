@@ -27,7 +27,7 @@ CPquant <- function(...){
                                                     width = 3,
                                                     shiny::fileInput("fileInput", "Import excel file from Skyline",
                                                                      accept = c('xlsx')),
-                                                    shiny::textInput("quantificationUnit", "Enter Quantification unit:"),
+                                                    shiny::textInput("quantificationUnit", "Analyte Concentration unit:"),
                                                     shiny::radioButtons("blankSubtraction",
                                                                         label = "Subtraction with blank?",
                                                                         choices = c("Yes, by avg area of blanks", "No"), selected = "No"),
@@ -164,6 +164,11 @@ CPquant <- function(...){
                 defineRecoveryUI(Skyline_output()) }
         })
         #chooseRS <- shiny::reactive(as.character(input$chooseRS))
+
+        # Create a reactive object that depends on the quantificationUnit input
+        quantUnit <- reactive({
+            input$quantificationUnit
+        })
 
         Skyline_output <- reactive({
             req(input$fileInput) #requires that the input is available
@@ -368,7 +373,7 @@ CPquant <- function(...){
                 ###### Plot calibration curves ######
                 # plots.R function
                 output$CalibrationCurves <- plotly::renderPlotly({
-                    plot_calibration_curves(CPs_standards)
+                    plot_calibration_curves(CPs_standards, quantUnit())
                 })
 
                 ###### Plot CalibrationRemoved ######

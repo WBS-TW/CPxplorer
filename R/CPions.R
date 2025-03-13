@@ -58,7 +58,7 @@ ui <- shiny::navbarPage(
                                         selectize = TRUE,
                                         width = NULL,
                                         size = NULL),
-                            shiny::numericInput("threshold", "Isotope rel ab threshold (5-99%)", value = 5, min = 0, max = 99),
+                            shiny::numericInput("threshold", "Isotope rel ab threshold (1-99%)", value = 5, min = 1, max = 99),
                             shiny::textAreaInput("ISRS_input", "Optional: add ion formula for IS/RS",
                                                placeholder = "See Instructions", height = "150px"),
                             shiny::actionButton("go1", "Submit", width = "100%"),
@@ -510,9 +510,12 @@ server = function(input, output, session) {
             if (input$skyline_NormAdv == "advanced") {
                 CP_allions_skyline <- CP_allions_glob_adv() |>
                     dplyr::mutate(`Molecule List Name` = dplyr::case_when(
-                        Compound_Class == "PCA" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                        Compound_Class == "PCO" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                        Compound_Class == "BCA" ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        Compound_Class == "PCA" & TP == "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        Compound_Class == "PCA" & TP != "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
+                        Compound_Class == "PCO"  & TP == "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        Compound_Class == "PCO" & TP != "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
+                        Compound_Class == "BCA"  & TP == "None" ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                        Compound_Class == "BCA" & TP != "None"  ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
                         stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
                         stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
                     dplyr::rename(`Molecule Name` = Molecule_Formula) |>
