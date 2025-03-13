@@ -6,7 +6,9 @@
 CPquant uses the deconvolution process proposed by Bogdal et al (Anal Chem, doi/10.1021/ac504444d) to estimate 
 the relative composition needed from different standards to match the measured homologue pattern of samples. 
 The underlying calculations are based on the CPCrawler R script by Perkons et al (Food Chem, doi/10.1016/j.foodchem.2019.125100).
-In CPquant, the deconvolution is performed using the nnls package (https://cran.r-project.org/web/packages/nnls).
+In CPquant, the deconvolution is performed using the nnls package (https://cran.r-project.org/web/packages/nnls).  
+
+__The calculated concentrations are for those in the extract. The user can then export the results to excel and perform additional calculations to derive the concentrations in the samples__
   
   
 ## Input file  
@@ -27,7 +29,10 @@ Example B: C14_52%Cl. This standard will only quantify C14 carbon chains. It spe
   
   
 ## Quantification Inputs tab  
+__Import excel file from Skyline__: This is the excel file from the Report export function of Skyline.  
+__Concentration unit__: an optional input to indicate the concentration (or amount) unit of the Analyte Concentration in the Skyline report (e.g. ng/mL or ng).   
 After loading the excel, allow for the Area plot to show up before pressing the "Proceed" button, otherwise error will occur.  
+
 After loading the data, the user can choose the options:  
 __Subtraction by blank?__: If "Yes, by avg area of blanks", then the area for each Molecule will be subtracted with the average of all blank samples.  
 __Correct with RS area?__: If "Yes", then the area of each Molecule will the normalized to the recovery standard (RS) area for each sample.  
