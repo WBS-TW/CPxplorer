@@ -334,7 +334,7 @@ CPquant <- function(...){
                     dplyr::mutate(RF = if_else(rsquared < removeRsquared(), 0, RF)) |> #replace RF with 0 if rsquared is below removeRsquared()
                     dplyr::ungroup() |>
                     dplyr::group_by(Batch_Name) |> #grouping by the standards
-                    dplyr::mutate(Sum_RF_group = sum(RF, na.rm = TRUE)) |>
+                    dplyr::mutate(Sum_RF_group = sum(RF, na.rm = TRUE)) |> #the sum RF per standard
                     dplyr::ungroup()
 
 
@@ -476,20 +476,21 @@ CPquant <- function(...){
                                             dplyr::mutate(deconv_rsquared = round(deconv_rsquared, 3)))
                     openxlsx::writeData(wb, "StandardsContribution",
                                         deconvolution |>
-                                            unnest(deconv_coef) |>
-                                            unnest_longer(c(deconv_coef, Batch_Name)) |>
-                                            select(Replicate_Name, Batch_Name, deconv_coef) |>
-                                            mutate(deconv_coef = deconv_coef * 100) |>
-                                            pivot_wider(names_from = Batch_Name, values_from = deconv_coef))
+                                            tidyr::unnest(deconv_coef) |>
+                                            tidyr::unnest_longer(c(deconv_coef, Batch_Name)) |>
+                                            dplyr::select(Replicate_Name, Batch_Name, deconv_coef) |>
+                                            dplyr::mutate(deconv_coef = deconv_coef * 100) |>
+                                            tidyr::pivot_wider(names_from = Batch_Name, values_from = deconv_coef))
                     openxlsx::writeData(wb, "HomologueDistribution",
-                                        deconvolution |>
-                                            mutate(data = map2(data, deconv_resolved, ~inner_join(.x, .y, by = "Molecule"))) |>
-                                            mutate(data = map(data, ~ .x |> mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
-                                            select(-deconv_resolved) |>
-                                            unnest(data) |>
-                                            mutate(Deconvoluted_Distribution = as.numeric(resolved_distribution)) |>
-                                            rename(Relative_Distribution = Relative_Area) |>
-                                            select(-deconv_coef, -resolved_distribution, -Quantification_Group, -C_number, -Cl_number, -Area, -sum_Area,
+                                        test <- deconvolution |>
+                                            dplyr::mutate(data = purrr::map2(data, deconv_resolved, ~dplyr::inner_join(.x, .y, by = "Molecule"))) |>
+                                            dplyr::mutate(data = purrr::map(data, ~ .x |> dplyr::mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
+                                            dplyr::select(-deconv_resolved) |>
+                                            tidyr::unnest(data) |>
+                                            dplyr::mutate(Deconvoluted_Distribution = as.numeric(resolved_distribution)) |>
+                                            dplyr::rename(Relative_Distribution = Relative_Area) |>
+                                            dplyr::mutate(Molecule_Concentration = Deconvoluted_Distribution * Concentration) |>
+                                            dplyr::select(-deconv_coef, -resolved_distribution, -Quantification_Group, -C_number, -Cl_number, -Area, -sum_Area,
                                                    -sum_deconv_RF, -Concentration, -deconv_resolved, -deconv_rsquared)
                     )
 
@@ -682,10 +683,14 @@ CPquant <- function(...){
             withProgress(message = 'Generating plot...', value = 0, {
 
                 Sample_distribution <- Samples_Concentration() |>
-                    mutate(data = map2(data, deconv_resolved, ~inner_join(.x, .y, by = "Molecule"))) |>
-                    mutate(data = map(data, ~ .x |> mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
-                    select(-deconv_resolved) |>
-                    unnest(data)
+                    dplyr::mutate(data = purrr::map2(data, deconv_resolved, ~dplyr::inner_join(.x, .y, by = "Molecule"))) |>
+                    dplyr::mutate(data = purrr::map(data, ~ .x |> dplyr::mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
+                    dplyr::select(-deconv_resolved) |>
+                    tidyr::unnest(data) |>
+                    dplyr::mutate(resolved_distribution = as.numeric(resolved_distribution)) |>
+                    dplyr::mutate(deconv_resolved = as.numeric(deconv_resolved)) |>
+                    dplyr::mutate(Molecule_concentration = resolved_distribution * Concentration) #calculated conc of each molecule
+
 
                 incProgress(0.5)
 
