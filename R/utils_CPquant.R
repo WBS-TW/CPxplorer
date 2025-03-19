@@ -76,7 +76,7 @@ perform_deconvolution <- function(df, combined_standard, CPs_standards_sum_RF) {
     #     warning("Non-positive values found, skipping chi-square test")
     #     chisq_result <- NULL
     # } else {
-    #     #adding a small constant to avoid 0 values
+    #     #adding a very small constant to avoid 0 values
     #     observed_corr <- df_vector + 1E-12
     #     predicted_corr <- deconv_resolved + 1E-12
     #     chisq_result <- chisq.test(x= observed_corr, p = predicted_corr/sum(predicted_corr), rescale.p = TRUE)
