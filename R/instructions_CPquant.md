@@ -8,6 +8,10 @@ the relative composition needed from different standards to match the measured h
 The underlying calculations are based on the CPCrawler R script by Perkons et al (Food Chem, doi/10.1016/j.foodchem.2019.125100).
 In CPquant, the deconvolution is performed using the nnls package (https://cran.r-project.org/web/packages/nnls).  
 
+- CPquant quantification works with both single chain and mixture standards.  
+- We recommend to use 5 calibration levels for each standard. These needs to be named in the `Batch Name` column and their concentration levels `Analyte Concentration` added according to below instructions from the input file which is exported from Skyline.  
+- If recovery needs to be calculated, then a _Quality Control_ sample needs to be added.
+
 __The calculated concentrations are for those in the extract. The user can then export the results to excel and perform additional calculations to derive the concentrations in the samples__
   
   
@@ -36,7 +40,7 @@ After loading the excel, allow for the Area plot to show up before pressing the 
 After loading the data, the user can choose the options:  
 __Subtraction by blank?__: If "Yes, by avg area of blanks", then the area for each Molecule will be subtracted with the average of all blank samples.  
 __Correct with RS area?__: If "Yes", then the area of each Molecule will the normalized to the recovery standard (RS) area for each sample.  
-__Calculate recovery?__: If "Yes", requires samples with the `Sample Type` designated as "Quality Control" that include the same concentrations of IS and RS.  
+__Calculate recovery?__: If "Yes", requires samples with the `Sample Type` designated as "Quality Control" that include the spiked concentrations of IS and RS corresponding mount/concentrations.  
 __Calculate MDL?__: If "Yes", then calculates the method detection limits based on blank samples.  
 If no blank subtraction then MDL = avg + 3 * standard deviation of blank samples.  
 If blank subtraction then MDL = 3 * standard deviation of blank samples.  
