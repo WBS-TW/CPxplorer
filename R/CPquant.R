@@ -119,17 +119,22 @@ CPquant <- function(...){
                                     ),
                                     column(
                                         width = 10,
-                                        shiny::conditionalPanel(
-                                            condition = "input.plotHomologueGroups == 'All Samples Overview'",
-                                            shiny::plotOutput("plotHomologuePatternStatic", height = "80vh", width = "100%")
-                                        ),
-                                        shiny::conditionalPanel(
-                                            condition = "input.plotHomologueGroups == 'Samples Overlay'",
-                                            plotly::plotlyOutput("plotHomologuePatternOverlay", height = "80vh", width = "100%")
-                                        ),
-                                        shiny::conditionalPanel(
-                                            condition = "input.plotHomologueGroups == 'Samples Panels'",
-                                            plotly::plotlyOutput("plotHomologuePatternComparisons", height = "80vh", width = "100%")
+                                        # Add a div with margin/padding for spacing
+                                        shiny::tags$div(
+                                            style = "margin-top: 20px;", # This adds space at the top
+
+                                            shiny::conditionalPanel(
+                                                condition = "input.plotHomologueGroups == 'All Samples Overview'",
+                                                shiny::plotOutput("plotHomologuePatternStatic", height = "80vh", width = "100%")
+                                            ),
+                                            shiny::conditionalPanel(
+                                                condition = "input.plotHomologueGroups == 'Samples Overlay'",
+                                                plotly::plotlyOutput("plotHomologuePatternOverlay", height = "80vh", width = "100%")
+                                            ),
+                                            shiny::conditionalPanel(
+                                                condition = "input.plotHomologueGroups == 'Samples Panels'",
+                                                plotly::plotlyOutput("plotHomologuePatternComparisons", height = "80vh", width = "100%")
+                                            )
                                         )
                                     )
                                 )
@@ -181,7 +186,7 @@ CPquant <- function(...){
 
             # Read the Skyline output Excel file
             progress$set(value = 0.3, detail = "Reading Excel file")
-            df <- readxl::read_excel(input$fileInput$datapath) #outputs a tibble
+            df <- readxl::read_excel(input$fileInput$datapath, guess_max = 5000, na = c("", "NA", "#N/A", "N/A")) #outputs a tibble
 
             progress$set(value = 0.6, detail = "Processing data")
             # Tidy the input file
@@ -490,8 +495,8 @@ CPquant <- function(...){
                                             dplyr::mutate(Deconvoluted_Distribution = as.numeric(resolved_distribution)) |>
                                             dplyr::rename(Relative_Distribution = Relative_Area) |>
                                             dplyr::mutate(Molecule_Concentration = Deconvoluted_Distribution * Concentration) |>
-                                            dplyr::select(-deconv_coef, -resolved_distribution, -Quantification_Group, -C_number, -Cl_number, -Area, -sum_Area,
-                                                   -sum_deconv_RF, -Concentration, -deconv_resolved, -deconv_rsquared)
+                                            dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, C_homologue, Cl_homologue, PCA,
+                                                          Relative_Distribution, Deconvoluted_Distribution, Molecule_Concentration, Unit)
                     )
 
 
