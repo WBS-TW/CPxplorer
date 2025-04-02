@@ -158,9 +158,9 @@ plot_sample_contribution <- function(deconvolution) {
 
     # How much contribution of each sample to the final deconvoluted homologue group pattern
     plot_data <- deconvolution |>
-        unnest(deconv_coef) |>
-        unnest_longer(c(deconv_coef, Batch_Name)) |>
-        select(Replicate_Name, Batch_Name, deconv_coef)
+        tidyr::unnest(deconv_coef) |>
+        tidyr::unnest_longer(c(deconv_coef, Batch_Name)) |>
+        dplyr::select(Replicate_Name, Batch_Name, deconv_coef)
 
     # Create the plotly stacked bar plot
     plotly::plot_ly(plot_data,

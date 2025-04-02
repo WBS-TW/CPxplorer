@@ -1,4 +1,5 @@
-
+## CPquant UI Components ##
+###########################
 
 defineVariablesUI <- function(Skyline_output){
 ###START: Define UI components

@@ -701,12 +701,12 @@ CPquant <- function(...){
 
                 if (input$plotHomologueGroups == "All Samples Overview") {
                     output$plotHomologuePatternStatic <- shiny::renderPlot({
-                        ggplot(Sample_distribution, aes(x = Molecule, y = Relative_Area, fill = C_homologue)) +
-                            geom_col() +
-                            facet_wrap(~Replicate_Name) +
-                            theme_minimal() +
-                            theme(axis.text.x = element_blank()) +
-                            labs(title = "Relative Distribution (before deconvolution)",
+                        ggplot2::ggplot(Sample_distribution, aes(x = Molecule, y = Relative_Area, fill = C_homologue)) +
+                            ggplot2::geom_col() +
+                            ggplot2::facet_wrap(~Replicate_Name) +
+                            ggplot2::theme_minimal() +
+                            ggplot2::theme(axis.text.x = element_blank()) +
+                            ggplot2::labs(title = "Relative Distribution (before deconvolution)",
                                  x = "Homologue",
                                  y = "Relative Distribution")
                     })
@@ -717,13 +717,13 @@ CPquant <- function(...){
 
                         # Filter for selected samples
                         selected_samples <- Sample_distribution |>
-                            filter(Replicate_Name %in% input$selectedSamples) |>
-                            mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
+                            dplyr::filter(Replicate_Name %in% input$selectedSamples) |>
+                            dplyr::mutate(Molecule = factor(Molecule, levels = unique(Molecule[order(C_number, Cl_number)])))
 
                         req(nrow(selected_samples) > 0)
 
                         # Create a basic bar plot
-                        p <- plot_ly(data = selected_samples,
+                        p <- plotly::plot_ly(data = selected_samples,
                                      x = ~Molecule,
                                      #y = ~resolved_distribution,
                                      y = ~Relative_Area,
