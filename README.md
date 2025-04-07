@@ -43,9 +43,16 @@ CPquant: <https://wbs-tw.shinyapps.io/CPquant/>
 
 The apps can also be opened directly in a web browser of the local
 computer from these sites (no need to install the R package and verified
-to work with Chrome):
+to work with Chrome):  
+HOWEVER: Shinylive is still experimental and there are still some bugs
 
 <https://wbs-tw.github.io/CPions_Shinylive/>  
-<https://wbs-tw.github.io/CPquant_Shinylive/> *(currently Shinylive
-cannot export all results to excel, and the user is referred to the
-other versions for this functionality)*
+<https://wbs-tw.github.io/CPquant_Shinylive/>
+
+SOME KNOWN BUGS in Shinylive (but works in the R package and server
+versions):  
+- CPions_Shinylive: *currently only export to excel the pages in the
+panel (not the entire table)*  
+- CPquant_Shinylive: *currently Shinylive cannot export all results to
+excel, and the user is referred to the other versions for this
+functionality*
