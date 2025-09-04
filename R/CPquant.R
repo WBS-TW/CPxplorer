@@ -41,7 +41,7 @@ CPquant <- function(...){
                                                                         label = "Calculate MDL? (req blank samples)",
                                                                         choices = c("Yes", "No"), selected = "No"),
                                                     shiny::radioButtons("standardTypes", label = "Types of standards",
-                                                                        choices = c("Group Mixtures"), selected = "Group Mixtures"), #will add single chain std later
+                                                                        choices = c("Group Mixtures"), selected = "Group Mixtures"), #work for both single chain and multiple chain mixtures
                                                     shiny::tags$div(
                                                         title = "Wait until import file is fully loaded before pressing!",
                                                         shiny::actionButton('go', 'Proceed', width = "100%")
@@ -326,7 +326,7 @@ CPquant <- function(...){
                     dplyr::group_by(Batch_Name, Sample_Type, Molecule, Molecule_List, C_number, Cl_number, PCA, Quantification_Group, C_min, C_max) |>
                     tidyr::nest() |>
                     dplyr::filter(C_number >= C_min & C_number <= C_max) |> # make sure C_number stays within the Quantification_Group chain length
-                    dplyr::mutate(models = purrr::map(data, ~lm(Area ~ Analyte_Concentration, data = .x))) |>
+                    dplyr::mutate(models = purrr::map(data, ~lm(Area ~ Analyte_Concentration, data = .x))) |> #this includes intercept, if omitting intercept: Area~Analyte_Concentration -1
                     dplyr::mutate(coef = purrr::map(models, coef)) |>
                     dplyr::mutate(RF = purrr::map_dbl(models, ~ coef(.x)["Analyte_Concentration"]))|> #get the slope which will be the RF
                     dplyr::mutate(intercept = purrr::map(coef, purrr::pluck("(Intercept)"))) |>
@@ -341,7 +341,6 @@ CPquant <- function(...){
                     dplyr::group_by(Batch_Name) |> #grouping by the standards
                     dplyr::mutate(Sum_RF_group = sum(RF, na.rm = TRUE)) |> #the sum RF per standard
                     dplyr::ungroup()
-
 
 
                 # Prepare for deconvolution of samples
@@ -396,7 +395,7 @@ CPquant <- function(...){
 
 
                 ###### Plot Quan/Qual ratios ######
-                #plots.R function
+                #CPquant_plots.R function
                 output$RatioQuantToQual <- plotly::renderPlotly({
                     plot_quanqualratio(Skyline_output_filt)
                 })
