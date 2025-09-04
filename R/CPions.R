@@ -520,15 +520,15 @@ server = function(input, output, session) {
                         stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
                     dplyr::rename(`Molecule Name` = Molecule_Formula) |>
                     dplyr::mutate(`Precursor m/z` = `m/z`) |>
-                    # mutate(Note = str_replace(Adduct, "\\].*", "]")) |>
-                    # mutate(Note = str_replace(Note, "(.+?(?=\\-))|(.+?(?=\\+))", "[M")) |>
-                    dplyr::mutate(Note = ifelse(TP == "None", Compound_Class, paste0(Compound_Class, TP))) |>
+                    #dplyr::mutate(Note = Adduct_Annotation) |>
+                    dplyr::mutate(Note = paste0("{", Adduct_Annotation, "}", "{", Rel_ab, "}")) |>
                     dplyr::rename(`Precursor Charge` = Charge) |>
                     tibble::add_column(`Explicit Retention Time` = NA) |>
                     tibble::add_column(`Explicit Retention Time Window` = NA) |>
                     dplyr::group_by(`Molecule Name`) |>
                     dplyr::mutate(`Label Type` = ifelse(Rel_ab == 100, "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
                     dplyr::ungroup() |>
+                    #dplyr::rename(`Molecule Note` = Rel_ab) |> #rename Rel_ab to Molecular Note to be able to add into Skyline
                     dplyr::select(`Molecule List Name`,
                            `Molecule Name`,
                            `Precursor Charge`,
@@ -547,13 +547,14 @@ server = function(input, output, session) {
                         stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
                     dplyr::rename(`Molecule Name` = Molecule_Formula) |>
                     dplyr::mutate(`Precursor m/z` = `m/z`) |>
-                    dplyr::rename(Note = Adduct) |>
-                    dplyr::rename(`Precursor Charge` = Charge) |>
+                    #dplyr::rename(Note = Adduct) |>
+                    dplyr::mutate(Note = paste0("{", Adduct, "}", "{", Rel_ab, "}")) |>dplyr::rename(`Precursor Charge` = Charge) |>
                     tibble::add_column(`Explicit Retention Time` = NA) |>
                     tibble::add_column(`Explicit Retention Time Window` = NA) |>
                     dplyr::group_by(`Molecule Name`) |>
                     dplyr::mutate(`Label Type` = ifelse(Rel_ab == 100, "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
                     dplyr::ungroup() |>
+                    #dplyr::rename(`Molecule Note` = Rel_ab) |> #rename Rel_ab to Molecular Note to be able to add into Skyline
                     dplyr::select(`Molecule List Name`,
                            `Molecule Name`,
                            `Precursor Charge`,
