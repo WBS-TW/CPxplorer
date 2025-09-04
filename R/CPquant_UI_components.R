@@ -21,13 +21,20 @@ defineVariablesUI <- function(Skyline_output){
         shiny::column(
             6,
             shiny::sliderInput(
-                inputId = "removeRsquared", #keep only Molecule above this rsquared, zero means keep everything
+                inputId = "removeRsquared", #keep only Molecule from standard calibration curves above this rsquared, zero means keep everything
                 label = 'Keep the the calibration curves above this rsquared (0 means keep everything)',
                 min = 0,
                 max = 1,
-                value = 0.80,
+                value = 0.70,
                 step = 0.05
             )
+            # shiny::column(
+            #     6,
+            #     shiny::checkboxInput(
+            #           inputId = "zerointercept", #force y-intercept through zero
+            #           label = "Set intercept to zero",
+            #           value = FALSE
+            #     )
         )
     )
 }

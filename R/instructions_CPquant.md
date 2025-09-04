@@ -58,7 +58,7 @@ __Proceed__: pressing this button will quantify the samples based on the deconvo
 ### Quantification process  
 The process starts by creating calibration curves for each carbon chain group for each standard mixture. 
 The Batch Name in the excel file determines which carbon chain group to be included for each standard mixture. A linear regression will be fitted and the slope is used as the response factor (RF).
-If the R-squared of the goodnes of fit for a homologue group for a standard series (calibration curve) is below the user input threshold (modified in the first tab), then the homologue group in that standard is not considered for subsequent quantification.  
+If the R-squared of the goodness of fit for a homologue group for a standard series (calibration curve) is below the user input threshold (modified in the first tab), then the homologue group in that standard is not considered for subsequent quantification.  
 
 
 
