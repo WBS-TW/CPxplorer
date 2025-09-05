@@ -263,7 +263,6 @@ CPquant <- function(...){
 
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
-        #chooseRS <- shiny::eventReactive(input$go, {as.character(input$chooseRS)})
         Samples_Concentration <- reactiveVal() # Create a reactive value to store deconvolution object into Samples_Concentration() to allow other to access after observeEvent.
 
 
@@ -348,7 +347,6 @@ CPquant <- function(...){
                 progress$set(value = 0.6, detail = "Preparing sample data")
 
 
-
                 CPs_samples <- Skyline_output_filt |>
                     dplyr::filter(
                         #Sample_Type == "Unknown",
@@ -406,7 +404,7 @@ CPquant <- function(...){
 
                 progress$set(value = 0.8, detail = "Performing deconvolution")
 
-
+browser()
                 CPs_standards_input <- CPs_standards |>
                     dplyr::select(Molecule, Batch_Name, RF) |>
                     tidyr::pivot_wider(names_from = Batch_Name, values_from = "RF") |>

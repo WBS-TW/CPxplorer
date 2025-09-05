@@ -506,109 +506,110 @@ server = function(input, output, session) {
     shiny::observeEvent(input$go3, {
 
 
-        if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not compatible with [M-Cl]- (adduct not available in current skyline)
+if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not compatible with [M-Cl]- (adduct not available in current skyline)
 
-            if (input$skyline_NormAdv == "advanced") {
-                CP_allions_skyline <- CP_allions_glob_adv() |>
-                    dplyr::mutate(`Molecule List Name` = dplyr::case_when(
-                        Compound_Class == "PCA" & TP == "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                        Compound_Class == "PCA" & TP != "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                        Compound_Class == "PCO"  & TP == "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                        Compound_Class == "PCO" & TP != "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                        Compound_Class == "BCA"  & TP == "None" ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                        Compound_Class == "BCA" & TP != "None"  ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                        stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
-                        stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
-                    dplyr::rename(`Molecule Name` = Molecule_Formula) |>
-                    dplyr::mutate(`Precursor m/z` = `m/z`) |>
-                    # mutate(Note = str_replace(Adduct, "\\].*", "]")) |>
-                    # mutate(Note = str_replace(Note, "(.+?(?=\\-))|(.+?(?=\\+))", "[M")) |>
-                    dplyr::mutate(Note = ifelse(TP == "None", Compound_Class, paste0(Compound_Class, TP))) |>
-                    dplyr::rename(`Precursor Charge` = Charge) |>
-                    tibble::add_column(`Explicit Retention Time` = NA) |>
-                    tibble::add_column(`Explicit Retention Time Window` = NA) |>
-                    dplyr::group_by(`Molecule Name`) |>
-                    dplyr::mutate(`Label Type` = ifelse(Rel_ab == 100, "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
-                    dplyr::ungroup() |>
-                    dplyr::select(`Molecule List Name`,
-                           `Molecule Name`,
-                           `Precursor Charge`,
-                           `Label Type`,
-                           `Precursor m/z` = `m/z`,
-                           `Explicit Retention Time`,
-                           `Explicit Retention Time Window`,
-                           Note)
-            } else if (input$skyline_NormAdv == "normal") {
-                CP_allions_skyline <- CP_allions_glob() |>
-                    dplyr::mutate(`Molecule List Name` = dplyr::case_when(
-                        stringr::str_detect(Adduct, "(?<=.)PCA(?=.)") == TRUE ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                        stringr::str_detect(Adduct, "(?<=.)PCO(?=.)") == TRUE ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                        stringr::str_detect(Adduct, "(?<=.)BCA(?=.)") == TRUE ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                        stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
-                        stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
-                    dplyr::rename(`Molecule Name` = Molecule_Formula) |>
-                    dplyr::mutate(`Precursor m/z` = `m/z`) |>
-                    dplyr::rename(Note = Adduct) |>
-                    dplyr::rename(`Precursor Charge` = Charge) |>
-                    tibble::add_column(`Explicit Retention Time` = NA) |>
-                    tibble::add_column(`Explicit Retention Time Window` = NA) |>
-                    dplyr::group_by(`Molecule Name`) |>
-                    dplyr::mutate(`Label Type` = ifelse(Rel_ab == 100, "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
-                    dplyr::ungroup() |>
-                    dplyr::select(`Molecule List Name`,
-                           `Molecule Name`,
-                           `Precursor Charge`,
-                           `Label Type`,
-                           `Precursor m/z` = `m/z`,
-                           `Explicit Retention Time`,
-                           `Explicit Retention Time Window`,
-                           Note)
-            }
-        }
-
-
-        output$Table3 <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherwise excel download the visible rows of the table, but this will also give warning about large tables
-            # Show data
-            DT::datatable(CP_allions_skyline,
-                          filter = "top", extensions = c("Buttons", "Scroller"),
-                          options = list(scrollY = 650,
-                                         scrollX = 500,
-                                         deferRender = TRUE,
-                                         scroller = TRUE,
-                                         buttons = list(list(extend = "excel", filename = "Skyline_transition_list", title = NULL,
-                                                             exportOptions = list(
-                                                                 modifier = list(page = "all")
-                                                             )),
-                                                        list(extend = "csv", filename = "Skyline_transition_list", title = NULL,
-                                                             exportOptions = list(
-                                                                 modifier = list(page = "all")
-                                                             )),
-                                                        list(extend = "colvis", targets = 0, visible = FALSE)),
-                                         dom = "lBfrtip",
-                                         fixedColumns = TRUE),
-                          rownames = FALSE)
-        })
-
-
-    })
-
-
-    ########## go3 end
-
-    #----Outputs_End
-
-
-
-
-
-
-    # Close the app when the session ends
-    if(!interactive()) {
-        session$onSessionEnded(function() {
-            stopApp()
-            q("no")
-        })
+    if (input$skyline_NormAdv == "advanced") {
+        CP_allions_skyline <- CP_allions_glob_adv() |>
+            dplyr::mutate(`Molecule List Name` = dplyr::case_when(
+                Compound_Class == "PCA" & TP == "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                Compound_Class == "PCA" & TP != "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
+                Compound_Class == "PCO"  & TP == "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                Compound_Class == "PCO" & TP != "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
+                Compound_Class == "BCA"  & TP == "None" ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                Compound_Class == "BCA" & TP != "None"  ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
+                stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
+                stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
+            dplyr::rename(`Molecule Name` = Molecule_Formula) |>
+            dplyr::mutate(`Precursor m/z` = `m/z`) |>
+            #dplyr::mutate(Note = Adduct_Annotation) |>
+            dplyr::mutate(Note = paste0("{", Adduct_Annotation, "}", "{", Rel_ab, "}")) |>
+            dplyr::rename(`Precursor Charge` = Charge) |>
+            tibble::add_column(`Explicit Retention Time` = NA) |>
+            tibble::add_column(`Explicit Retention Time Window` = NA) |>
+            dplyr::group_by(`Molecule Name`) |>
+            dplyr::mutate(`Label Type` = ifelse(Rel_ab == 100, "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
+            dplyr::ungroup() |>
+            #dplyr::rename(`Molecule Note` = Rel_ab) |> #rename Rel_ab to Molecular Note to be able to add into Skyline
+            dplyr::select(`Molecule List Name`,
+                          `Molecule Name`,
+                          `Precursor Charge`,
+                          `Label Type`,
+                          `Precursor m/z` = `m/z`,
+                          `Explicit Retention Time`,
+                          `Explicit Retention Time Window`,
+                          Note)
+    } else if (input$skyline_NormAdv == "normal") {
+        CP_allions_skyline <- CP_allions_glob() |>
+            dplyr::mutate(`Molecule List Name` = dplyr::case_when(
+                stringr::str_detect(Adduct, "(?<=.)PCA(?=.)") == TRUE ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                stringr::str_detect(Adduct, "(?<=.)PCO(?=.)") == TRUE ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                stringr::str_detect(Adduct, "(?<=.)BCA(?=.)") == TRUE ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
+                stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
+                stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
+            dplyr::rename(`Molecule Name` = Molecule_Formula) |>
+            dplyr::mutate(`Precursor m/z` = `m/z`) |>
+            #dplyr::rename(Note = Adduct) |>
+            dplyr::mutate(Note = paste0("{", Adduct, "}", "{", Rel_ab, "}")) |>dplyr::rename(`Precursor Charge` = Charge) |>
+            tibble::add_column(`Explicit Retention Time` = NA) |>
+            tibble::add_column(`Explicit Retention Time Window` = NA) |>
+            dplyr::group_by(`Molecule Name`) |>
+            dplyr::mutate(`Label Type` = ifelse(Rel_ab == 100, "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
+            dplyr::ungroup() |>
+            #dplyr::rename(`Molecule Note` = Rel_ab) |> #rename Rel_ab to Molecular Note to be able to add into Skyline
+            dplyr::select(`Molecule List Name`,
+                          `Molecule Name`,
+                          `Precursor Charge`,
+                          `Label Type`,
+                          `Precursor m/z` = `m/z`,
+                          `Explicit Retention Time`,
+                          `Explicit Retention Time Window`,
+                          Note)
     }
+}
+
+
+output$Table3 <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherwise excel download the visible rows of the table, but this will also give warning about large tables
+    # Show data
+    DT::datatable(CP_allions_skyline,
+                  filter = "top", extensions = c("Buttons", "Scroller"),
+                  options = list(scrollY = 650,
+                                 scrollX = 500,
+                                 deferRender = TRUE,
+                                 scroller = TRUE,
+                                 buttons = list(list(extend = "excel", filename = "Skyline_transition_list", title = NULL,
+                                                     exportOptions = list(
+                                                         modifier = list(page = "all")
+                                                     )),
+                                                list(extend = "csv", filename = "Skyline_transition_list", title = NULL,
+                                                     exportOptions = list(
+                                                         modifier = list(page = "all")
+                                                     )),
+                                                list(extend = "colvis", targets = 0, visible = FALSE)),
+                                 dom = "lBfrtip",
+                                 fixedColumns = TRUE),
+                  rownames = FALSE)
+})
+
+
+})
+
+
+########## go3 end
+
+#----Outputs_End
+
+
+
+
+
+
+# Close the app when the session ends
+if(!interactive()) {
+    session$onSessionEnded(function() {
+        stopApp()
+        q("no")
+    })
+}
 
 }
 
