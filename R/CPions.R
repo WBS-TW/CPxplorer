@@ -16,7 +16,7 @@
 #' @import readxl
 #' @import enviPat
 #' @import markdown
-
+#' @export
 
 CPions <- function(...){
 

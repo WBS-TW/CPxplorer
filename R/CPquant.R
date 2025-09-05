@@ -15,6 +15,7 @@
 #' @import markdown
 #' @import openxlsx
 #' @importFrom stats lm
+#' @export
 
 
 CPquant <- function(...){
