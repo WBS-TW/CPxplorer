@@ -127,6 +127,33 @@ plot_calibration_curves <- function(CPs_standards, quantUnit) {
 
 plot_quanqualratio <- function(Skyline_output_filt) {
 
+Skyline_output_filt |>
+    dplyr::group_by(Replicate_Name, Molecule) |>
+    dplyr::mutate(Quan_Area = ifelse(Isotope_Label_Type == "Quan", Area, NA)) |>
+    tidyr::fill(Quan_Area, .direction = "downup") |>
+    dplyr::mutate(QuanMZ = ifelse(Isotope_Label_Type == "Quan", Chromatogram_Precursor_MZ, NA)) |>
+    tidyr::fill(QuanMZ, .direction = "downup") |>
+    dplyr::mutate(QuanQualRatio = ifelse(Isotope_Label_Type == "Qual", Quan_Area/Area, 1)) |>
+    tidyr::replace_na(list(QuanQualRatio = 0)) |>
+    dplyr::mutate(QuanQualMZ = paste0(QuanMZ,"/",Chromatogram_Precursor_MZ)) |>
+    dplyr::ungroup() |>
+    dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio) |>
+    plotly::plot_ly(x = ~Replicate_Name, y = ~QuanQualRatio, type = 'violin', color = ~Sample_Type,
+            text = ~paste("Sample: ", Replicate_Name,
+                          "<br>Molecule List: ", Molecule_List,
+                          "<br>Molecule: ", Molecule,
+                          "<br>Quan/Qual MZ: ", QuanQualMZ,
+                          "<br>Ratio: ", round(QuanQualRatio, 2)),
+            hoverinfo = "text") |>
+    plotly::layout(title = 'Quan-to-Qual Ratio',
+           xaxis = list(title = 'Replicate Name'),
+           yaxis = list(title = 'Quan-to-Qual Ratio'))
+}
+
+##############################################################################
+
+plot_meas_vs_theor_ratio <- function(Skyline_output_filt) {
+
     Skyline_output_filt |>
         dplyr::group_by(Replicate_Name, Molecule) |>
         dplyr::mutate(Quan_Area = ifelse(Isotope_Label_Type == "Quan", Area, NA)) |>
@@ -136,21 +163,28 @@ plot_quanqualratio <- function(Skyline_output_filt) {
         dplyr::mutate(QuanQualRatio = ifelse(Isotope_Label_Type == "Qual", Quan_Area/Area, 1)) |>
         tidyr::replace_na(list(QuanQualRatio = 0)) |>
         dplyr::mutate(QuanQualMZ = paste0(QuanMZ,"/",Chromatogram_Precursor_MZ)) |>
-        dplyr::ungroup() |>
-        dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio) |>
-        plotly::plot_ly(x = ~Replicate_Name, y = ~QuanQualRatio, type = 'violin', color = ~Sample_Type,
-                text = ~paste("Sample: ", Replicate_Name,
-                              "<br>Molecule List: ", Molecule_List,
-                              "<br>Molecule: ", Molecule,
-                              "<br>Quan/Qual MZ: ", QuanQualMZ,
-                              "<br>Ratio: ", round(QuanQualRatio, 2)),
-                hoverinfo = "text") |>
-        plotly::layout(title = 'Quan-to-Qual Ratio',
-               xaxis = list(title = 'Replicate Name'),
-               yaxis = list(title = 'Quan-to-Qual Ratio'))
 
+        dplyr::mutate(Quan_Rel_Ab = ifelse(Isotope_Label_Type == "Quan", Rel_Ab, NA)) |>
+        tidyr::fill(Quan_Rel_Ab, .direction = "downup") |>
+        dplyr::mutate(QuanQual_Rel_Ab_Ratio = ifelse(Isotope_Label_Type == "Qual", Quan_Rel_Ab/Rel_Ab, 1)) |>
+        tidyr::replace_na(list(QuanQual_Rel_Ab_Ratio = 0)) |>
+        dplyr::ungroup() |>
+        dplyr::mutate(Is_Outlier = QuanQualRatio/QuanQual_Rel_Ab_Ratio > 3 | QuanQualRatio/QuanQual_Rel_Ab_Ratio < 0.3) |>
+        dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio, QuanQual_Rel_Ab_Ratio, Is_Outlier) |>
+        plotly::plot_ly(x = ~Replicate_Name, y = ~QuanQualRatio,
+                        type = 'scatter', mode = 'markers',
+                        color = ~Is_Outlier,
+                        colors = c('blue', 'red'),
+                        text = ~paste("Replicate:", Replicate_Name,
+                                      "<br>Homologue Group: ", Molecule,
+                                      "<br>Measured against Theoretical Ratio:", round(QuanQualRatio/QuanQual_Rel_Ab_Ratio, 1)),
+                        marker = list(size = 10)) %>%
+        layout(title = "Measured/Theoretical ratio >3 or <0.3 are marked in red)",
+               xaxis = list(title = "QuanQual_Rel_Ab_Ratio"),
+               yaxis = list(title = "QuanQualRatio"))
 
 }
+
 
 ##############################################################################
 
