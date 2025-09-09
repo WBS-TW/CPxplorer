@@ -169,19 +169,20 @@ plot_meas_vs_theor_ratio <- function(Skyline_output_filt) {
         dplyr::mutate(QuanQual_Rel_Ab_Ratio = ifelse(Isotope_Label_Type == "Qual", Quan_Rel_Ab/Rel_Ab, 1)) |>
         tidyr::replace_na(list(QuanQual_Rel_Ab_Ratio = 0)) |>
         dplyr::ungroup() |>
-        dplyr::mutate(Is_Outlier = QuanQualRatio/QuanQual_Rel_Ab_Ratio > 3 | QuanQualRatio/QuanQual_Rel_Ab_Ratio < 0.3) |>
-        dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio, QuanQual_Rel_Ab_Ratio, Is_Outlier) |>
-        plotly::plot_ly(x = ~Replicate_Name, y = ~QuanQualRatio,
+        dplyr::mutate(MeasVSTheo = QuanQualRatio/QuanQual_Rel_Ab_Ratio) |>
+        dplyr::mutate(Is_Outlier = MeasVSTheo > 3 | MeasVSTheo < 0.3) |>
+        dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio, QuanQual_Rel_Ab_Ratio, MeasVSTheo, Is_Outlier) |>
+        plotly::plot_ly(x = ~Replicate_Name, y = ~MeasVSTheo,
                         type = 'scatter', mode = 'markers',
                         color = ~Is_Outlier,
                         colors = c('blue', 'red'),
                         text = ~paste("Replicate:", Replicate_Name,
                                       "<br>Homologue Group: ", Molecule,
-                                      "<br>Measured against Theoretical Ratio:", round(QuanQualRatio/QuanQual_Rel_Ab_Ratio, 1)),
+                                      "<br>Measured against Theoretical Ratio:", round(MeasVSTheo, 1)),
                         marker = list(size = 10)) %>%
         layout(title = "Measured/Theoretical ratio >3 or <0.3 are marked in red)",
-               xaxis = list(title = "QuanQual_Rel_Ab_Ratio"),
-               yaxis = list(title = "QuanQualRatio"))
+               xaxis = list(title = "Sample Name"),
+               yaxis = list(title = "MeasVSTheo"))
 
 }
 
