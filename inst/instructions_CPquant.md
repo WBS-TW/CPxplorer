@@ -10,7 +10,7 @@ In CPquant, the deconvolution is performed using the nnls package (https://cran.
 
 - CPquant quantification works with both single chain and mixture standards.  
 - We recommend to use 5 calibration levels for each standard. These needs to be named in the `Batch Name` column and their concentration levels `Analyte Concentration` added according to below instructions from the input file which is exported from Skyline.  
-- If recovery needs to be calculated, then a _Quality Control_ sample needs to be added.
+- If recovery needs to be calculated, then a _Quality Control_ sample needs to be added. This is IS and RS standards with the same concentration as added into the samples.
 
 __The calculated concentrations are for those in the extract. The user can then export the results to excel and perform additional calculations to derive the concentrations in the samples__
   
