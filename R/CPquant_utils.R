@@ -5,7 +5,7 @@
 #------------------------------------------ CPquant functions ------------------------------------------#
 #########################################################################################################
 
-### Function to perform deconvolution on a single data frame ###
+### Perform deconvolution on a single data frame ###
 perform_deconvolution <- function(df, combined_standard, CPs_standards_sum_RF) {
 
     df_matrix <- as.matrix(df)

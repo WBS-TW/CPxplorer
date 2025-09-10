@@ -19,7 +19,7 @@
 
 
 CPquant <- function(...){
-    options(shiny.maxRequestSize = 500 * 1024^2)
+    options(shiny.maxRequestSize = 400 * 1024^2)
 
     ui <- shiny::navbarPage("CPquant",
                             shiny::tabPanel("Quantification Inputs",

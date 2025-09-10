@@ -2,7 +2,7 @@
 # CPquant
   
   
-## Introduction    
+## Introduction  
 CPquant uses the deconvolution process proposed by Bogdal et al (Anal Chem, doi/10.1021/ac504444d) to estimate 
 the relative composition needed from different standards to match the measured homologue pattern of samples. 
 The underlying calculations are based on the CPCrawler R script by Perkons et al (Food Chem, doi/10.1016/j.foodchem.2019.125100).

@@ -1,6 +1,8 @@
 
-# Introduction
-This app generates a list of mass-over-charges (m/z) for PCAs and structural analogues to investigate potential overlapping m/z during mass spectrometric analysis.
+# CPions
+  
+## Introduction  
+This app generates a list of mass-over-charges (m/z) for PCAs and structural analogues to investigate potential overlapping m/z during mass spectrometry analysis.
 It utilizes the isopattern function of the R package Envipat (Loos et al, Analytical Chemistry, 2015, 87, 5738-5744) to generate isotopic patterns from chemical formula and adducts. The app will also generate a list of m/z for selected adducts which can be used as a transition list in the Skyline software for quantification purposes.
 Several adducts have been included and more can be added upon request.  
   

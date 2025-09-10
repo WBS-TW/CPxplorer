@@ -1,3 +1,3 @@
-# CPxplorer 0.9
+# CPxplorer 0.95
 
-* Initial CRAN submission.
+* CPquant: Added additional QA features.

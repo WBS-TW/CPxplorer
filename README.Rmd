@@ -46,7 +46,7 @@ After installation, attach the package in RStudio by:
 library(CPxplorer)
 ```
   
-These functions will then be available:  
+These functions will be available:  
 `CPions()`: opens a shiny app to generate ions of PCAs and analogues.  
 `CPquant()`: opens a shiny app to analyze and quantify output from Skyline.  
   

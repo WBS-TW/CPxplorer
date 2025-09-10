@@ -138,7 +138,7 @@ ui <- shiny::navbarPage(
                     shiny::fluidPage(shiny::sidebarLayout(
                         shiny::sidebarPanel(
                             shiny::radioButtons("QuantIon", label = "Use as Quant Ion", choices = c("Most intense")),
-                            #shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz", "IonFormula")),
+                            #shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz", "IonFormula")), #Skyline doesnt have M-Cl adduct so this doesnt work yet
                             shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz")),
                             shiny::radioButtons("skyline_NormAdv", label = "From Normal or Advanced settings", choices = c("normal", "advanced"), selected = "normal"),
                             shiny::actionButton("go3", "Transition List", width = "100%"),
