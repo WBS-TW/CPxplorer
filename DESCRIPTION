@@ -1,13 +1,12 @@
 Package: CPxplorer
 Title: Interactive tools for PCAs and analogues analysis and quantification
-Version: 0.92
+Version: 0.95
 Authors@R: c(
     person("Thanh", "Wang", , "thanh.wang@liu.se", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-5729-1908")),
     person("Idoia", "Beloqui Ezquer", , "idoia.beloqui.ezquer@liu.se", role = "aut")
   )
-Description: Generates list of ions of selected PCAs and analogues for mass
-    spectrometric analysis and perform quantification by deconvolution.
+Description: Generates list of ions of selected PCAs and analogues for mass spectrometric analysis and perform quantification by deconvolution.
 License: CC BY 4.0
 Depends: 
     R (>= 2.10)
