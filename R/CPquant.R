@@ -64,7 +64,8 @@ CPquant <- function(...){
                                     shiny::radioButtons("navSummary", "Choose tab:",
                                                         choices = c("Std Calibration Curves",
                                                                     "Removed from Calibration",
-                                                                    "Quan to Qual ratio"),
+                                                                    "Quan to Qual ratio",
+                                                                    "Measured vs Theor Quan/Qual ratio"),
                                                         selected = "Std Calibration Curves")
                                 ),
                                 shiny::mainPanel(
@@ -83,6 +84,11 @@ CPquant <- function(...){
                                         condition = "input.navSummary == 'Quan to Qual ratio'",
                                         tags$h3("Violin plots of Quant/Qual ions"),
                                         plotly::plotlyOutput("RatioQuantToQual", height = "80vh", width = "100%")
+                                    ),
+                                    shiny::conditionalPanel(
+                                        condition = "input.navSummary == 'Measured vs Theor Quan/Qual ratio'",
+                                        tags$h3("Measured divided by Theoretical Quant/Qual ratios"),
+                                        plotly::plotlyOutput("MeasVSTheor", height = "80vh", width = "100%")
                                     )
                                 )
                             ),
@@ -207,7 +213,12 @@ CPquant <- function(...){
                               Cl_homologue = stringr::str_extract(Molecule, "Cl\\d+"),
                               C_number = as.numeric(stringr::str_extract(C_homologue, "\\d+")),
                               Cl_number = as.numeric(stringr::str_extract(Cl_homologue, "\\d+")),
-                              PCA = stringr::str_c(C_homologue, Cl_homologue, sep = ""))
+                              PCA = stringr::str_c(C_homologue, Cl_homologue, sep = "")) |>
+                dplyr::rename(Transition_Note = `Transition Note`) |>
+                dplyr::mutate(Rel_Ab = as.numeric(map_chr( # Extract relative abundance from second set of curly braces
+                    Transition_Note, ~ {matches <- str_match_all(.x, "\\{([^}]*)\\}")[[1]]
+                    if (nrow(matches) >= 2) matches[2, 2] else NA_character_
+                    })))
 
             progress$set(value = 0.8, detail = "Applying corrections")
 
@@ -263,7 +274,6 @@ CPquant <- function(...){
 
         removeRsquared <- shiny::eventReactive(input$go, {as.numeric(input$removeRsquared)})
         removeSamples <- shiny::eventReactive(input$go, {as.character(input$removeSamples)})
-        #chooseRS <- shiny::eventReactive(input$go, {as.character(input$chooseRS)})
         Samples_Concentration <- reactiveVal() # Create a reactive value to store deconvolution object into Samples_Concentration() to allow other to access after observeEvent.
 
 
@@ -348,7 +358,6 @@ CPquant <- function(...){
                 progress$set(value = 0.6, detail = "Preparing sample data")
 
 
-
                 CPs_samples <- Skyline_output_filt |>
                     dplyr::filter(
                         #Sample_Type == "Unknown",
@@ -399,6 +408,12 @@ CPquant <- function(...){
                 #CPquant_plots.R function
                 output$RatioQuantToQual <- plotly::renderPlotly({
                     plot_quanqualratio(Skyline_output_filt)
+                })
+
+                ##### Plot MeasVSTheor ratios ######
+                #CPquant_plots.R function
+                output$MeasVSTheor <- plotly::renderPlotly({
+                    plot_meas_vs_theor_ratio(Skyline_output_filt)
                 })
 
 

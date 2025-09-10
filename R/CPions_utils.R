@@ -928,7 +928,7 @@ isotopes <- structure(list(element = c("H", "H", "He", "He", "Li", "Li",
 #############################################################################
 #############################################################################
 
-## NOT WORKING YET ##
+# NOT TESTED/VERIFIED
 #Add the ISRS formula to the CP_allions table if they exist
 
 addISRS <- function(ISRS_input, CP_allions, threshold) {
@@ -980,7 +980,7 @@ addISRS <- function(ISRS_input, CP_allions, threshold) {
         ISRS_data <- do.call(rbind, ISRS_data)
         df <- dplyr::bind_rows(CP_allions, ISRS_data)
 
-    #}
+
     return(df)
 }
 

@@ -10,7 +10,7 @@ In CPquant, the deconvolution is performed using the nnls package (https://cran.
 
 - CPquant quantification works with both single chain and mixture standards.  
 - We recommend to use 5 calibration levels for each standard. These needs to be named in the `Batch Name` column and their concentration levels `Analyte Concentration` added according to below instructions from the input file which is exported from Skyline.  
-- If recovery needs to be calculated, then a _Quality Control_ sample needs to be added.
+- If recovery needs to be calculated, then a _Quality Control_ sample needs to be added. This is IS and RS standards with the same concentration as added into the samples.
 
 __The calculated concentrations are for those in the extract. The user can then export the results to excel and perform additional calculations to derive the concentrations in the samples__
   
@@ -68,6 +68,7 @@ The display might take some time before results show up here so be patient.
 __Std Calibration Curves__: The calibration curves for different standards will be shown. Only those with rsquared above the initial cutoff will be shown.  
 __Removed from Calibration__: A table showing individual homologue groups from specific standards that are removed from the quantification process, due to negative RF or calibration curve R2 values below limit.   
 __Quan to Qual ratio__: Violin plots showing the ratio Quan/Qual area to detect outliers and thus help in assessing quality of data.  
+__Measured vs Theor Quan/Qual ratio__: Plot showing the measured Quan/Qual ratio divided by the theoretical Quan/Qual ratio. Ideally, the ratio should be around 1. Outlier ratios (<0.3 or >3) are marked in red.  
   
   
 ## Quantification summary  
