@@ -160,7 +160,7 @@ CPquant <- function(...){
                                     shiny::sidebarPanel(shiny::h3("Manual"),
                                                         width = 3),
                                     shiny::mainPanel(
-                                        shiny::includeMarkdown("inst/instructions_CPquant.md")
+                                        shiny::includeMarkdown(system.file("instructions_CPquant.md", package = "CPxplorer"))
                                     )
                                 )
                             )
