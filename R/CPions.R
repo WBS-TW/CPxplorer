@@ -156,7 +156,7 @@ ui <- shiny::navbarPage(
             shiny::sidebarPanel(shiny::h3("Manual"),
                                 width = 3),
             shiny::mainPanel(
-                shiny::includeMarkdown("inst/instructions_CPions.md")
+                shiny::includeMarkdown(system.file("instructions_CPions.md"))
             )
         )
     )
