@@ -171,6 +171,7 @@ plot_meas_vs_theor_ratio <- function(Skyline_output_filt) {
         dplyr::ungroup() |>
         dplyr::mutate(MeasVSTheo = QuanQualRatio/QuanQual_Rel_Ab_Ratio) |>
         dplyr::mutate(Is_Outlier = MeasVSTheo > 3 | MeasVSTheo < 0.3) |>
+        dplyr::mutate(Is_Outlier = factor(Is_Outlier, levels = c(FALSE, TRUE), labels = c("Within Limit", "Outlier"))) |>
         dplyr::select(Replicate_Name, Sample_Type, Molecule_List, Molecule, QuanQualMZ, QuanQualRatio, QuanQual_Rel_Ab_Ratio, MeasVSTheo, Is_Outlier) |>
         plotly::plot_ly(x = ~Replicate_Name, y = ~MeasVSTheo,
                         type = 'scatter', mode = 'markers',
@@ -179,8 +180,8 @@ plot_meas_vs_theor_ratio <- function(Skyline_output_filt) {
                         text = ~paste("Replicate:", Replicate_Name,
                                       "<br>Homologue Group: ", Molecule,
                                       "<br>Measured against Theoretical Ratio:", round(MeasVSTheo, 1)),
-                        marker = list(size = 10)) %>%
-        layout(title = "Measured/Theoretical ratio >3 or <0.3 are marked in red)",
+                        marker = list(size = 10)) |>
+        layout(title = "Measured/Theoretical ratio >3 or <0.3 are marked in red (ratio of 1 means perfect match",
                xaxis = list(title = "Sample Name"),
                yaxis = list(title = "MeasVSTheo"))
 
