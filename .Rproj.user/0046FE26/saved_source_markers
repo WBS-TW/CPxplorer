@@ -1,1 +1,0 @@
-{"active_set":"Publish Content Issues","sets":[{"name":"Publish Content Issues","base_path":"~/CPxplorer/test/./","markers":[{"type":1,"path":"~/CPxplorer/test/testing.Rmd","line":19,"column":1,"message":"Paths should be to files within the project directory.","log_path":"","log_line":-1,"show_error_list":true}],"is_diagnostics":false}]}
