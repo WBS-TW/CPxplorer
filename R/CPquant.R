@@ -14,6 +14,7 @@
 #' @import purrr
 #' @import markdown
 #' @import openxlsx
+#' @import stringr
 #' @importFrom stats lm
 #' @export
 
