@@ -8,9 +8,6 @@
 
 
 #############################################################################
-#############################################################################
-
-
 create_formula <- function(C, H, Cl, Br, S, O) {
     formula <- paste0(
         dplyr::case_when(C < 1 ~ paste0(""),
@@ -36,8 +33,6 @@ create_formula <- function(C, H, Cl, Br, S, O) {
     stringr::str_trim(formula)
 }
 
-
-#############################################################################
 #############################################################################
 
 
@@ -57,8 +52,6 @@ create_elements <- function(data) {
 
 
 #############################################################################
-#############################################################################
-
 
 create_formula_isotope <- function(`12C`,`13C`, `1H`,`2H`, `35Cl`, `37Cl`, `79Br`, `81Br`, `16O`, `17O`, `18O`, `32S`, `33S`, `34S`, `36S`){
     formula_iso <- paste0(
@@ -84,8 +77,6 @@ create_formula_isotope <- function(`12C`,`13C`, `1H`,`2H`, `35Cl`, `37Cl`, `79Br
 
 
 #############################################################################
-#############################################################################
-
 
 calculate_haloperc <- function(Molecule_Formula) {
     # Regular expression to extract atoms and their counts
@@ -127,9 +118,8 @@ calculate_haloperc <- function(Molecule_Formula) {
 
 
 #############################################################################
-#############################################################################
-######### This function generates input for the Envipat function ###########
 
+# This function generates input for the Envipat function
 
 generateInput_Envipat_normal <- function(data = data, group = group, adduct_ions = adduct_ions, fragment_ions = fragment_ions) {
 
@@ -175,8 +165,6 @@ generateInput_Envipat_normal <- function(data = data, group = group, adduct_ions
 
 
 #############################################################################
-#############################################################################
-
 
 generateInput_Envipat_BCA <- function(data = data, group = group, adduct_ions = adduct_ions, fragment_ions = fragment_ions) {
 
@@ -214,8 +202,6 @@ generateInput_Envipat_BCA <- function(data = data, group = group, adduct_ions = 
 
 
 #############################################################################
-#############################################################################
-
 
 generateInput_Envipat_advanced <- function(data = data, Compounds = Compounds, Adduct_Ion = Adduct_Ion,
                                            TP = TP, Charge = Charge) {
@@ -274,8 +260,6 @@ generateInput_Envipat_advanced <- function(data = data, Compounds = Compounds, A
 
 
 #############################################################################
-#############################################################################
-
 
 getAdduct_normal <- function(adduct_ions, C, Cl, Clmax, threshold) {
     # Regex to extract strings
@@ -437,8 +421,6 @@ getAdduct_normal <- function(adduct_ions, C, Cl, Clmax, threshold) {
 
 
 #############################################################################
-#############################################################################
-
 
 getAdduct_BCA <- function(adduct_ions, C, Cl, Br, Clmax, Brmax, threshold) {
 
@@ -553,8 +535,6 @@ getAdduct_BCA <- function(adduct_ions, C, Cl, Br, Clmax, Brmax, threshold) {
 }
 
 #############################################################################
-#############################################################################
-
 
 getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, Br, Brmax, threshold) {
 
@@ -734,7 +714,6 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
 
 }
 
-########################################################################
 ########################################################################
 
 # from envipat
@@ -926,10 +905,9 @@ isotopes <- structure(list(element = c("H", "H", "He", "He", "Li", "Li",
 
 
 #############################################################################
-#############################################################################
 
-# NOT TESTED/VERIFIED
-#Add the ISRS formula to the CP_allions table if they exist
+# Add the ISRS formula to the CP_allions table if they exist
+# Should be the adduct ion formula
 
 addISRS <- function(ISRS_input, CP_allions, threshold) {
 
