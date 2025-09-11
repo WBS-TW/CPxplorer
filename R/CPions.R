@@ -61,7 +61,7 @@ ui <- shiny::navbarPage(
                                         size = NULL),
                             shiny::numericInput("threshold", "Isotope rel ab threshold (1-99%)", value = 5, min = 1, max = 99),
                             shiny::textAreaInput("ISRS_input", "Optional: add ion formula for IS/RS",
-                                               placeholder = "See Instructions", height = "150px"),
+                                               placeholder = "Input the [M+adduct] ion formula. See Instructions", height = "150px"),
                             shiny::actionButton("go1", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
@@ -109,7 +109,7 @@ ui <- shiny::navbarPage(
                                         size = NULL),
                             shiny::numericInput("threshold_adv", "Isotope rel ab threshold (0-99%)", value = 50, min = 0, max = 99),
                             shiny::textAreaInput("ISRS_input_adv", "Optional: add ion formula for IS/RS",
-                                                 placeholder = "See Instructions" , height = "150px"),
+                                                 placeholder = "Input the [M+adduct] ion formula. See Instructions" , height = "150px"),
 
                             shiny::actionButton("go_adv", "Submit", width = "100%"),
                             width = 3),
@@ -121,7 +121,7 @@ ui <- shiny::navbarPage(
     shiny::tabPanel("Interfering ions",
                     shiny::fluidPage(shiny::sidebarLayout(
                         shiny::sidebarPanel(
-                            shiny::numericInput("MSresolution", "MS Resolution", value = 60000, min = 100, max = 5000000),
+                            shiny::numericInput("MSresolution", "MS Resolution", value = 20000, min = 100, max = 5000000),
                             shiny::radioButtons("interfere_NormAdv", label = "From Normal or Advanced settings", choices = c("normal", "advanced"), selected = "normal"),
                             shiny::actionButton("go2", "Calculate", width = "100%"),
                             width = 2
