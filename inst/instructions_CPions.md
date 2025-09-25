@@ -39,7 +39,7 @@ IS [13]C10H16Cl7 -
 RS [13]C12H18Cl9 -  
 _(make sure there is no empty last line)_  
 
-The first line will product the m/z for the [M+Cl]- adduct ion of the IS with the formula ^13^C~10~H~16~Cl~6~, while the second line is for the [M+Cl]- adduct ion for the ^13^C~12~H~18~Cl~8~ standard.  
+The first line will produce the m/z for the [M+Cl]- adduct ion of the IS with the formula ^13^C~10~H~16~Cl~6~, while the second line is for the [M+Cl]- adduct ion for the ^13^C~12~H~18~Cl~8~ RS.  
 
   
 ## Advanced settings tab  
