@@ -474,10 +474,10 @@ CPquant <- function(...){
                     dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard, CPs_standards_sum_RF))) |>
                     dplyr::mutate(sum_Area = purrr::map_dbl(data, ~sum(.x$Area))) |>
                     dplyr::mutate(sum_deconv_RF = as.numeric(purrr::map(result, purrr::pluck("sum_deconv_RF")))) |>
-        #EXPERIMENTAL-START
+#EXPERIMENTAL-START
                     dplyr::mutate(Sample_Dilution_Factor = purrr::map_dbl(data, ~first(.x$Sample_Dilution_Factor))) |> #since all dilution factor is same for a replicate then take the first
                     dplyr::mutate(Concentration = sum_Area/sum_deconv_RF*Sample_Dilution_Factor) |>
-        #EXPERIMENTAL-END
+#EXPERIMENTAL-END
                     dplyr::mutate(Unit = quantUnit()) |>
                     dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, Batch_Name = names(.x$deconv_coef))))) |>
                     dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
@@ -533,7 +533,7 @@ CPquant <- function(...){
                                         deconvolution |>
                                             dplyr::mutate(data = purrr::map2(data, deconv_resolved, ~dplyr::inner_join(.x, .y, by = "Molecule"))) |>
                                             dplyr::mutate(data = purrr::map(data, ~ .x |> dplyr::mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
-                                            dplyr::select(-deconv_resolved) |>
+                                            dplyr::select(-deconv_resolved, -Sample_Dilution_Factor) |>
                                             tidyr::unnest(data) |>
                                             dplyr::mutate(Deconvoluted_Distribution = as.numeric(resolved_distribution)) |>
                                             dplyr::rename(Relative_Distribution = Relative_Area) |>
@@ -733,7 +733,7 @@ CPquant <- function(...){
                 Sample_distribution <- Samples_Concentration() |>
                     dplyr::mutate(data = purrr::map2(data, deconv_resolved, ~dplyr::inner_join(.x, .y, by = "Molecule"))) |>
                     dplyr::mutate(data = purrr::map(data, ~ .x |> dplyr::mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
-                    dplyr::select(-deconv_resolved) |>
+                    dplyr::select(-deconv_resolved, -Sample_Dilution_Factor) |>
                     tidyr::unnest(data) |>
                     dplyr::mutate(resolved_distribution = as.numeric(resolved_distribution)) |>
                     dplyr::mutate(deconv_resolved = as.numeric(deconv_resolved)) |>

@@ -19,28 +19,33 @@ __The calculated concentrations are for those in the extract. The user can then 
 The input excel file should be exported from the Skyline results table. It should include the following column with the names:  
 `Replicate Name`: sample name  
 `Sample Type`: the following characters can be used, _Unknown_ (which is the sample to be quantified), _Blank_ (field blanks and procedural blanks are not distinguished), _Standard_ (standard used for quantification), _Quality Control_ (standard/sample used to determine the recovery).  
+`Batch Name`: For standards only (leave blank for Unknown). This will determine which standards that belongs to a calibration series as well as which carbon chain groups 
+to quantify with the standard.  
+The naming of the Batch Name should be: CarbonGroups_StandardName. An underscore is a separator for the carbon chain group and standard name.  
+Example A: C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13 (the hyphen specify the range of carbon chains). 
+This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series.  
+Example B: C14_52%Cl. This standard will only quantify C14 carbon chains. It specifies 52% chlorine content (although this information is not needed for quantification).  
 `Molecule List`: compounds used internal standards are denoted `IS`, recovery standards as `RS`.  
 `Molecule`: PCA homologue group.  
 `Area`: integrated area from Skyline.  
+`Analyte Concentration`: For standards only. This is the standard concentrations/amounts. 
+This column could be in concentration or weight/amount unit depending on the user input. It will affect the final quantification unit.  
 `Mass Error PPM`: might be exported from Skyline but currently not used by CPquant.  
 `Isotope Label Type`: Quan or Qual.  
-`Chromatogram Precursor M/Z`: might be exported from Skyline but currently not used by CPquant.  
-`Analyte Concentration`: For standards only. This is the standard concentrations/amounts. This column could be in concentration or weight/amount unit depending on the user input. It will affect the final quantification unit.  
-`Batch Name`: For standards only (leave blank for Unknown). This will determine which standards that belongs to a calibration series as well as which carbon chain groups to quantify with the standard.  
-The naming of the Batch Name should be: CarbonGroups_StandardName. An underscore is a separator for the carbon chain group and standard name.  
-Example A: C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13 (the hyphen specify the range of carbon chains). This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series.  
-Example B: C14_52%Cl. This standard will only quantify C14 carbon chains. It specifies 52% chlorine content (although this information is not needed for quantification).  
-  
+`Chromatogram Precursor M/Z`: the m/z values of the ion (not used by CPquant). 
+`Sample Dilution Factor`: indicate the dilution (>1) or concentration factor (<1). Default from Skyline is 1 (no dilution).  
+`Transition Note`: internal information transferred from CPions used for calculating the correct isotope ratio.  
   
 ## Quantification Inputs tab  
 __Import excel file from Skyline__: This is the excel file from the Report export function of Skyline.  
-__Concentration unit__: an optional input to indicate the concentration (or amount) unit of the Analyte Concentration in the Skyline report (e.g. ng/mL or ng).   
+__Concentration unit__: an optional input to indicate the concentration (or amount) unit of the Analyte Concentration (e.g. ng/mL or ng).   
 After loading the excel, allow for the Area plot to show up before pressing the "Proceed" button, otherwise error will occur.  
 
 After loading the data, the user can choose the options:  
-__Subtraction by blank?__: If "Yes, by avg area of blanks", then the area for each Molecule will be subtracted with the average of all blank samples.  
+__Subtraction by blank?__: If "Yes, by avg area of blanks", then the area for each Molecule will be subtracted with the average area of all blank samples.  
 __Correct with RS area?__: If "Yes", then the area of each Molecule will the normalized to the recovery standard (RS) area for each sample.  
-__Calculate recovery?__: If "Yes", requires samples with the `Sample Type` designated as "Quality Control" that include the spiked concentrations of IS and RS corresponding mount/concentrations.  
+__Calculate recovery?__: If "Yes", requires samples with the `Sample Type` designated as "Quality Control" that include the spiked concentrations of 
+IS and RS corresponding mount/concentrations.  
 __Calculate MDL?__: If "Yes", then calculates the method detection limits based on blank samples.  
 If no blank subtraction then MDL = avg + 3 * standard deviation of blank samples.  
 If blank subtraction then MDL = 3 * standard deviation of blank samples.  
@@ -48,8 +53,8 @@ __Types of standards__: Currently only have option to use mixtures and single ch
   
   
 __Remove samples from quantification?__: select samples to be removed before quantification process.  
-__Keep the the calibration curves above this rsquared__: remove calibration curves for every homologue groups in each standard below this R2 value. 
-This will remove all homologue groups that do not show linearity within the standard calibration concentrations, thus remove their contribution to the deconvolution. 
+__Keep the the calibration curves above this rsquared__: remove calibration curves for every homologue group in each standard below this R2 value (goodness of calibration fit). 
+This will remove all homologue groups that do not show linearity within the standard calibration levels, thus remove their contribution to the deconvolution. 
 Default is 0.8 but can be changed accordingly by the user.  
   
 __Proceed__: pressing this button will quantify the samples based on the deconvolution process and the results will show up in the different tabs.  
@@ -58,7 +63,7 @@ __Proceed__: pressing this button will quantify the samples based on the deconvo
 ### Quantification process  
 The process starts by creating calibration curves for each carbon chain group for each standard mixture. 
 The Batch Name in the excel file determines which carbon chain group to be included for each standard mixture. A linear regression will be fitted and the slope is used as the response factor (RF).
-If the R-squared of the goodness of fit for a homologue group for a standard series (calibration curve) is below the user input threshold (modified in the first tab), then the homologue group in that standard is not considered for subsequent quantification.  
+If the R-squared of the goodness of calibration fit for a homologue group for a standard series (calibration curve) is below the user input threshold (modified in the first tab), then the homologue group in that standard is not considered for subsequent quantification.  
 
 
 

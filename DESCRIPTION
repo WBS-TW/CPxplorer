@@ -1,6 +1,6 @@
 Package: CPxplorer
 Title: Interactive tools for PCAs and analogues analysis and quantification
-Version: 0.95
+Version: 0.96
 Authors@R: c(
     person("Thanh", "Wang", , "thanh.wang@liu.se", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-5729-1908")),
