@@ -42,7 +42,7 @@ CPquant <- function(...){
                                                                         label = "Correct with RS area?",
                                                                         choices = c("Yes", "No"),
                                                                         selected = "No"),
-                                                    shiny::uiOutput("recoveryUI"), # render UI if correctwithRS == "Yes"
+                                                    shiny::uiOutput("correctionUI"), # render UI if correctwithRS == "Yes"
                                                     shiny::radioButtons("calculateRecovery",
                                                                         label = "Calculate recovery? (req QC samples)",
                                                                         choices = c("Yes", "No"),
@@ -189,9 +189,9 @@ CPquant <- function(...){
     server <- function(input, output, session) {
 
         # define RS for Area correction
-        output$recoveryUI <- shiny::renderUI({
+        output$correctionUI <- shiny::renderUI({
             if(input$correctWithRS == "Yes") {
-                defineRecoveryUI(Skyline_output()) }
+                defineCorrectionUI(Skyline_output()) }
         })
 
         # define RS for recovery
