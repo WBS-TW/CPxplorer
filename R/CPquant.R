@@ -29,21 +29,33 @@ CPquant <- function(...){
                                                     width = 3,
                                                     shiny::fileInput("fileInput", "Import excel file from Skyline",
                                                                      accept = c('xlsx')),
-                                                    shiny::textInput("quantificationUnit", "(Optional) Concentration unit:"),
+                                                    shiny::textInput("quanUnit", "(Optional) Concentration unit:"),
+                                                    shiny::radioButtons("quanSum",
+                                                                        label = "Choose ions for quantification",
+                                                                        choices = c("Quan only", "Sum Quan+Qual"),
+                                                                        selected = "Quan only"),
                                                     shiny::radioButtons("blankSubtraction",
                                                                         label = "Subtraction with blank?",
-                                                                        choices = c("Yes, by avg area of blanks", "No"), selected = "No"),
-                                                    shiny::radioButtons("correctWithRS", label = "Correct with RS area?",
-                                                                        choices = c("Yes", "No"), selected = "No"),
+                                                                        choices = c("Yes, by avg area of blanks", "No"),
+                                                                        selected = "No"),
+                                                    shiny::radioButtons("correctWithRS",
+                                                                        label = "Correct with RS area?",
+                                                                        choices = c("Yes", "No"),
+                                                                        selected = "No"),
                                                     shiny::uiOutput("recoveryUI"), # render UI if correctwithRS == "Yes"
                                                     shiny::radioButtons("calculateRecovery",
                                                                         label = "Calculate recovery? (req QC samples)",
-                                                                        choices = c("Yes", "No"), selected = "No"),
+                                                                        choices = c("Yes", "No"),
+                                                                        selected = "No"),
+                                                    shiny::uiOutput("calculateRecoveryUI"), # render UI if CalculateRecovery == "Yes"
                                                     shiny::radioButtons("calculateMDL",
                                                                         label = "Calculate MDL? (req blank samples)",
-                                                                        choices = c("Yes", "No"), selected = "No"),
-                                                    shiny::radioButtons("standardTypes", label = "Types of standards",
-                                                                        choices = c("Group Mixtures"), selected = "Group Mixtures"), #work for both single chain and multiple chain mixtures
+                                                                        choices = c("Yes", "No"),
+                                                                        selected = "No"),
+                                                    shiny::radioButtons("standardTypes",
+                                                                        label = "Types of standards",
+                                                                        choices = c("Group Mixtures"),
+                                                                        selected = "Group Mixtures"), #work for both single chain and multiple chain mixtures
                                                     shiny::tags$div(
                                                         title = "Wait until import file is fully loaded before pressing!",
                                                         shiny::actionButton('go', 'Proceed', width = "100%")
@@ -67,7 +79,11 @@ CPquant <- function(...){
                                                                     "Removed from Calibration",
                                                                     "Quan to Qual ratio",
                                                                     "Measured vs Theor Quan/Qual ratio"),
-                                                        selected = "Std Calibration Curves")
+                                                        selected = "Std Calibration Curves"),
+
+                                    tags$hr(),
+                                    tags$p("'Quan to Qual ratio' and 'Measured vs Theor Quan/Qual ratio' only works for Quan only option", style = "font-style: italic;")
+
                                 ),
                                 shiny::mainPanel(
                                     width = 10,
@@ -81,6 +97,7 @@ CPquant <- function(...){
                                         tags$h3("Calibration series removed from quantification"),
                                         DT::DTOutput("CalibrationRemoved")
                                     ),
+
                                     shiny::conditionalPanel(
                                         condition = "input.navSummary == 'Quan to Qual ratio'",
                                         tags$h3("Violin plots of Quant/Qual ions"),
@@ -171,16 +188,21 @@ CPquant <- function(...){
     ################################################################################
     server <- function(input, output, session) {
 
-        # define RS
+        # define RS for Area correction
         output$recoveryUI <- shiny::renderUI({
             if(input$correctWithRS == "Yes") {
                 defineRecoveryUI(Skyline_output()) }
         })
-        #chooseRS <- shiny::reactive(as.character(input$chooseRS))
 
-        # Create a reactive object that depends on the quantificationUnit input
+        # define RS for recovery
+        output$calculateRecoveryUI <- shiny::renderUI({
+            if(input$calculateRecovery == "Yes") {
+                defineCalcrecoveryUI(Skyline_output()) }
+        })
+
+        # Create a reactive object that depends on the quanUnit input
         quantUnit <- reactive({
-            input$quantificationUnit
+            input$quanUnit
         })
 
         Skyline_output <- reactive({
@@ -194,12 +216,12 @@ CPquant <- function(...){
 
             # Read the Skyline output Excel file
             progress$set(value = 0.3, detail = "Reading Excel file")
-            df <- readxl::read_excel(input$fileInput$datapath, guess_max = 5000, na = c("", "NA", "#N/A", "N/A")) #outputs a tibble
+            df <- readxl::read_excel(input$fileInput$datapath, guess_max = 5000, na = c("", "NA", "#N/A", "N/A")) #guard against different na annotation from Skyline export
 
             progress$set(value = 0.6, detail = "Processing data")
             # Tidy the input file
             df <- df |>
-                dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName"))) |>
+                dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName"))) |> #old versions of Skyline uses space
                 dplyr::rename(Sample_Type = tidyr::any_of(c("Sample Type", "SampleType"))) |>
                 dplyr::rename(Molecule_List = tidyr::any_of(c("Molecule List", "MoleculeList"))) |>
                 dplyr::rename(Mass_Error_PPM = tidyr::any_of(c("Mass Error PPM", "MassErrorPPM"))) |>
@@ -207,6 +229,8 @@ CPquant <- function(...){
                 dplyr::rename(Chromatogram_Precursor_MZ = tidyr::any_of(c("Chromatogram Precursor M/Z", "ChromatogramPrecursorMz"))) |>
                 dplyr::rename(Analyte_Concentration = tidyr::any_of(c("Analyte Concentration", "AnalyteConcentration"))) |>
                 dplyr::rename(Batch_Name = tidyr::any_of(c("Batch Name", "BatchName"))) |>
+                dplyr::rename(Transition_Note = tidyr::any_of(c("Transition Note", "TransitionNote"))) |>
+                dplyr::rename(Sample_Dilution_Factor = tidyr::any_of(c("Sample Dilution Factor", "SampleDilutionFactor"))) |>
                 dplyr::mutate(Analyte_Concentration = as.numeric(Analyte_Concentration)) |>
                 dplyr::mutate(Area = as.numeric(Area)) |>
                 dplyr::mutate(Area = replace_na(Area, 0)) |>
@@ -215,14 +239,22 @@ CPquant <- function(...){
                               C_number = as.numeric(stringr::str_extract(C_homologue, "\\d+")),
                               Cl_number = as.numeric(stringr::str_extract(Cl_homologue, "\\d+")),
                               PCA = stringr::str_c(C_homologue, Cl_homologue, sep = "")) |>
-                dplyr::rename(Transition_Note = `Transition Note`) |>
-                dplyr::mutate(Rel_Ab = as.numeric(map_chr( # Extract relative abundance from second set of curly braces
+                dplyr::mutate(Rel_Ab = as.numeric(map_chr( #Extract relative abundance from second set of curly braces
                     Transition_Note, ~ {matches <- str_match_all(.x, "\\{([^}]*)\\}")[[1]]
                     if (nrow(matches) >= 2) matches[2, 2] else NA_character_
                     })))
 
             progress$set(value = 0.8, detail = "Applying corrections")
 
+#EXPERIMENTAL-START
+            # Sum all area if quanSum == "Sum Quan+Qual"
+            if (input$quanSum == "Sum Quan+Qual") {
+                df <- df |>
+                    dplyr::group_by(Replicate_Name, Molecule_List, Molecule) |>
+                    dplyr::mutate(Area = sum(Area)) |> #sums Quan and all Qual ions (all ions for the same Molecule will now have same Area)
+                    dplyr::ungroup()
+            }
+#EXPERIMENTAL-END
 
             # Normalize data based on 'Correct with RS' input
             if (input$correctWithRS == "Yes" && any(df$Molecule_List == "RS")) {
@@ -361,7 +393,6 @@ CPquant <- function(...){
 
                 CPs_samples <- Skyline_output_filt |>
                     dplyr::filter(
-                        #Sample_Type == "Unknown",
                         Sample_Type %in% c("Unknown", "Blank"), #include both unknown and blank
                         !Molecule_List %in% c("IS", "RS", "VS"), # remove IS, RS, VS
                         Isotope_Label_Type == "Quan") |>
@@ -406,7 +437,7 @@ CPquant <- function(...){
 
 
                 ###### Plot Quan/Qual ratios ######
-                #CPquant_plots.R function
+                # CPquant_plots.R function
                 output$RatioQuantToQual <- plotly::renderPlotly({
                     plot_quanqualratio(Skyline_output_filt)
                 })
@@ -450,7 +481,10 @@ CPquant <- function(...){
                     dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard, CPs_standards_sum_RF))) |>
                     dplyr::mutate(sum_Area = purrr::map_dbl(data, ~sum(.x$Area))) |>
                     dplyr::mutate(sum_deconv_RF = as.numeric(purrr::map(result, purrr::pluck("sum_deconv_RF")))) |>
-                    dplyr::mutate(Concentration = sum_Area/sum_deconv_RF) |>
+#EXPERIMENTAL-START
+                    dplyr::mutate(Sample_Dilution_Factor = purrr::map_dbl(data, ~first(.x$Sample_Dilution_Factor))) |> #since all dilution factor is same for a replicate then take the first
+                    dplyr::mutate(Concentration = sum_Area/sum_deconv_RF*Sample_Dilution_Factor) |>
+#EXPERIMENTAL-END
                     dplyr::mutate(Unit = quantUnit()) |>
                     dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, Batch_Name = names(.x$deconv_coef))))) |>
                     dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>
@@ -503,10 +537,10 @@ CPquant <- function(...){
                                             dplyr::mutate(deconv_coef = deconv_coef * 100) |>
                                             tidyr::pivot_wider(names_from = Batch_Name, values_from = deconv_coef))
                     openxlsx::writeData(wb, "HomologueDistribution",
-                                        test <- deconvolution |>
+                                        deconvolution |>
                                             dplyr::mutate(data = purrr::map2(data, deconv_resolved, ~dplyr::inner_join(.x, .y, by = "Molecule"))) |>
                                             dplyr::mutate(data = purrr::map(data, ~ .x |> dplyr::mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
-                                            dplyr::select(-deconv_resolved) |>
+                                            dplyr::select(-deconv_resolved, -Sample_Dilution_Factor) |>
                                             tidyr::unnest(data) |>
                                             dplyr::mutate(Deconvoluted_Distribution = as.numeric(resolved_distribution)) |>
                                             dplyr::rename(Relative_Distribution = Relative_Area) |>
@@ -568,11 +602,11 @@ CPquant <- function(...){
 
 
                 RECOVERY <- recovery_data |>  # Calculate recovery
+                    dplyr::filter(Molecule_List %in% c("RS", "IS") & !(Molecule_List == "RS" & Molecule != input$chooseRS2)) |> #remove not chosen RS
                     tidyr::pivot_wider(
                         id_cols = c(Replicate_Name, Sample_Type),
                         names_from = Molecule_List,
-                        values_from = Area
-                    ) |>
+                        values_from = Area) |>
                     dplyr::mutate(across(c(IS, RS), ~replace_na(.x, 0)))
 
                 # Calculate QC ratio
@@ -706,7 +740,7 @@ CPquant <- function(...){
                 Sample_distribution <- Samples_Concentration() |>
                     dplyr::mutate(data = purrr::map2(data, deconv_resolved, ~dplyr::inner_join(.x, .y, by = "Molecule"))) |>
                     dplyr::mutate(data = purrr::map(data, ~ .x |> dplyr::mutate(resolved_distribution = deconv_resolved / sum(deconv_resolved)))) |>
-                    dplyr::select(-deconv_resolved) |>
+                    dplyr::select(-deconv_resolved, -Sample_Dilution_Factor) |>
                     tidyr::unnest(data) |>
                     dplyr::mutate(resolved_distribution = as.numeric(resolved_distribution)) |>
                     dplyr::mutate(deconv_resolved = as.numeric(deconv_resolved)) |>
