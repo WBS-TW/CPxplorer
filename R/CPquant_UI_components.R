@@ -41,7 +41,7 @@ defineVariablesUI <- function(Skyline_output){
 ### END FUNCTION
 
 
-defineRecoveryUI <- function(Skyline_output){
+defineCorrectionUI <- function(Skyline_output){
     ###START: Define UI components
 
     # Create the UI components
@@ -50,7 +50,7 @@ defineRecoveryUI <- function(Skyline_output){
             6,
             shiny::selectInput(
                 inputId = "chooseRS", #select which will be the RS
-                label = 'Choose RS',
+                label = 'Choose RS for correction',
                 choices = unique(Skyline_output$Molecule[Skyline_output$Molecule_List == "RS"]),
                 selected = NULL,
                 multiple = FALSE
@@ -69,7 +69,7 @@ defineCalcrecoveryUI <- function(Skyline_output){
             6,
             shiny::selectInput(
                 inputId = "chooseRS2", #select which will be the RS
-                label = 'Choose RS',
+                label = 'Choose RS for recovery',
                 choices = unique(Skyline_output$Molecule[Skyline_output$Molecule_List == "RS"]),
                 selected = NULL,
                 multiple = FALSE
