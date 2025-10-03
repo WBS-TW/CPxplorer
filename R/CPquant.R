@@ -47,6 +47,7 @@ CPquant <- function(...){
                                                                         label = "Calculate recovery? (req QC samples)",
                                                                         choices = c("Yes", "No"),
                                                                         selected = "No"),
+                                                    shiny::uiOutput("calculateRecoveryUI"), # render UI if CalculateRecovery == "Yes"
                                                     shiny::radioButtons("calculateMDL",
                                                                         label = "Calculate MDL? (req blank samples)",
                                                                         choices = c("Yes", "No"),
@@ -187,10 +188,16 @@ CPquant <- function(...){
     ################################################################################
     server <- function(input, output, session) {
 
-        # define RS
+        # define RS for Area correction
         output$recoveryUI <- shiny::renderUI({
             if(input$correctWithRS == "Yes") {
                 defineRecoveryUI(Skyline_output()) }
+        })
+
+        # define RS for recovery
+        output$calculateRecoveryUI <- shiny::renderUI({
+            if(input$calculateRecovery == "Yes") {
+                defineCalcrecoveryUI(Skyline_output()) }
         })
 
         # Create a reactive object that depends on the quanUnit input
@@ -595,11 +602,11 @@ CPquant <- function(...){
 
 
                 RECOVERY <- recovery_data |>  # Calculate recovery
+                    dplyr::filter(Molecule_List %in% c("RS", "IS") & !(Molecule_List == "RS" & Molecule != input$chooseRS2)) |> #remove not chosen RS
                     tidyr::pivot_wider(
                         id_cols = c(Replicate_Name, Sample_Type),
                         names_from = Molecule_List,
-                        values_from = Area
-                    ) |>
+                        values_from = Area) |>
                     dplyr::mutate(across(c(IS, RS), ~replace_na(.x, 0)))
 
                 # Calculate QC ratio
