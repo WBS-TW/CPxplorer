@@ -24,15 +24,13 @@ knitr::opts_chunk$set(
   
 <!-- badges: end -->
 
-CPxplorer is a workflow for targeted mass spectrometric analysis and quantification of polychlorinated alkanes (PCAs) and related analogues. The workflow includes three modules:  
+CPxplorer is a workflow for targeted mass spectrometric batch analysis and rapid quantification of polychlorinated alkanes (PCAs) and related analogues. The workflow includes three modules:  
 - CPions - generates a list of user defined adduct ions of PCAs and other related analogues, allow investigation of mass interferences based on mass resolving power, and export result to Skyline.  
 - Skyline - is a free software for targeted analysis of proteins and small molecules (https://skyline.ms/).  
 - CPquant - imports the integration results from Skyline and performs quantification based on deconvolution from standard mixtures. Also includes important QA/QC features.  
 
-For full details, please see our publication:  
-Streamlining Quantification and Data Harmonization of Polychlorinated Alkanes Using a Platform-Independent Workflow  
-Beloki Ezker I, Yuan B, Borgen A, Liu J, Wang Y, Wang T.  
-Environmental Science & Technology, DOI: 10.1021/acs.est.5c04928  
+For details, please read our publication:  
+Beloki Ezker I, Yuan B, Borgen A, Liu J, Wang Y, Wang T. Streamlining Quantification and Data Harmonization of Polychlorinated Alkanes Using a Platform-Independent Workflow. Environmental Science & Technology, DOI: 10.1021/acs.est.5c04928.  
 
 ### Installation
   
