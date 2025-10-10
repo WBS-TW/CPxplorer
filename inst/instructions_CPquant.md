@@ -25,7 +25,7 @@ The naming of the Batch Name should be: CarbonGroups_StandardName. An underscore
 Example A: C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13 (the hyphen specify the range of carbon chains). 
 This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series.  
 Example B: C14_52%Cl. This standard will only quantify C14 carbon chains. It specifies 52% chlorine content (although this information is not needed for quantification).  
-`Molecule List`: compounds used internal standards are denoted `IS`, recovery standards as `RS`.  
+`Molecule List`: compounds used internal standards are denoted `IS`, recovery standards as `RS` (also called volumetric standard).  
 `Molecule`: PCA homologue group.  
 `Area`: integrated area from Skyline.  
 `Analyte Concentration`: For standards only. This is the standard concentrations/amounts. 
@@ -42,10 +42,11 @@ __Concentration unit__: an optional input to indicate the concentration (or amou
 After loading the excel, allow for the Area plot to show up before pressing the "Proceed" button, otherwise error will occur.  
 
 After loading the data, the user can choose the options:  
+__Choose ion for quantification__: "Quan only" only uses the signal from quantification ion, and "Sum Quan+Qual" use the sum of the Quan and all Qual ions for quantification.  
 __Subtraction by blank?__: If "Yes, by avg area of blanks", then the area for each Molecule will be subtracted with the average area of all blank samples.  
 __Correct with RS area?__: If "Yes", then the area of each Molecule will the normalized to the recovery standard (RS) area for each sample.  
 __Calculate recovery?__: If "Yes", requires samples with the `Sample Type` designated as "Quality Control" that include the spiked concentrations of 
-IS and RS corresponding mount/concentrations.  
+IS and RS corresponding amounts/concentrations.  
 __Calculate MDL?__: If "Yes", then calculates the method detection limits based on blank samples.  
 If no blank subtraction then MDL = avg + 3 * standard deviation of blank samples.  
 If blank subtraction then MDL = 3 * standard deviation of blank samples.  
