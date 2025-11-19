@@ -58,7 +58,7 @@ plot_calibration_curves <- function(CPs_standards, quantUnit) {
                     "Molecule:", Molecule,
                     "<br>Area:", round(Area, 2),
                     "<br>Concentration:", round(Analyte_Concentration, 2),
-                    "<br>R2:", round(rsquared, 3)
+                    "<br>R2:", round(cal_rsquared, 3)
                 ),
                 hoverinfo = 'text'
             ) |>
