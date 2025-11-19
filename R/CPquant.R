@@ -374,13 +374,13 @@ CPquant <- function(...){
                     dplyr::mutate(coef = purrr::map(models, coef)) |>
                     dplyr::mutate(RF = purrr::map_dbl(models, ~ coef(.x)["Analyte_Concentration"]))|> #get the slope which will be the RF
                     dplyr::mutate(intercept = purrr::map(coef, purrr::pluck("(Intercept)"))) |>
-                    dplyr::mutate(rsquared = purrr::map(models, summary)) |> #first create a data frame list with the model
-                    dplyr::mutate(rsquared = purrr::map(rsquared, purrr::pluck("r.squared"))) |> # then pluck only the r.squared value
+                    dplyr::mutate(cal_rsquared = purrr::map(models, summary)) |> #first create a data frame list with the model
+                    dplyr::mutate(cal_rsquared = purrr::map(cal_rsquared, purrr::pluck("r.squared"))) |> # then pluck only the r.squared value
                     dplyr::select(-coef) |>  # remove coef variable since it has already been plucked
-                    tidyr::unnest(c(RF, intercept, rsquared)) |>  #removing the list type for these variables
+                    tidyr::unnest(c(RF, intercept, cal_rsquared)) |>  #removing the list type for these variables
                     dplyr::mutate(RF = if_else(RF < 0, 0, RF)) |> # replace negative RF with 0
-                    dplyr::mutate(rsquared = ifelse(is.nan(rsquared), 0, rsquared)) |>
-                    dplyr::mutate(RF = if_else(rsquared < removeRsquared(), 0, RF)) |> #replace RF with 0 if rsquared is below removeRsquared()
+                    dplyr::mutate(cal_rsquared = ifelse(is.nan(cal_rsquared), 0, cal_rsquared)) |>
+                    dplyr::mutate(RF = if_else(cal_rsquared < removeRsquared(), 0, RF)) |> #replace RF with 0 if rsquared is below removeRsquared()
                     dplyr::ungroup() |>
                     dplyr::group_by(Batch_Name) |> #grouping by the standards
                     dplyr::mutate(Sum_RF_group = sum(RF, na.rm = TRUE)) |> #the sum RF per standard
@@ -429,7 +429,7 @@ CPquant <- function(...){
                         dplyr::mutate(coef = purrr::map(models, coef)) |>
                         dplyr::mutate(RF = purrr::map_dbl(models, ~ coef(.x)["Analyte_Concentration"]))|> #get the slope which will be the RF
                         dplyr::mutate(intercept = purrr::map(coef, purrr::pluck("(Intercept)"))) |>
-                        dplyr::select(Batch_Name, Molecule, Quantification_Group,RF, intercept,  rsquared) |>
+                        dplyr::select(Batch_Name, Molecule, Quantification_Group,RF, intercept,  cal_rsquared) |>
                         tidyr::unnest(c(RF, intercept)) |>
                         mutate(across(where(is.numeric), ~ signif(.x, digits = 4))) |>
                         DT::datatable(options = list(pageLength = 40))
@@ -602,7 +602,7 @@ CPquant <- function(...){
 
 
                 RECOVERY <- recovery_data |>  # Calculate recovery
-                    dplyr::filter(Molecule_List %in% c("RS", "IS") & !(Molecule_List == "RS" & Molecule != input$chooseRS2)) |> #remove not chosen RS
+                    dplyr::filter(Molecule_List %in% c("RS", "IS") & !(Molecule_List == "RS" & Molecule != input$chooseRS)) |> #remove not chosen RS
                     tidyr::pivot_wider(
                         id_cols = c(Replicate_Name, Sample_Type),
                         names_from = Molecule_List,
