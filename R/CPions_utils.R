@@ -100,8 +100,8 @@ calculate_haloperc <- function(Molecule_Formula) {
         dplyr::mutate(MW_atoms = MW*Count) |>
         dplyr::mutate(Halogen = case_when(Atom == "Cl" ~ TRUE,
                                    Atom == "Br" ~ TRUE,
-                                   Atom == "F" ~ TRUE,
-                                   Atom == "I" ~ TRUE,
+                                   #Atom == "F" ~ TRUE, #removed F since only Cl/Br mixtures are used
+                                   #Atom == "I" ~ TRUE, #removed I since only Cl/Br mixtures are used
                                    .default = FALSE))
 
     mw <- sum(result$MW_atoms)
@@ -203,7 +203,7 @@ generateInput_Envipat_BCA <- function(data = data, group = group, adduct_ions = 
 
 #############################################################################
 
-generateInput_Envipat_advanced <- function(data = data, Compounds = Compounds, Adduct_Ion = Adduct_Ion,
+generateInput_Envipat_advanced <- function(data = data, Class = Class, Adduct_Ion = Adduct_Ion,
                                            TP = TP, Charge = Charge) {
 
 
@@ -211,11 +211,12 @@ generateInput_Envipat_advanced <- function(data = data, Compounds = Compounds, A
         dplyr::mutate(Adduct_Ion = Adduct_Ion) |>
         dplyr::mutate(Charge = Charge) |>
         dplyr::mutate(Adduct_Annotation = dplyr::case_when(
-            TP == "None" ~ paste0("[", Compounds, Adduct_Ion, "]", Charge),
-            .default = paste0("[", Compounds, TP, Adduct_Ion, "]", Charge))) |>
+            TP == "None" ~ paste0("[", Class, Adduct_Ion, "]", Charge),
+            .default = paste0("[", Class, TP, Adduct_Ion, "]", Charge))) |>
         dplyr::mutate(Adduct_Annotation = stringr::str_replace(Adduct_Annotation, "\\d$", "")) |>
-        dplyr::mutate(Compound_Class = Compounds) |>
-        dplyr::mutate(TP = TP) |>
+        dplyr::mutate(Compound_Class = Class) |>
+        #dplyr::mutate(TP = TP) |>
+        dplyr::mutate(TP = paste0(TP)) |>
         dplyr::mutate(Cl = dplyr::case_when(
             Adduct_Ion == "-Cl" ~ Cl-1,
             Adduct_Ion == "-HCl" ~ Cl-1,
@@ -536,10 +537,16 @@ getAdduct_BCA <- function(adduct_ions, C, Cl, Br, Clmax, Brmax, threshold) {
 
 #############################################################################
 
-getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, Br, Brmax, threshold) {
+getAdduct_advanced <- function(Class, Adduct_Ion, TP, Charge, C, Cl, Clmax, Br, Brmax, threshold) {
 
     # Regex to extract strings
-    if (Compounds == "PCA") {
+
+    # ion_modes <- stringr::str_extract(adduct_ions, "(?<=\\]).{1}") # Using lookbehind assertion to extract ion mode
+    # fragment_ions <- stringr::str_extract(adduct_ions, "(?<=.{4}).+?(?=\\])") # extract after the 3rd character and before ]
+    # group <- stringr::str_extract(adduct_ions, "(?<=\\[)[A-Za-z]+(?=[+-])") # Using positive lookbehind precedes a [ ; matches on or more letters ; positive lookahead of either + or -
+    #
+
+    if (Class == "PCA") {
         data <- crossing(C, Cl) |> #set combinations of C and Cl
             dplyr::filter(C >= Cl) |> # filter so Cl dont exceed C atoms
             dplyr::filter(Cl <= Clmax) |> # limit chlorine atoms.
@@ -565,7 +572,7 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
                 TP == "-2H+O" ~ paste0("C", C, "H", H, "Cl", Cl,"O"),
                 TP == "-H+SO4H" ~ paste0("C", C, "H", H, "Cl", Cl, "SO4")))
 
-    } else if (Compounds == "PCO") {
+    } else if (Class == "PCO") {
         data <- crossing(C, Cl) |>
             dplyr::filter(C >= Cl) |>
             dplyr::filter(Cl <= Clmax) |>
@@ -591,7 +598,7 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
                 TP == "-2H+O" ~ paste0("C", C, "H", H, "Cl", Cl,"O"),
                 TP == "-H+SO4H" ~ paste0("C", C, "H", H, "Cl", Cl, "SO4")))
 
-    } else if (Compounds == "BCA") {
+    } else if (Class == "BCA") {
         data <- tidyr::crossing(C, Cl, Br) |>  #get combinations of C, Cl, Br
             dplyr::filter(C >= Cl) |>  # filter so Cl dont exceed C atoms
             dplyr::filter(Cl <= Clmax) |>  # limit chlorine atoms.
@@ -613,8 +620,6 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
                 TP == "-2Cl+2OH" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "O2"),
                 TP == "-2H+O" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "O"),
                 TP == "-H+SO4H" ~ paste0("C", C, "H", H, "Cl", Cl, "Br", Br, "SO4")))
-
-
     }
 
 
@@ -630,7 +635,7 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
 
 
     #generate input data for envipat based on adduct ions
-    data <- generateInput_Envipat_advanced(data = data, Compounds = Compounds, Adduct_Ion = Adduct_Ion, TP = TP, Charge = Charge)
+    data <- generateInput_Envipat_advanced(data = data, Class = Class, Adduct_Ion = Adduct_Ion, TP = TP, Charge = Charge)
 
     # Remove formula without Cl after adduct formations
     data <- data |>
@@ -704,7 +709,7 @@ getAdduct_advanced <- function(Compounds, Adduct_Ion, TP, Charge, C, Cl, Clmax, 
     }
 
 
-    # combine all elements in list list to get dataframe
+    # combine all elements in list to get dataframe
     data_ls <- do.call(rbind, data_ls)
 
 

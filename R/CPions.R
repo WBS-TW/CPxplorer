@@ -122,7 +122,7 @@ ui <- shiny::navbarPage(
                     shiny::fluidPage(shiny::sidebarLayout(
                         shiny::sidebarPanel(
                             shiny::numericInput("MSresolution", "MS Resolution", value = 20000, min = 100, max = 5000000),
-                            shiny::radioButtons("interfere_NormAdv", label = "From Normal or Advanced settings", choices = c("normal", "advanced"), selected = "normal"),
+                            shiny::radioButtons("interfere_mode", label = "From Normal or Advanced settings", choices = c("normal", "advanced"), selected = "normal"),
                             shiny::actionButton("go2", "Calculate", width = "100%"),
                             width = 2
                         ),
@@ -140,7 +140,7 @@ ui <- shiny::navbarPage(
                             shiny::radioButtons("QuantIon", label = "Use as Quant Ion", choices = c("Most intense")),
                             #shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz", "IonFormula")),
                             shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz")),
-                            shiny::radioButtons("skyline_NormAdv", label = "From Normal or Advanced settings", choices = c("normal", "advanced"), selected = "normal"),
+                            shiny::radioButtons("skyline_mode", label = "From Normal or Advanced settings", choices = c("normal", "advanced"), selected = "normal"),
                             shiny::actionButton("go3", "Transition List", width = "100%"),
                             width = 4
                         ),
@@ -190,7 +190,7 @@ server = function(input, output, session) {
 
 
     # ADVANCED
-    selectedCompounds_adv <- shiny::eventReactive(input$go_adv, {as.character((input$Compclass_adv))})
+    selectedClass_adv <- shiny::eventReactive(input$go_adv, {as.character((input$Compclass_adv))})
     selectedAdducts_adv <- shiny::eventReactive(input$go_adv, {as.character(input$Adducts_adv)})
     selectedCharge_adv <- shiny::eventReactive(input$go_adv, {as.character((input$Charge_adv))})
     selectedTP_adv <- shiny::eventReactive(input$go_adv, {as.character((input$TP_adv))})
@@ -278,7 +278,7 @@ server = function(input, output, session) {
         on.exit(progress$close())
         progress$set(message = "Calculating", value = 0)
 
-        Compounds <- as.character(selectedCompounds_adv())
+        Class <- as.character(selectedClass_adv())
         Adducts <- as.character(selectedAdducts_adv())
         Charge <- as.character(selectedCharge_adv())
         TP <- as.character(selectedTP_adv())
@@ -286,14 +286,14 @@ server = function(input, output, session) {
         # function to get adducts or fragments
         CP_allions <- data.frame(Molecule_Formula = character(), Molecule_Halo_perc = double())
 
-        # nested for loop to get all combinations of Compounds, Adducts, TP
-        for (i in seq_along(Compounds)) {
-            progress$inc(1/length(Compounds), detail = paste0("Compound Class: ", Compounds[i], " . Please wait.."))
+        # nested for loop to get all combinations of Class, Adducts, TP
+        for (i in seq_along(Class)) {
+            progress$inc(1/length(Class), detail = paste0("Compound Class: ", Class[i], " . Please wait.."))
 
             for (j in seq_along(Adducts)) {
 
                 for (k in seq_along(TP)) {
-                    input <- getAdduct_advanced(Compounds = Compounds[i], Adduct_Ion = Adducts[j], TP = TP[k], Charge = Charge,
+                    input <- getAdduct_advanced(Class = Class[i], Adduct_Ion = Adducts[j], TP = TP[k], Charge = Charge,
                                                 C = C_adv(), Cl = Cl_adv(), Clmax = Clmax_adv(), Br = Br_adv(), Brmax = Brmax_adv(),
                                                 threshold = threshold_adv())
                     CP_allions <- dplyr::full_join(CP_allions, input)
@@ -342,9 +342,9 @@ server = function(input, output, session) {
 
     shiny::observeEvent(input$go2, {
 
-        if (input$interfere_NormAdv == "normal") {
+        if (input$interfere_mode == "normal") {
             CP_allions_compl2 <- CP_allions_glob()}
-        else if (input$interfere_NormAdv == "advanced") {CP_allions_compl2 <- CP_allions_glob_adv()}
+        else if (input$interfere_mode == "advanced") {CP_allions_compl2 <- CP_allions_glob_adv()}
 
         CP_allions_compl2 <- CP_allions_compl2 |>
             dplyr::arrange(`m/z`) |>
@@ -508,7 +508,7 @@ server = function(input, output, session) {
 
 if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not compatible with [M-Cl]- (adduct not available in current skyline)
 
-    if (input$skyline_NormAdv == "advanced") {
+    if (input$skyline_mode == "advanced") {
         CP_allions_skyline <- CP_allions_glob_adv() |>
             dplyr::mutate(`Molecule List Name` = dplyr::case_when(
                 Compound_Class == "PCA" & TP == "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
@@ -538,7 +538,7 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
                           `Explicit Retention Time`,
                           `Explicit Retention Time Window`,
                           Note)
-    } else if (input$skyline_NormAdv == "normal") {
+    } else if (input$skyline_mode == "normal") {
         CP_allions_skyline <- CP_allions_glob() |>
             dplyr::mutate(`Molecule List Name` = dplyr::case_when(
                 stringr::str_detect(Adduct, "(?<=.)PCA(?=.)") == TRUE ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
