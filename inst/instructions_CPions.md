@@ -91,7 +91,19 @@ __reslag & reslead (prev and next)__: the MS resolution needed to resolve previo
 
 This will output a transition list for import in Skyline for integration and quantification. User need to indicate either the _Normal setting_ or _Advanced setting_ as input.  
 
-  
+__Molecule List Name__: specifies how the compounds are grouped in Skyline. In this case, the naming is by: Compound Class, Carbon Chain Length, Transformation Product (if present). The user can freely change this in the exported spreadsheet for their own needs.  
+__Molecule Name__: is the chemical formula of the neutral compound (without adduct/fragment). Beware: Some transformation products can give exactly the same molecular formula and m/z. For example PCA-Cl+OH will be exactly same as PCA-H+OH with one less chlorine atom. 
+C10H18Cl4(-Cl+OH) -> C10H19Cl3O and C10H19Cl3(-H+OH) -> C10H19Cl3O.  
+__Precursor Charge__: is the chosen ionization mode.  
+__Label Type__: Quan is the highest intensity isotopologue of each Compound. Can be changed in the exported spreadsheet.  
+__Precursor m/z)__: is the m/z after ionization and adduct/fragment formation.  
+__Explicit Retention Time/Window__: used by Skyline to integrate peaks. Can be left empty.  
+__Note__: Internal information on ion formula and isotopic abundance. DO NOT change this (used by CPquant).  
+
+
+
+
+
   
 
 
