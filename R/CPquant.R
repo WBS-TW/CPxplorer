@@ -246,15 +246,15 @@ CPquant <- function(...){
 
             progress$set(value = 0.8, detail = "Applying corrections")
 
-#EXPERIMENTAL-START
-            # Sum all area if quanSum == "Sum Quan+Qual"
+
+            # Sum all area of ions belong to same homologue group if quanSum == "Sum Quan+Qual"
             if (input$quanSum == "Sum Quan+Qual") {
                 df <- df |>
                     dplyr::group_by(Replicate_Name, Molecule_List, Molecule) |>
                     dplyr::mutate(Area = sum(Area)) |> #sums Quan and all Qual ions (all ions for the same Molecule will now have same Area)
                     dplyr::ungroup()
             }
-#EXPERIMENTAL-END
+
 
             # Normalize data based on 'Correct with RS' input
             if (input$correctWithRS == "Yes" && any(df$Molecule_List == "RS")) {
@@ -477,14 +477,11 @@ CPquant <- function(...){
 
                 # This performs deconvolution on all mixtures together
                 deconvolution <- combined_sample |>
-                    #perform_deconvolution on only Relative_Area in the nested data frame
-                    dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard, CPs_standards_sum_RF))) |>
+                    dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard, CPs_standards_sum_RF))) |> #perform_deconvolution on only Relative_Area in the nested data frame
                     dplyr::mutate(sum_Area = purrr::map_dbl(data, ~sum(.x$Area))) |>
                     dplyr::mutate(sum_deconv_RF = as.numeric(purrr::map(result, purrr::pluck("sum_deconv_RF")))) |>
-#EXPERIMENTAL-START
                     dplyr::mutate(Sample_Dilution_Factor = purrr::map_dbl(data, ~first(.x$Sample_Dilution_Factor))) |> #since all dilution factor is same for a replicate then take the first
                     dplyr::mutate(Concentration = sum_Area/sum_deconv_RF*Sample_Dilution_Factor) |>
-#EXPERIMENTAL-END
                     dplyr::mutate(Unit = quantUnit()) |>
                     dplyr::mutate(deconv_coef = purrr::map(result, ~as_tibble(list(deconv_coef = .x$deconv_coef, Batch_Name = names(.x$deconv_coef))))) |>
                     dplyr::mutate(deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared")))) |>

@@ -88,7 +88,7 @@ ui <- shiny::navbarPage(
                                         size = NULL),
                             selectInput("Adducts_adv", "Which adduct",
                                         choices = c("-Cl", "-H", "-HCl", "-Cl-HCl","-Cl-2HCl", "-Cl-3HCl", "-2Cl-HCl", "+Cl","+Br"),
-                                        selected = "-Cl",
+                                        selected = "+Cl",
                                         multiple = TRUE,
                                         selectize = TRUE,
                                         width = NULL,
