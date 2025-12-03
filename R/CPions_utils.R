@@ -8,7 +8,8 @@
 
 
 #############################################################################
-create_formula <- function(C, H, Cl, Br, S, O) {
+# Fluorine should be written as Fl in argument to avoid confusion with FALSE?
+create_formula <- function(C, H, Cl, Br, S, O, F) {
     formula <- paste0(
         dplyr::case_when(C < 1 ~ paste0(""),
                   C == 1 ~ paste0("C"),
@@ -27,7 +28,10 @@ create_formula <- function(C, H, Cl, Br, S, O) {
                   S > 1  ~ paste0("S", S)),
         dplyr::case_when(O < 1 ~ paste0(""),
                   O == 1 ~ paste0("O"),
-                  O > 1  ~ paste0("O", O))
+                  O > 1  ~ paste0("O", O)),
+        dplyr::case_when(F < 1 ~ paste0(""),
+                         F == 1 ~ paste0("F"),
+                         F > 1  ~ paste0("F", F))
     )
     # Remove any leading or trailing spaces
     stringr::str_trim(formula)
@@ -38,7 +42,7 @@ create_formula <- function(C, H, Cl, Br, S, O) {
 
 create_elements <- function(data) {
     # String vector
-    string_vector <- c("m/z", "abundance", "12C", "13C", "1H", "2H","35Cl", "37Cl", "79Br", "81Br", "16O", "17O", "18O", "32S", "33S", "34S", "36S")
+    string_vector <- c("m/z", "abundance", "12C", "13C", "1H", "2H","35Cl", "37Cl", "79Br", "81Br", "16O", "17O", "18O", "32S", "33S", "34S", "36S", "19F")
 
     # Identify columns in the string vector that are not in the data frame
     new_columns <- base::setdiff(string_vector, names(data))
@@ -53,7 +57,7 @@ create_elements <- function(data) {
 
 #############################################################################
 
-create_formula_isotope <- function(`12C`,`13C`, `1H`,`2H`, `35Cl`, `37Cl`, `79Br`, `81Br`, `16O`, `17O`, `18O`, `32S`, `33S`, `34S`, `36S`){
+create_formula_isotope <- function(`12C`,`13C`, `1H`,`2H`, `35Cl`, `37Cl`, `79Br`, `81Br`, `16O`, `17O`, `18O`, `32S`, `33S`, `34S`, `36S`, `19F`){
     formula_iso <- paste0(
         ifelse(`12C` > 0, paste0("[12C]", `12C`), ""),
         ifelse(`13C` > 0, paste0("[13C]", `13C`), ""),
@@ -69,7 +73,8 @@ create_formula_isotope <- function(`12C`,`13C`, `1H`,`2H`, `35Cl`, `37Cl`, `79Br
         ifelse(`32S` > 0, paste0("[32S]", `32S`), ""),
         ifelse(`33S` > 0, paste0("[33S]", `33S`), ""),
         ifelse(`34S` > 0, paste0("[34S]", `34S`), ""),
-        ifelse(`36S` > 0, paste0("[36S]", `36S`), "")
+        ifelse(`36S` > 0, paste0("[36S]", `36S`), ""),
+        ifelse(`19F` > 0, paste0("[19F]", `19F`), "")
     )
     # Remove any leading or trailing spaces
     stringr::str_trim(formula_iso)
@@ -81,7 +86,7 @@ create_formula_isotope <- function(`12C`,`13C`, `1H`,`2H`, `35Cl`, `37Cl`, `79Br
 calculate_haloperc <- function(Molecule_Formula) {
     # Regular expression to extract atoms and their counts
     pattern <- "([A-Z][a-z]*)(\\d*)"
-    mwtable <- data.frame(Atom = c("H", "C", "O", "S", "Cl", "Br"), MW = c(1.00794, 12.011, 15.9994, 32.066, 35.4527, 79.904))
+    mwtable <- data.frame(Atom = c("H", "C", "O", "S", "Cl", "Br", "F"), MW = c(1.00794, 12.011, 15.9994, 32.066, 35.4527, 79.904, 18.9984))
 
     # Extract matches
     matches <- stringr::str_match_all(Molecule_Formula, pattern)[[1]]
@@ -238,6 +243,7 @@ generateInput_Envipat_advanced <- function(data = data, Class = Class, Adduct_Io
             .default = H)) |>
         dplyr::mutate(Br = ifelse(Compound_Class == "BCA", Br, 0)) |>
         dplyr::mutate(Br = ifelse(Adduct_Ion == "+Br", Br+1, Br)) |>
+        dplyr::mutate(`F` = ifelse(Adduct_Ion == "+F", `F`+1, `F`)) |>
         dplyr::mutate(O = dplyr::case_when(
             TP == "-H+OH" ~ 1,
             TP == "-2H+2OH" ~ 2,
@@ -250,11 +256,11 @@ generateInput_Envipat_advanced <- function(data = data, Class = Class, Adduct_Io
         dplyr::mutate(S = dplyr::case_when(
             TP == "-H+SO4H" ~ 1,
             .default = 0)) |>
-        dplyr::mutate(Adduct_Formula = create_formula(C, H, Cl, Br, S, O))|>
+        dplyr::mutate(Adduct_Formula = create_formula(C, H, Cl, Br, S, O, `F`))|>
         dplyr::rowwise() |>
         dplyr::mutate(Molecule_Halo_perc = calculate_haloperc(Molecule_Formula)) |>
         dplyr::ungroup() |>
-        dplyr::select(Molecule_Formula, Molecule_Halo_perc, Charge, Compound_Class, TP, Adduct_Ion, Adduct_Annotation, Adduct_Formula, C, H, Cl, Br, S, O)
+        dplyr::select(Molecule_Formula, Molecule_Halo_perc, Charge, Compound_Class, TP, Adduct_Ion, Adduct_Annotation, Adduct_Formula, C, H, Cl, Br, S, O, `F`)
 
     return(data)
 }
@@ -672,7 +678,7 @@ getAdduct_advanced <- function(Class, Adduct_Ion, TP, Charge, C, Cl, Clmax, Br, 
 
         dat <- create_elements(dat) |>
             dplyr::mutate(Isotope_Formula = create_formula_isotope(`12C`,`13C`, `1H`, `2H`, `35Cl`, `37Cl`, `79Br`, `81Br`,
-                                                            `16O`, `17O`, `18O`, `32S`, `33S`, `34S`, `36S`)) |>
+                                                            `16O`, `17O`, `18O`, `32S`, `33S`, `34S`, `36S`, `19F`)) |>
             dplyr::mutate(Molecule_Formula = Molecule_Formula) |>
             dplyr::mutate(Molecule_Halo_perc = Molecule_Halo_perc) |>
             dplyr::mutate(Compound_Class = Compound_Class) |>
