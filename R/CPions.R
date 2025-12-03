@@ -175,6 +175,7 @@ server = function(input, output, session) {
 
     # GENERAL
     MSresolution <- shiny::eventReactive(input$go2, {as.integer(input$MSresolution)})
+    CP_allions_compl2 <- shiny::reactiveVal(NULL) # save as global object after calculate the interfering ions for skyline
 
     # NORMAL
     selectedAdducts <- shiny::eventReactive(input$go1, {as.character(input$Adducts)})
@@ -205,6 +206,8 @@ server = function(input, output, session) {
     Brmax_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$Brmax_adv)})
     threshold_adv <- shiny::eventReactive(input$go_adv, {as.integer(input$threshold_adv)})
     ISRS_input_adv <- shiny::eventReactive(input$go_adv, {as.character(input$ISRS_input_adv)})
+
+
 
 
     #----Outputs_Start
@@ -340,14 +343,13 @@ server = function(input, output, session) {
     ##################################################################
     ############ go2: Calculates the interfering ions tab ############
     ##################################################################
-    CP_allions_compl2 <- reactiveVal(NULL)
     shiny::observeEvent(input$go2, {
 
 
         CP_allions_interfere <- if (input$interfere_mode == "normal") {
-            CP_allions_glob()       # assuming this is reactive or a function returning a data.frame
+            CP_allions_glob()
         } else {
-            CP_allions_glob_adv()   # likewise
+            CP_allions_glob_adv()
         }
 
 
@@ -528,7 +530,6 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
                 stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
             dplyr::rename(`Molecule Name` = Molecule_Formula) |>
             dplyr::mutate(`Precursor m/z` = `m/z`) |>
-            #dplyr::mutate(Note = Adduct_Annotation) |>
             dplyr::mutate(Note = paste0("{", Adduct_Annotation, "}", "{", Rel_ab, "}")) |>
             dplyr::rename(`Precursor Charge` = Charge) |>
             tibble::add_column(`Explicit Retention Time` = NA) |>
@@ -536,7 +537,6 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
             dplyr::group_by(`Molecule Name`) |>
             dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
             dplyr::ungroup() |>
-            #dplyr::rename(`Molecule Note` = Rel_ab) |> #rename Rel_ab to Molecular Note to be able to add into Skyline
             dplyr::select(`Molecule List Name`,
                           `Molecule Name`,
                           `Precursor Charge`,
@@ -555,7 +555,6 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
                 stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
             dplyr::rename(`Molecule Name` = Molecule_Formula) |>
             dplyr::mutate(`Precursor m/z` = `m/z`) |>
-            #dplyr::rename(Note = Adduct) |>
             dplyr::mutate(Note = paste0("{", Adduct, "}", "{", Rel_ab, "}")) |>
             dplyr::rename(`Precursor Charge` = Charge) |>
             tibble::add_column(`Explicit Retention Time` = NA) |>
@@ -563,7 +562,6 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
             dplyr::group_by(`Molecule Name`) |>
             dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
             dplyr::ungroup() |>
-            #dplyr::rename(`Molecule Note` = Rel_ab) |> #rename Rel_ab to Molecular Note to be able to add into Skyline
             dplyr::select(`Molecule List Name`,
                           `Molecule Name`,
                           `Precursor Charge`,
@@ -643,10 +641,6 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
             dplyr::ungroup() |>
             dplyr::mutate(Note = dplyr::case_when(interference == FALSE ~ paste0("{", Adduct, "}", "{", Rel_ab, "}"),
                                            interference == TRUE ~ paste0("{", Adduct, "}", "{", Rel_ab, "}", "[INTERFERENCE]")))|>
-            # dplyr::group_by(`Molecule Name`) |>
-            # dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
-            # dplyr::ungroup() |>
-            # dplyr::mutate(Note = paste0("{", Adduct, "}", "{", Rel_ab, "}")) |>dplyr::rename(`Precursor Charge` = Charge) |>
             dplyr::select(`Molecule List Name`,
                           `Molecule Name`,
                           `Precursor Charge`,
