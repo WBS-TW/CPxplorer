@@ -90,6 +90,9 @@ __reslag & reslead (prev and next)__: the MS resolution needed to resolve previo
 ## Skyline tab  
 
 This will output a transition list for import in Skyline for integration and quantification. User need to indicate either the _Normal setting_ or _Advanced setting_ as input.  
+__Use as Quant Ion__: If _"Most intense"_ then the ion with highest intensity (100%) will be used as the quantification ion. 
+The __Interference ions__ calculation MUST be performed before choosing the _"Most intense after interference filtering"_. Ions that have mass interference at the set MS Resolution
+will be removed. If no ions are left for a Molecule Name after filtering, then the most intense ions are still kept but [INTERFERENCE] will be added to the Note column.  
 
 __Molecule List Name__: specifies how the compounds are grouped in Skyline. In this case, the naming is by: Compound Class, Carbon Chain Length, Transformation Product (if present). The user can freely change this in the exported spreadsheet for their own needs.  
 __Molecule Name__: is the chemical formula of the neutral compound (without adduct/fragment). Beware: Some transformation products can give exactly the same molecular formula and m/z. For example PCA-Cl+OH will be exactly same as PCA-H+OH with one less chlorine atom. 
