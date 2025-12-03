@@ -1,12 +1,16 @@
 
 # Introduction
-This app generates a list of mass-over-charges (m/z) for PCAs and structural analogues to investigate potential overlapping m/z during mass spectrometric analysis.
-It utilizes the isopattern function of the R package Envipat (Loos et al, Analytical Chemistry, 2015, 87, 5738-5744) to generate isotopic patterns from chemical formula and adducts. The app will also generate a list of m/z for selected adducts which can be used as a transition list in the Skyline software for quantification purposes.
-Several adducts have been included and more can be added upon request.  
+This app generates a list of mass-over-charges (m/z) for PCAs and structural analogues to investigate potential overlapping m/z during mass spectrometric analysis.  
+  
+Please refer to our paper: Beloki Ezker et al. Streamlining Quantification and Data Harmonization of Polychlorinated Alkanes Using a Platform-Independent Workflow. Environ. Sci. Technol. 2025, doi/10.1021/acs.est.5c04928.  
+  
+This app utilizes the isopattern function of the R package Envipat (Loos et al, Analytical Chemistry, 2015, 87, 5738-5744) to generate isotopic patterns from chemical formula and adducts. The app will also generate a list of m/z for selected adducts which can be used as a transition list in the Skyline software for quantification purposes.
+Several adducts have been included and more can be added upon request (https://github.com/WBS-TW/CPxplorer/issues).  
   
 ## Instructions    
 Choose the parameters in the _Normal settings_ or _Advanced settings_ tab. Press submit and wait for calculation to finish. A table will then be generated with all ions that conform with the initial setting parameters. The table can be exported to excel by clicking on the "Excel" button at the top.  
-The _Interfering ions_ tab can be used to check for ions that interfer with each other at the set resolution of the mass spectrometer. Default is set to R=60,000. The plots and tables are interactive and the user can filter the _"Interference at MS res?"_ by clicking on _FALSE_ on the plot legend (and thereby keeping all _TRUE_ ions, which will remove all ions that can be resolved by the set MS resolution).  
+The _Interfering ions_ tab can be used to check for ions that interfer with each other at the estimated resolution of the mass spectrometer. Default is set to R=20,000. 
+The plots and tables are interactive and the user can filter the _"Interference at MS res?"_ by clicking on _FALSE_ on the plot legend (and thereby keeping all _TRUE_ ions, which will remove all ions that can be resolved by the set MS resolution).  
 The generated ion tables can be exported using the Skyline tab for data processing of MS data.  
 
 
@@ -90,6 +94,9 @@ __reslag & reslead (prev and next)__: the MS resolution needed to resolve previo
 ## Skyline tab  
 
 This will output a transition list for import in Skyline for integration and quantification. User need to indicate either the _Normal setting_ or _Advanced setting_ as input.  
+__Use as Quant Ion__: If _"Most intense"_ then the ion with highest intensity (100%) will be used as the quantification ion. 
+The __Interference ions__ calculation MUST be performed before choosing the _"Most intense after interference filtering"_. Ions that have mass interference at the set MS Resolution
+will be removed. If no ions are left for a Molecule Name after filtering, then the most intense ions are still kept but [INTERFERENCE] will be added to the Note column.  
 
 __Molecule List Name__: specifies how the compounds are grouped in Skyline. In this case, the naming is by: Compound Class, Carbon Chain Length, Transformation Product (if present). The user can freely change this in the exported spreadsheet for their own needs.  
 __Molecule Name__: is the chemical formula of the neutral compound (without adduct/fragment). Beware: Some transformation products can give exactly the same molecular formula and m/z. For example PCA-Cl+OH will be exactly same as PCA-H+OH with one less chlorine atom. 

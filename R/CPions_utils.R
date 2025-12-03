@@ -364,7 +364,8 @@ getAdduct_normal <- function(adduct_ions, C, Cl, Clmax, threshold) {
                     `13C` + (`37Cl`+`81Br`)*2 == 18 ~ "+18",
                     `13C` + (`37Cl`+`81Br`)*2 == 19 ~ "+19",
                     `13C` + (`37Cl`+`81Br`)*2 == 20 ~ "+20")) |>
-                dplyr::mutate(Adduct = paste0(adduct_ions, " ", Isotopologue)) |>
+                #dplyr::mutate(Adduct = paste0(adduct_ions, " ", Isotopologue)) |>
+                dplyr::mutate(Adduct = paste0(adduct_ions)) |>
                 dplyr::rename(Rel_ab = abundance) |>
                 dplyr::select(Molecule_Formula, Compound_Class, Halo_perc, Charge, Adduct, Adduct_Formula, Isotopologue, Isotope_Formula, `m/z`, Rel_ab, `12C`, `13C`, `1H`, `2H`, `35Cl`, `37Cl`, `79Br`, `81Br`)
             data_ls[[j]] <- dat
@@ -409,7 +410,8 @@ getAdduct_normal <- function(adduct_ions, C, Cl, Clmax, threshold) {
                     `13C` + (`37Cl`)*2 == 18 ~ "+18",
                     `13C` + (`37Cl`)*2 == 19 ~ "+19",
                     `13C` + (`37Cl`)*2 == 20 ~ "+20")) |>
-                dplyr::mutate(Adduct = paste0(adduct_ions, " ", Isotopologue)) |>
+                #dplyr::mutate(Adduct = paste0(adduct_ions, " ", Isotopologue)) |>
+                dplyr::mutate(Adduct = paste0(adduct_ions)) |>
                 dplyr::rename(Rel_ab = abundance) |>
                 dplyr::select(Molecule_Formula, Compound_Class, Halo_perc, Charge, Adduct, Adduct_Formula, Isotopologue, Isotope_Formula, `m/z`, Rel_ab, `12C`, `13C`, `1H`, `2H`, `35Cl`, `37Cl`)
             data_ls[[j]] <- dat
@@ -524,7 +526,8 @@ getAdduct_BCA <- function(adduct_ions, C, Cl, Br, Clmax, Brmax, threshold) {
                 `13C` + (`37Cl`+`81Br`)*2 == 18 ~ "+18",
                 `13C` + (`37Cl`+`81Br`)*2 == 19 ~ "+19",
                 `13C` + (`37Cl`+`81Br`)*2 == 20 ~ "+20")) |>
-            dplyr::mutate(Adduct = paste0(adduct_ions, " ", Isotopologue)) |>
+            #dplyr::mutate(Adduct = paste0(adduct_ions, " ", Isotopologue)) |>
+            dplyr::mutate(Adduct = paste0(adduct_ions)) |>
             dplyr::rename(Rel_ab = abundance) |>
             dplyr::select(Molecule_Formula, Compound_Class, Halo_perc, Charge, Adduct, Adduct_Formula, Isotopologue, Isotope_Formula, `m/z`, Rel_ab, `12C`, `13C`, `1H`, `2H`, `35Cl`, `37Cl`, `79Br`, `81Br`)
         data_ls[[j]] <- dat
