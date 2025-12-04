@@ -359,15 +359,27 @@ server = function(input, output, session) {
             dplyr::mutate(difflead = round(abs(`m/z` - lead(`m/z`, default = last(`m/z`))), 6)) |>
             dplyr::mutate(reslag = round(`m/z`/difflag, 0)) |>
             dplyr::mutate(reslead = round(`m/z`/difflead, 0)) |>
-            dplyr::mutate(interference = case_when(
-                difflag == 0 | difflead == 0 ~ TRUE, # need to keep this true to make same mass ions TRUE
+            mutate(interference = case_when(
+                # Edge rows:
+                row_number() == 1 ~ reslead > as.integer(MSresolution()),
+                row_number() == n() ~ reslag > as.integer(MSresolution()),
+
+                # Original logic for the middle rows:
+                difflag == 0 | difflead == 0 ~ TRUE,  # keep same-mass ions TRUE
                 reslag >= as.integer(MSresolution()) | reslead >= as.integer(MSresolution()) ~ TRUE,
-                reslag < as.integer(MSresolution()) & reslead < as.integer(MSresolution()) ~ FALSE
-            )
-            )
-        # change first and last row to false since their lead/lag is zero
-        CP_allions_interfere$interference[1] <- FALSE
-        CP_allions_interfere$interference[length(CP_allions_interfere$interference)] <- FALSE
+                reslag <  as.integer(MSresolution()) &  reslead <  as.integer(MSresolution()) ~ FALSE,
+                # Fallback (optional): if none of the above match
+                TRUE ~ FALSE))
+
+        #     dplyr::mutate(interference = case_when(
+        #         difflag == 0 | difflead == 0 ~ TRUE, # need to keep this true to make same mass ions TRUE
+        #         reslag >= as.integer(MSresolution()) | reslead >= as.integer(MSresolution()) ~ TRUE,
+        #         reslag < as.integer(MSresolution()) & reslead < as.integer(MSresolution()) ~ FALSE
+        #     )
+        #     )
+        # # change first and last row to false since their lead/lag is zero
+        # CP_allions_interfere$interference[1] <- FALSE
+        # CP_allions_interfere$interference[length(CP_allions_interfere$interference)] <- FALSE
 
         CP_allions_compl2(CP_allions_interfere)
 
@@ -541,7 +553,7 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
                           `Molecule Name`,
                           `Precursor Charge`,
                           `Label Type`,
-                          `Precursor m/z` = `m/z`,
+                          `Precursor m/z`,
                           `Explicit Retention Time`,
                           `Explicit Retention Time Window`,
                           Note)
@@ -566,7 +578,7 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
                           `Molecule Name`,
                           `Precursor Charge`,
                           `Label Type`,
-                          `Precursor m/z` = `m/z`,
+                          `Precursor m/z`,
                           `Explicit Retention Time`,
                           `Explicit Retention Time Window`,
                           Note)
@@ -601,13 +613,31 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
             }) %>%
             dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
             dplyr::ungroup() |>
+            dplyr::arrange(`Precursor m/z`) |>
+            dplyr::mutate(difflag = round(abs(`Precursor m/z` - lag(`Precursor m/z`, default = first(`Precursor m/z`))),6)) |>
+            dplyr::mutate(difflead = round(abs(`Precursor m/z` - lead(`Precursor m/z`, default = last(`Precursor m/z`))), 6)) |>
+            dplyr::mutate(reslag = round(`Precursor m/z`/difflag, 0)) |>
+            dplyr::mutate(reslead = round(`Precursor m/z`/difflead, 0)) |>
+            mutate(interference = case_when(
+                # Edge rows:
+                row_number() == 1 ~ reslead > as.integer(MSresolution()),
+                row_number() == n() ~ reslag > as.integer(MSresolution()),
+
+                # Original logic for the middle rows:
+                difflag == 0 | difflead == 0 ~ TRUE,  # keep same-mass ions TRUE
+                reslag >= as.integer(MSresolution()) | reslead >= as.integer(MSresolution()) ~ TRUE,
+                reslag <  as.integer(MSresolution()) &  reslead <  as.integer(MSresolution()) ~ FALSE,
+
+                # Fallback (optional): if none of the above match
+                TRUE ~ FALSE)) |>
             dplyr::mutate(Note = dplyr::case_when(interference == FALSE ~ paste0("{", Adduct_Annotation, "}", "{", Rel_ab, "}"),
                                            interference == TRUE ~ paste0("{", Adduct_Annotation, "}", "{", Rel_ab, "}", "[INTERFERENCE]")))|>
+            dplyr::arrange(`Molecule List Name`, `Molecule Name`, `Precursor m/z`) |>
             dplyr::select(`Molecule List Name`,
                           `Molecule Name`,
                           `Precursor Charge`,
                           `Label Type`,
-                          `Precursor m/z` = `m/z`,
+                          `Precursor m/z`,
                           `Explicit Retention Time`,
                           `Explicit Retention Time Window`,
                           Note)
@@ -639,13 +669,32 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
             }) %>%
             dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
             dplyr::ungroup() |>
+            #new calculation of reslag and reslead since some m/z might be removed
+            dplyr::arrange(`Precursor m/z`) |>
+            dplyr::mutate(difflag = round(abs(`Precursor m/z` - lag(`Precursor m/z`, default = first(`Precursor m/z`))),6)) |>
+            dplyr::mutate(difflead = round(abs(`Precursor m/z` - lead(`Precursor m/z`, default = last(`Precursor m/z`))), 6)) |>
+            dplyr::mutate(reslag = round(`Precursor m/z`/difflag, 0)) |>
+            dplyr::mutate(reslead = round(`Precursor m/z`/difflead, 0)) |>
+            mutate(interference = case_when(
+                # Edge rows:
+                row_number() == 1 ~ reslead > as.integer(MSresolution()),
+                row_number() == n() ~ reslag > as.integer(MSresolution()),
+
+                # Original logic for the middle rows:
+                difflag == 0 | difflead == 0 ~ TRUE,  # keep same-mass ions TRUE
+                reslag >= as.integer(MSresolution()) | reslead >= as.integer(MSresolution()) ~ TRUE,
+                reslag <  as.integer(MSresolution()) &  reslead <  as.integer(MSresolution()) ~ FALSE,
+
+                # Fallback (optional): if none of the above match
+                TRUE ~ FALSE)) |>
             dplyr::mutate(Note = dplyr::case_when(interference == FALSE ~ paste0("{", Adduct, "}", "{", Rel_ab, "}"),
                                            interference == TRUE ~ paste0("{", Adduct, "}", "{", Rel_ab, "}", "[INTERFERENCE]")))|>
+            dplyr::arrange(`Molecule List Name`, `Molecule Name`, `Precursor m/z`) |>
             dplyr::select(`Molecule List Name`,
                           `Molecule Name`,
                           `Precursor Charge`,
                           `Label Type`,
-                          `Precursor m/z` = `m/z`,
+                          `Precursor m/z`,
                           `Explicit Retention Time`,
                           `Explicit Retention Time Window`,
                           Note)
