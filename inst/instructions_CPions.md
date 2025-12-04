@@ -102,9 +102,9 @@ __Molecule List Name__: specifies how the compounds are grouped in Skyline. In t
 __Molecule Name__: is the chemical formula of the neutral compound (without adduct/fragment). Beware: Some transformation products can give exactly the same molecular formula and m/z. For example PCA-Cl+OH will be exactly same as PCA-H+OH with one less chlorine atom. 
 C10H18Cl4(-Cl+OH) -> C10H19Cl3O and C10H19Cl3(-H+OH) -> C10H19Cl3O.  
 __Precursor Charge__: is the chosen ionization mode.  
-__Label Type__: Quan is the highest intensity isotopologue of each Compound. Can be changed in the exported spreadsheet.  
+__Label Type__: Quan is the highest intensity isotopologue of each Molecule Name. Can be changed in the exported spreadsheet.  
 __Precursor m/z)__: is the m/z after ionization and adduct/fragment formation.  
-__Explicit Retention Time/Window__: used by Skyline to integrate peaks. Can be left empty.  
+__Explicit Retention Time/Window__: used by Skyline to integrate peaks. Can be left empty and manually inspect the integration later in Skyline.  
 __Note__: Internal information on ion formula and isotopic abundance. DO NOT change this (used by CPquant).  
 
 

@@ -277,7 +277,7 @@ CPquant <- function(...){
                     dplyr::group_by(Molecule, Molecule_List, Isotope_Label_Type) |>
                     dplyr::summarize(AverageBlank = mean(Area, na.rm = TRUE)) |>
                     dplyr::ungroup() |>
-                    dplyr::filter(!Molecule_List %in% c("IS", "RS", "VS"))
+                    dplyr::filter(!Molecule_List %in% c("IS", "RS", "VS")) # do not include IS or RS peaks
 
                 df <- df |>
                     dplyr::full_join(df_blank) |>
