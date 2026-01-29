@@ -35,7 +35,7 @@ ui <- shiny::navbarPage(
                             shiny::numericInput("Brmin", "Br atoms min (allowed 1-15))", value = 1, min = 1, max = 15),
                             shiny::numericInput("Brmax", "Br atoms max (allowed 1-15)", value = 4, min = 1, max = 15),
                             shiny::br(),
-                            selectInput("Adducts", "Add adducts/fragments",
+                            shiny::selectInput("Adducts", "Add adducts/fragments",
                                         choices = c("[PCA-Cl]-",
                                                     "[PCA-H]-",
                                                     "[PCA-HCl]-",
@@ -79,28 +79,28 @@ ui <- shiny::navbarPage(
                             shiny::numericInput("Brmin_adv", "Br atoms min (allowed 1-15))", value = 1, min = 1, max = 15),
                             shiny::numericInput("Brmax_adv", "Br atoms max (allowed 1-15)", value = 4, min = 1, max = 15),
                             shiny::br(),
-                            selectInput("Compclass_adv", "Compound Class",
+                            shiny::selectInput("Compclass_adv", "Compound Class",
                                         choices = c("PCA", "PCO","BCA"),
                                         selected = "PCA",
                                         multiple = TRUE,
                                         selectize = TRUE,
                                         width = NULL,
                                         size = NULL),
-                            selectInput("Adducts_adv", "Which adduct",
+                            shiny::selectInput("Adducts_adv", "Which adduct",
                                         choices = c("-Cl", "-H", "-HCl", "-Cl-HCl","-Cl-2HCl", "-Cl-3HCl", "-2Cl-HCl", "+Cl","+Br", "+F"),
                                         selected = "+Cl",
                                         multiple = TRUE,
                                         selectize = TRUE,
                                         width = NULL,
                                         size = NULL),
-                            selectInput("Charge_adv", "Which charge",
+                            shiny::selectInput("Charge_adv", "Which charge",
                                         choices = c("-", "+"),
                                         selected = "-",
                                         multiple = FALSE,
                                         selectize = TRUE,
                                         width = NULL,
                                         size = NULL),
-                            selectInput("TP_adv", "Transformation product",
+                            shiny::selectInput("TP_adv", "Transformation product",
                                         choices = c("None", "-Cl+OH", "-2Cl+2OH", "-H+OH", "-2H+2OH", "-2H+O", "-H+SO4H"),
                                         selected = "None",
                                         multiple = TRUE,
@@ -359,7 +359,7 @@ server = function(input, output, session) {
             dplyr::mutate(difflead = round(abs(`m/z` - lead(`m/z`, default = last(`m/z`))), 6)) |>
             dplyr::mutate(reslag = round(`m/z`/difflag, 0)) |>
             dplyr::mutate(reslead = round(`m/z`/difflead, 0)) |>
-            mutate(interference = case_when(
+            dplyr::mutate(interference = dplyr::case_when(
                 # Edge rows:
                 row_number() == 1 ~ reslead > as.integer(MSresolution()),
                 row_number() == n() ~ reslag > as.integer(MSresolution()),
@@ -371,16 +371,7 @@ server = function(input, output, session) {
                 # Fallback (optional): if none of the above match
                 TRUE ~ FALSE))
 
-        #     dplyr::mutate(interference = case_when(
-        #         difflag == 0 | difflead == 0 ~ TRUE, # need to keep this true to make same mass ions TRUE
-        #         reslag >= as.integer(MSresolution()) | reslead >= as.integer(MSresolution()) ~ TRUE,
-        #         reslag < as.integer(MSresolution()) & reslead < as.integer(MSresolution()) ~ FALSE
-        #     )
-        #     )
-        # # change first and last row to false since their lead/lag is zero
-        # CP_allions_interfere$interference[1] <- FALSE
-        # CP_allions_interfere$interference[length(CP_allions_interfere$interference)] <- FALSE
-
+        # populates CP_allions_compl2 so it can be use for skyline tab
         CP_allions_compl2(CP_allions_interfere)
 
         # Output scatterplot: #Cl vs #C  if Br exists
@@ -398,7 +389,7 @@ server = function(input, output, session) {
                         hoverinfo = "text",
                         hovertext = paste("Molecule_Formula:", CP_allions_interfere$Molecule_Formula,
                                           '<br>',
-                                          "Adduct/Fragment ion:", CP_allions_interfere$Adduct_Annotation,
+                                          "Adduct/Fragment ion:", paste0(CP_allions_interfere$Adduct, CP_allions_interfere$Isotopologue),
                                           '<br>',
                                           "Ion Formula:", CP_allions_interfere$Adduct_Formula,
                                           '<br>',
@@ -422,7 +413,7 @@ server = function(input, output, session) {
                         hoverinfo = "text",
                         hovertext = paste("Molecule_Formula:", CP_allions_interfere$Molecule_Formula,
                                           '<br>',
-                                          "Adduct/Fragment ion:", CP_allions_interfere$Adduct_Annotation,
+                                          "Adduct/Fragment ion:", paste0(CP_allions_interfere$Adduct, CP_allions_interfere$Isotopologue),
                                           '<br>',
                                           "Ion Formula:", CP_allions_interfere$Adduct_Formula,
                                           '<br>',
@@ -441,7 +432,7 @@ server = function(input, output, session) {
 
         if ("79Br" %in% names(CP_allions_interfere) == TRUE){
             output$Plotly2 <- plotly::renderPlotly(
-                p <- CP_allions_interfere |> plot_ly(
+                p <- CP_allions_interfere |> plotly::plot_ly(
                     x = ~`m/z`,
                     y = ~Rel_ab,
                     type = "bar",
@@ -450,7 +441,7 @@ server = function(input, output, session) {
                     hoverinfo = "text",
                     hovertext = paste("Molecule_Formula:", CP_allions_interfere$Molecule_Formula,
                                       '<br>',
-                                      "Adduct/Fragment ion:", CP_allions_interfere$Adduct_Annotation,
+                                      "Adduct/Fragment ion:", paste0(CP_allions_interfere$Adduct, CP_allions_interfere$Isotopologue),
                                       '<br>',
                                       "Ion Formula:", CP_allions_interfere$Adduct_Formula,
                                       '<br>',
@@ -468,7 +459,7 @@ server = function(input, output, session) {
             )
         } else {
             output$Plotly2 <- plotly::renderPlotly(
-                p <- CP_allions_interfere |> plot_ly(
+                p <- CP_allions_interfere |> plotly::plot_ly(
                     x = ~`m/z`,
                     y = ~Rel_ab,
                     type = "bar",
@@ -477,7 +468,7 @@ server = function(input, output, session) {
                     hoverinfo = "text",
                     hovertext = paste("Molecule_Formula:", CP_allions_interfere$Molecule_Formula,
                                       '<br>',
-                                      "Adduct/Fragment ion:", CP_allions_interfere$Adduct_Annotation,
+                                      "Adduct/Fragment ion:", paste0(CP_allions_interfere$Adduct, CP_allions_interfere$Isotopologue),
                                       '<br>',
                                       "Ion Formula:", CP_allions_interfere$Adduct_Formula,
                                       '<br>',
@@ -547,7 +538,7 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
             tibble::add_column(`Explicit Retention Time` = NA) |>
             tibble::add_column(`Explicit Retention Time Window` = NA) |>
             dplyr::group_by(`Molecule Name`) |>
-            dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
+            dplyr::mutate(`Label Type` = dplyr::if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
             dplyr::ungroup() |>
             dplyr::select(`Molecule List Name`,
                           `Molecule Name`,
@@ -572,7 +563,7 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
             tibble::add_column(`Explicit Retention Time` = NA) |>
             tibble::add_column(`Explicit Retention Time Window` = NA) |>
             dplyr::group_by(`Molecule Name`) |>
-            dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
+            dplyr::mutate(`Label Type` = dplyr::if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
             dplyr::ungroup() |>
             dplyr::select(`Molecule List Name`,
                           `Molecule Name`,
@@ -611,14 +602,14 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
                     filtered
                 }
             }) %>%
-            dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
+            dplyr::mutate(`Label Type` = dplyr::if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
             dplyr::ungroup() |>
             dplyr::arrange(`Precursor m/z`) |>
             dplyr::mutate(difflag = round(abs(`Precursor m/z` - lag(`Precursor m/z`, default = first(`Precursor m/z`))),6)) |>
             dplyr::mutate(difflead = round(abs(`Precursor m/z` - lead(`Precursor m/z`, default = last(`Precursor m/z`))), 6)) |>
             dplyr::mutate(reslag = round(`Precursor m/z`/difflag, 0)) |>
             dplyr::mutate(reslead = round(`Precursor m/z`/difflead, 0)) |>
-            mutate(interference = case_when(
+            mutate(interference = dplyr::case_when(
                 # Edge rows:
                 row_number() == 1 ~ reslead > as.integer(MSresolution()),
                 row_number() == n() ~ reslag > as.integer(MSresolution()),
@@ -667,7 +658,7 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
                     filtered
                 }
             }) %>%
-            dplyr::mutate(`Label Type` = if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
+            dplyr::mutate(`Label Type` = dplyr::if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
             dplyr::ungroup() |>
             #new calculation of reslag and reslead since some m/z might be removed
             dplyr::arrange(`Precursor m/z`) |>
@@ -675,7 +666,7 @@ if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not c
             dplyr::mutate(difflead = round(abs(`Precursor m/z` - lead(`Precursor m/z`, default = last(`Precursor m/z`))), 6)) |>
             dplyr::mutate(reslag = round(`Precursor m/z`/difflag, 0)) |>
             dplyr::mutate(reslead = round(`Precursor m/z`/difflead, 0)) |>
-            mutate(interference = case_when(
+            mutate(interference = dplyr::case_when(
                 # Edge rows:
                 row_number() == 1 ~ reslead > as.integer(MSresolution()),
                 row_number() == n() ~ reslag > as.integer(MSresolution()),

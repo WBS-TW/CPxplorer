@@ -47,7 +47,9 @@ CPquant <- function(...){
                                                                         label = "Calculate recovery? (req QC samples)",
                                                                         choices = c("Yes", "No"),
                                                                         selected = "No"),
-                                                    shiny::uiOutput("calculateRecoveryUI"), # render UI if CalculateRecovery == "Yes"
+                                                    #-----obsolete not used anymore
+                                                    #shiny::uiOutput("calculateRecoveryUI"), # render UI if CalculateRecovery == "Yes"
+                                                    #-----
                                                     shiny::radioButtons("calculateMDL",
                                                                         label = "Calculate MDL? (req blank samples)",
                                                                         choices = c("Yes", "No"),
@@ -181,12 +183,55 @@ CPquant <- function(...){
                                         shiny::includeMarkdown(system.file("instructions_CPquant.md", package = "CPxplorer"))
                                     )
                                 )
+                            ),
+                            shiny::tabPanel(
+                                "Log",
+                                shiny::fluidPage(
+                                    shiny::verbatimTextOutput("console_log"),
+                                    tags$style("#console_log {max-height: 70vh;
+                                    overflow-y: auto;
+                                    background: #111827; /* dark */
+                                    color: #e5e7eb;      /* light */
+                                    font-family: monospace;
+                                    font-size: 12px;
+                                    padding: 12px;
+                                    border-radius: 6px;}")
+                                    )
+                                )
                             )
-
-    )
 
     ################################################################################
     server <- function(input, output, session) {
+
+
+        #---------------
+        #--- In-memory console sink setup
+        #---------------
+        # Character vector that receives console output
+        log_buf <- character()
+
+        # Create a textConnection that writes to log_buf
+        tc <- textConnection("log_buf", open = "w", local = TRUE)
+
+        # Sink both stdout and stderr (messages/warnings/errors) to the connection
+        sink(tc, append = TRUE)                     # stdout
+        sink(tc, append = TRUE, type = "message")   # stderr (conditions)
+
+        # Periodically re-render the buffer (no files involved)
+        max_lines <- 600
+        output$console_log <- shiny::renderText({
+            shiny::invalidateLater(500, session)
+
+            if (length(log_buf) > max_lines) {
+                log_buf <<- tail(log_buf, max_lines)
+            }
+
+            paste(rev(log_buf), collapse = "\n")
+        })
+        #---------------
+
+
+
 
         # define RS for Area correction
         output$correctionUI <- shiny::renderUI({
@@ -194,11 +239,13 @@ CPquant <- function(...){
                 defineCorrectionUI(Skyline_output()) }
         })
 
+        #obsolete not used anymore
         # define RS for recovery
-        output$calculateRecoveryUI <- shiny::renderUI({
-            if(input$calculateRecovery == "Yes") {
-                defineCalcrecoveryUI(Skyline_output()) }
-        })
+        # output$calculateRecoveryUI <- shiny::renderUI({
+        #     if(input$calculateRecovery == "Yes") {
+        #         defineCalcrecoveryUI(Skyline_output()) }
+        # })
+
 
         # Create a reactive object that depends on the quanUnit input
         quantUnit <- reactive({
@@ -270,7 +317,7 @@ CPquant <- function(...){
                 }
             }
 
-            # Calculate the average blank value
+            # Calculate the average blank (Area) value
             if (input$blankSubtraction == "Yes, by avg area of blanks"){
                 df_blank <- df |>
                     dplyr::filter(Sample_Type == "Blank") |>
@@ -359,7 +406,7 @@ CPquant <- function(...){
 
                 CPs_standards <- Skyline_output_filt |>
                     dplyr::filter(Sample_Type == "Standard",
-                                  !Molecule_List %in% c("IS", "RS", "VS"), # dont include IS, RS, VS
+                                  !Molecule_List %in% c("IS", "RS"), # dont include IS, RS
                                   Isotope_Label_Type == "Quan", # use only Quan ions
                                   Batch_Name != "NA") |>
                     dplyr::mutate(
@@ -474,10 +521,9 @@ CPquant <- function(...){
                     as.matrix()
 
 
-
                 # This performs deconvolution on all mixtures together
                 deconvolution <- combined_sample |>
-                    dplyr::mutate(result = purrr::map(data, ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard, CPs_standards_sum_RF))) |> #perform_deconvolution on only Relative_Area in the nested data frame
+                    dplyr::mutate(result = purrr::map(data, ~perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard, CPs_standards_sum_RF))) |> #perform_deconvolution on only Relative_Area in the nested data frame
                     dplyr::mutate(sum_Area = purrr::map_dbl(data, ~sum(.x$Area))) |>
                     dplyr::mutate(sum_deconv_RF = as.numeric(purrr::map(result, purrr::pluck("sum_deconv_RF")))) |>
                     dplyr::mutate(Sample_Dilution_Factor = purrr::map_dbl(data, ~first(.x$Sample_Dilution_Factor))) |> #since all dilution factor is same for a replicate then take the first
@@ -591,40 +637,94 @@ CPquant <- function(...){
                 dplyr::select(Replicate_Name, Sample_Type, deconv_rsquared) |>
                 dplyr::mutate(deconv_rsquared = round(deconv_rsquared, 3))
 
+            # Recovery calculations
             if(input$calculateRecovery == "Yes") {
-                # Recovery calculations
                 recovery_data <- Skyline_output_filt |>
                     dplyr::filter(Isotope_Label_Type == "Quan",
                                   Molecule_List %in% c("IS", "RS"))
 
 
-                RECOVERY <- recovery_data |>  # Calculate recovery
-                    dplyr::filter(Molecule_List %in% c("RS", "IS") & !(Molecule_List == "RS" & Molecule != input$chooseRS)) |> #remove not chosen RS
-                    tidyr::pivot_wider(
-                        id_cols = c(Replicate_Name, Sample_Type),
-                        names_from = Molecule_List,
-                        values_from = Area) |>
-                    dplyr::mutate(across(c(IS, RS), ~replace_na(.x, 0)))
 
-                # Calculate QC ratio
-                qc_ratio <- RECOVERY |>
-                    dplyr::filter(Sample_Type == "Quality Control") |>
-                    dplyr::mutate(RatioStd = IS / RS) |>
-                    dplyr::summarize(AverageRatio = mean(RatioStd, na.rm = TRUE))
+# Split IS and RS tables (keeping key context columns)
+IS_tbl <- recovery_data %>%
+    filter(Molecule_List == "IS") %>%
+    select(Replicate_Name, Sample_Type, Molecule_IS = Molecule, Area_IS = Area)
 
-                # Calculate sample recovery
-                RECOVERY <- RECOVERY |>
-                    dplyr::filter(Sample_Type %in% c("Unknown", "Blank")) |>
-                    dplyr::mutate(
-                        RatioSample = IS / RS,
-                        Recovery = RatioSample / as.numeric(qc_ratio$AverageRatio),
-                        RecoveryPercentage = round(Recovery * 100, 0)
-                    ) |>
-                    dplyr::select(Replicate_Name, Sample_Type, RecoveryPercentage)
+RS_tbl <- recovery_data %>%
+    filter(Molecule_List == "RS") %>%
+    select(Replicate_Name, Sample_Type, Molecule_RS = Molecule, Area_RS = Area)
 
-                QAQC <- QAQC |>
-                    dplyr::left_join(RECOVERY, by = c("Replicate_Name", "Sample_Type"))
+#Cross-join IS and RS within each replicate
+ratio_all_pairs <- IS_tbl %>%
+    inner_join(RS_tbl, by = c("Replicate_Name", "Sample_Type")) %>%
+    mutate(
+        RatioISRS = if_else(Area_RS > 0, Area_IS / Area_RS, NA_real_)
+    )
+
+# Calculate QC ratio
+qc_ratio <- ratio_all_pairs |>
+    dplyr::filter(Sample_Type == "Quality Control") |>
+    dplyr::group_by(Molecule_IS, Molecule_RS) |>
+    dplyr::summarize(AverageRatio = mean(RatioISRS, na.rm = TRUE)) |>
+    ungroup()
+
+
+ratio_with_sample <- ratio_all_pairs %>%
+    dplyr::filter(Sample_Type %in% c("Unknown", "Blank")) |>
+    # ensure keys are clean characters
+    dplyr::mutate(
+        Molecule_IS = as.character(Molecule_IS),
+        Molecule_RS = as.character(Molecule_RS)
+    ) %>%
+    dplyr::left_join(
+        qc_ratio %>%
+            dplyr::mutate(
+                Molecule_IS = as.character(Molecule_IS),
+                Molecule_RS = as.character(Molecule_RS)
+            ),
+        by = c("Molecule_IS", "Molecule_RS")
+    ) %>%
+    dplyr::mutate(
+        Recovery = if_else(!is.na(AverageRatio) & AverageRatio != 0,
+                              round(RatioISRS / AverageRatio*100, 1),
+                              NA_real_)) |>
+    dplyr::select(Replicate_Name, Sample_Type, Molecule_IS, Molecule_RS, Recovery)
+
+
+QAQC <- QAQC |>
+    dplyr::left_join(ratio_with_sample, by = c("Replicate_Name", "Sample_Type"))
+
+#END TEST
+
+#old code
+                # RECOVERY <- recovery_data |>  # Calculate recovery
+                #     dplyr::filter(Molecule_List %in% c("RS", "IS") & !(Molecule_List == "RS" & Molecule != input$chooseRS2)) |> #remove not chosen RS
+                #     tidyr::pivot_wider(
+                #         id_cols = c(Replicate_Name, Sample_Type),
+                #         names_from = Molecule_List,
+                #         values_from = Area) |>
+                #     dplyr::mutate(across(c(IS, RS), ~replace_na(.x, 0)))
+
+                # # Calculate QC ratio
+                # qc_ratio <- RECOVERY |>
+                #     dplyr::filter(Sample_Type == "Quality Control") |>
+                #     dplyr::mutate(RatioStd = IS / RS) |>
+                #     dplyr::summarize(AverageRatio = mean(RatioStd, na.rm = TRUE))
+                #
+                # # Calculate sample recovery
+                # RECOVERY <- RECOVERY |>
+                #     dplyr::filter(Sample_Type %in% c("Unknown", "Blank")) |>
+                #     dplyr::mutate(
+                #         RatioSample = IS / RS,
+                #         Recovery = RatioSample / as.numeric(qc_ratio$AverageRatio),
+                #         RecoveryPercentage = round(Recovery * 100, 0)
+                #     ) |>
+                #     dplyr::select(Replicate_Name, Sample_Type, RecoveryPercentage)
+                #
+                # QAQC <- QAQC |>
+                #     dplyr::left_join(RECOVERY, by = c("Replicate_Name", "Sample_Type"))
             }
+
 
             # Render recovery table
             output$table_recovery <- DT::renderDT({
@@ -664,14 +764,14 @@ CPquant <- function(...){
                     MDL_data <- deconvolution |>
                         dplyr::filter(Sample_Type == "Blank") |>
                         dplyr::summarize(
-                            MDL_sumPCA = mean(Concentration) + 3 * sd(Concentration, na.rm = TRUE),
+                            MDL_sumPCA = mean(Concentration) + 3 * stats::sd(Concentration, na.rm = TRUE),
                             number_of_blanks = dplyr::n_distinct(Replicate_Name)
                         )
                 } else if (input$blankSubtraction == "Yes, by avg area of blanks"){
                     MDL_data <- deconvolution |>
                         dplyr::filter(Sample_Type == "Blank") |>
                         dplyr::summarize(
-                            MDL_sumPCA = 3 * sd(Concentration, na.rm = TRUE),
+                            MDL_sumPCA = 3 * stats::sd(Concentration, na.rm = TRUE),
                             number_of_blanks = dplyr::n_distinct(Replicate_Name)
                         )
 

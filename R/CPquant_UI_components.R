@@ -1,5 +1,6 @@
-## CPquant UI Components ##
-###########################
+################################################################################
+##--------------------------- CPquant UI Components --------------------------##
+################################################################################
 
 defineVariablesUI <- function(Skyline_output){
 ###START: Define UI components
@@ -59,23 +60,23 @@ defineCorrectionUI <- function(Skyline_output){
 }
 ### END FUNCTION
 
-
-defineCalcrecoveryUI <- function(Skyline_output){
-    ###START: Define UI components
-
-    # Create the UI components
-    shiny::fluidRow(
-        shiny::column(
-            6,
-            shiny::selectInput(
-                inputId = "chooseRS2", #select which will be the RS
-                label = 'Choose RS for recovery',
-                choices = unique(Skyline_output$Molecule[Skyline_output$Molecule_List == "RS"]),
-                selected = NULL,
-                multiple = FALSE
-            )
-        ))
-}
+# obsolete function not used
+# defineCalcrecoveryUI <- function(Skyline_output){
+#     ###START: Define UI components
+#
+#     # Create the UI components
+#     shiny::fluidRow(
+#         shiny::column(
+#             6,
+#             shiny::selectInput(
+#                 inputId = "chooseRS2", #select which will be the RS
+#                 label = 'Choose RS for recovery',
+#                 choices = unique(Skyline_output$Molecule[Skyline_output$Molecule_List == "RS"]),
+#                 selected = NULL,
+#                 multiple = FALSE
+#             )
+#         ))
+# }
 ### END FUNCTION
 
-
+################################################################################
