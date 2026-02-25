@@ -122,10 +122,16 @@ CPquant <- function(...){
                 downloadButton("downloadResults", "Export all results to Excel"),
                 shiny::tags$br(), shiny::tags$br(),
                 DT::DTOutput("quantTable"),
-                shiny::tags$br(),
-                plotly::plotlyOutput("sampleContributionPlot")
+                # shiny::tags$br(),
+                # plotly::plotlyOutput("sampleContributionPlot")
             )
         ),
+        shiny::tabPanel(
+            "Standard contributions",
+            shiny::fluidPage(
+                plotly::plotlyOutput("sampleContributionPlot")
+                )
+            ),
         shiny::tabPanel(
             "Homologue Group Patterns",
             shiny::fluidRow(
