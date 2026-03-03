@@ -1,7 +1,10 @@
 
 # CPquant
   
+For more information, please check our paper:  
+Beloki Ezker et al. Streamlining Quantification and Data Harmonization of Polychlorinated Alkanes Using a Platform-Independent Workflow. Environ. Sci. Technol. 2025, doi/10.1021/acs.est.5c04928.  
   
+
 ## Introduction    
 CPquant uses the deconvolution process proposed by Bogdal et al (Anal Chem, doi/10.1021/ac504444d) to estimate 
 the relative composition needed from different standards to match the measured homologue pattern of samples. 
@@ -19,12 +22,15 @@ __The calculated concentrations are for those in the extract. The user can then 
 The input excel file should be exported from the Skyline results table. It should include the following column with the names:  
 `Replicate Name`: sample name  
 `Sample Type`: the following characters can be used, _Unknown_ (which is the sample to be quantified), _Blank_ (field blanks and procedural blanks are not distinguished), _Standard_ (standard used for quantification), _Quality Control_ (standard/sample used to determine the recovery).  
-`Batch Name`: For standards only (leave blank for Unknown). This will determine which standards that belongs to a calibration series as well as which carbon chain groups 
+`Batch Name`: Input for Standard only (leave blank for Unknown and Blank). This will determine which standards that belongs to a calibration series as well as which carbon chain groups 
 to quantify with the standard.  
 The naming of the Batch Name should be: CarbonGroups_StandardName. An underscore is a separator for the carbon chain group and standard name.  
 Example A: C10-C13_StandardA. This standard will then be used to quantify carbon chains C10, C12, C13 (the hyphen specify the range of carbon chains). 
-This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series.  
-Example B: C14_52%Cl. This standard will only quantify C14 carbon chains. It specifies 52% chlorine content (although this information is not needed for quantification).  
+This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series. These can be inserted in the Document Grid in Skyline.  
+
+Example B: C14_52%Cl. This standard will only be used to quantify C14 carbon chains. It specifies 52% chlorine content (although this information is not needed for quantification).  
+ISSUE: quantification currently only work if the `Batch Name` covers all carbon groups that are in the transition list. For example, if the transition list covers C10 to C30 carbons, and any of the standards do not cover C30, then CPquant will fail. This will be fixed later.  
+
 `Molecule List`: compounds used internal standards are denoted `IS`, recovery standards as `RS` (also called volumetric standard).  
 `Molecule`: PCA homologue group.  
 `Area`: integrated area from Skyline.  
@@ -32,7 +38,7 @@ Example B: C14_52%Cl. This standard will only quantify C14 carbon chains. It spe
 This column could be in concentration or weight/amount unit depending on the user input. It will affect the final quantification unit.  
 `Mass Error PPM`: might be exported from Skyline but currently not used by CPquant.  
 `Isotope Label Type`: Quan or Qual.  
-`Chromatogram Precursor M/Z`: the m/z values of the ion (not used by CPquant). 
+`Chromatogram Precursor M/Z`: the m/z values of the ion (not used by CPquant).  
 `Sample Dilution Factor`: indicate the dilution (>1) or concentration factor (<1). Default from Skyline is 1 (no dilution).  
 `Transition Note`: internal information transferred from CPions used for calculating the correct isotope ratio.  
   
@@ -45,8 +51,11 @@ After loading the data, the user can choose the options:
 __Choose ion for quantification__: "Quan only" only uses the signal from quantification ion, and "Sum Quan+Qual" use the sum of the Quan and all Qual ions for quantification.  
 __Subtraction by blank?__: If "Yes, by avg area of blanks", then the area for each Molecule will be subtracted with the average area of all blank samples.  
 __Correct with RS area?__: If "Yes", then the area of each Molecule will the normalized to the recovery standard (RS) area for each sample.  
+ISSUE: currently it is not possible to choose different RS and CPquant keeps choosing the first variable even if the user select another. The user should use only one RS until this issue is fixed.  
+
 __Calculate recovery?__: If "Yes", requires samples with the `Sample Type` designated as "Quality Control" that include the spiked concentrations of 
-IS and RS corresponding amounts/concentrations.  
+IS and RS corresponding amounts/concentrations. If multiple IS and/or RS are present, then calculation will be made from combination of these ratios shown in the final table.  
+
 __Calculate MDL?__: If "Yes", then calculates the method detection limits based on blank samples.  
 If no blank subtraction then MDL = avg + 3 * standard deviation of blank samples.  
 If blank subtraction then MDL = 3 * standard deviation of blank samples.  

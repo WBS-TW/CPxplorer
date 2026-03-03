@@ -95,8 +95,8 @@ __reslag & reslead (prev and next)__: the MS resolution needed to resolve previo
 
 This will output a transition list for import in Skyline for integration and quantification. User need to indicate either the _Normal setting_ or _Advanced setting_ as input.  
 __Use as Quant Ion__: If _"Most intense"_ then the ion with highest intensity (100%) will be used as the quantification ion. 
-The __Interference ions__ calculation MUST be performed before choosing the _"Most intense after interference filtering"_. Ions that have mass interference at the set MS Resolution
-will be removed. If no ions are left for a Molecule Name after filtering, then the most intense ions are still kept but [INTERFERENCE] will be added to the Note column.  
+If choosing _"Most intense after interference filtering"_, then the `Interference ions` calculation MUST be first performed. For this option, ions that have mass interference at the set MS Resolution
+will be removed. If no ions are left for a _Molecule Name_ after filtering, then the most intense ions are still kept but [INTERFERENCE] will be added to the Note column.  
 
 __Molecule List Name__: specifies how the compounds are grouped in Skyline. In this case, the naming is by: Compound Class, Carbon Chain Length, Transformation Product (if present). The user can freely change this in the exported spreadsheet for their own needs.  
 __Molecule Name__: is the chemical formula of the neutral compound (without adduct/fragment). Beware: Some transformation products can give exactly the same molecular formula and m/z. For example PCA-Cl+OH will be exactly same as PCA-H+OH with one less chlorine atom. 
@@ -105,7 +105,7 @@ __Precursor Charge__: is the chosen ionization mode.
 __Label Type__: Quan is the highest intensity isotopologue of each Molecule Name. Can be changed in the exported spreadsheet.  
 __Precursor m/z)__: is the m/z after ionization and adduct/fragment formation.  
 __Explicit Retention Time/Window__: used by Skyline to integrate peaks. Can be left empty and manually inspect the integration later in Skyline.  
-__Note__: Internal information on ion formula and isotopic abundance. DO NOT change this (used by CPquant).  
+__Note__: Internal information on ion formula and isotopic abundance. DO NOT edit this (used by CPquant).  
 
 
 
