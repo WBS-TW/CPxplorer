@@ -79,7 +79,7 @@ CPquant <- function(...){
             )
         ),
         shiny::tabPanel(
-            "Input summary",
+            "Input Summary",
             shiny::sidebarPanel(
                 width = 2,
                 shiny::radioButtons("navSummary", "Choose tab:",
@@ -117,7 +117,7 @@ CPquant <- function(...){
             )
         ),
         shiny::tabPanel(
-            "Quantification summary",
+            "Quantification Summary",
             shiny::fluidPage(
                 downloadButton("downloadResults", "Export all results to Excel"),
                 shiny::tags$br(), shiny::tags$br(),
