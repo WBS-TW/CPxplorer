@@ -1,9 +1,14 @@
+
+
+
 # Various utilities and helper functions for CPquant
 
 # =========================================================
 # Helper UI builders
 # =========================================================
 
+
+#-------------------------------
 defineVariablesUI <- function(df_for_choices) {
     rep_names <- df_for_choices$Replicate_Name
     rep_names <- unique(stats::na.omit(rep_names))
@@ -30,7 +35,7 @@ defineVariablesUI <- function(df_for_choices) {
                 label   = "Keep the calibration curves above this R-squared (0 means keep everything)",
                 min     = 0,
                 max     = 1,
-                value   = 0.70,
+                value   = 0.90,
                 step    = 0.05
             )
             # shiny::checkboxInput(
@@ -42,6 +47,7 @@ defineVariablesUI <- function(df_for_choices) {
     )
 }
 
+#-------------------------------
 defineCorrectionUI <- function(df_for_choices) {
     # Extract RS molecules for selection; keep it stable (from base data)
     rs_choices <- df_for_choices |>
@@ -71,6 +77,7 @@ defineCorrectionUI <- function(df_for_choices) {
 # Helper plotting functions
 # =========================================================
 
+#-------------------------------
 plot_skyline_output <- function(Skyline_output){
 
     Skyline_output |>
@@ -92,6 +99,37 @@ plot_skyline_output <- function(Skyline_output){
                        yaxis = list(title = 'Area'))
 }
 
+#-------------------------------
+make_calibration_table <- function(CPs_standards_input) {
+
+    CPs_standards_input %>%
+        dplyr::ungroup() %>%
+        dplyr::select(
+            Batch_Name,
+            Quantification_Group,
+            Molecule_List,
+            Molecule,
+            C_number,
+            Cl_number,
+            PCA,
+            RF,
+            intercept,
+            cal_rsquared
+        ) %>%
+        dplyr::mutate(
+            RF = as.numeric(RF),
+            intercept = as.numeric(intercept),
+            cal_rsquared = as.numeric(cal_rsquared)
+        ) %>%
+        dplyr::arrange(
+            Batch_Name, Quantification_Group,
+            Molecule_List, Molecule
+        )
+}
+
+
+#-------------------------------
+##currently not used##
 plot_calibration_curves <- function(CPs_standards, quantUnit) {
     # Unnest the data first
     CPs_standards_unnested <- CPs_standards |>
@@ -191,6 +229,7 @@ plot_calibration_curves <- function(CPs_standards, quantUnit) {
     return(final_plot)
 }
 
+#-------------------------------
 plot_quanqualratio <- function(Skyline_output_filt) {
 
     Skyline_output_filt |>
@@ -216,6 +255,7 @@ plot_quanqualratio <- function(Skyline_output_filt) {
                        yaxis = list(title = 'Quan-to-Qual Ratio'))
 }
 
+#-------------------------------
 plot_meas_vs_theor_ratio <- function(Skyline_output_filt) {
 
     Skyline_output_filt |>
@@ -251,6 +291,7 @@ plot_meas_vs_theor_ratio <- function(Skyline_output_filt) {
 
 }
 
+#-------------------------------
 plot_sample_contribution <- function(deconvolution) {
 
     # How much contribution of each sample to the final deconvoluted homologue group pattern
@@ -281,6 +322,7 @@ plot_sample_contribution <- function(deconvolution) {
         )
 }
 
+#-------------------------------
 plot_homologue_group_pattern_comparison <- function(Sample_distribution, input_selectedSamples){
 
     # Filter data for selected samples and reshape data
@@ -383,61 +425,83 @@ plot_homologue_group_pattern_comparison <- function(Sample_distribution, input_s
 # Deconvolution function
 # =========================================================
 
-# NOTE20260204: This replaces the earlier version to fix:
-# - column extraction (Relative_Area) from matrix
-# - dimension check vs combined_standard rows
-# - normalization and divide-by-zero guards
-
-perform_deconvolution <- function(df, combined_standard, CPs_standards_sum_RF) {
+perform_deconvolution <- function(df, combined_standard, CPs_standards_sum_RF,
+                                  sample_name = NA_character_) {
 
     df_matrix <- as.matrix(df)
 
     message(paste("df_matrix dimensions:", paste(dim(df_matrix), collapse = " x ")))
     message(paste("combined_standard dimensions:", paste(dim(combined_standard), collapse = " x ")))
 
+    # For messages
+    sample_label <- if (is.na(sample_name)) "<unknown sample>" else sample_name
+
     # Build df_vector
     if (ncol(df_matrix) == 1) {
         df_vector <- as.vector(df_matrix)
+
     } else {
+
         if (!"Relative_Area" %in% colnames(df_matrix)) {
-            stop("Column 'Relative_Area' not found in df.")
+            stop(sprintf(
+                paste0(
+                    "Deconvolution input error for sample '%s':\n",
+                    "Column 'Relative_Area' not found in data passed to perform_deconvolution().\n",
+                    "This usually means that the Relative_Area column was not created correctly ",
+                    "before deconvolution (check that Isotope_Label_Type == 'Quan' exists and Area is numeric)."
+                ),
+                sample_label
+            ))
         }
+
         df_vector <- df_matrix[, "Relative_Area", drop = TRUE]
     }
 
     # Dimension compatibility: rows (molecules) of combined_standard must match length of df_vector
     if (nrow(combined_standard) != length(df_vector)) {
-        stop(sprintf("Incompatible dimensions: length(df_vector) = %d, nrow(combined_standard) = %d",
-                     length(df_vector), nrow(combined_standard)))
+        stop(sprintf(
+            paste0(
+                "Deconvolution failed for sample '%s': incompatible pattern dimensions.\n\n",
+                "  • Length of sample relative pattern = %d\n",
+                "  • Number of molecules in standards matrix = %d\n\n",
+                "This usually means that the set of homologues (Molecule) in the samples\n",
+                "does not match the homologues in the standards.\n",
+                "Check that:\n",
+                "  - Your Skyline export contains the same homologue groups in standards and samples, and\n",
+                "  - You might have removed Molecules in Skyline that were in the original transition list."
+            ),
+            sample_label, length(df_vector), nrow(combined_standard)
+        ))
     }
 
     # Validate inputs for nnls
     if (any(!is.finite(df_vector))) {
-        stop("df_vector contains NA/NaN/Inf values.")
+        stop(sprintf(
+            "Deconvolution input error for sample '%s': df_vector contains NA / NaN / Inf values.",
+            sample_label
+        ))
     }
     if (any(!is.finite(combined_standard))) {
-        stop("combined_standard contains NA/NaN/Inf values.")
+        stop(
+            "Deconvolution input error: 'combined_standard' matrix contains NA / NaN / Inf values."
+        )
     }
 
-    # Non-negative least squares: combined_standard (molecules x batches), df_vector (molecules)
+    # ---- existing nnls and output code stays the same ----
     deconv <- nnls::nnls(combined_standard, df_vector)
 
-    # Coefficients per standard batch
     deconv_coef <- deconv$x
     if (sum(deconv_coef) > 0) {
-        deconv_coef <- deconv_coef / sum(deconv_coef)  # normalize to fractions
+        deconv_coef <- deconv_coef / sum(deconv_coef)
     } else {
         deconv_coef[] <- 0
     }
 
-    # Predicted signal (molecules)
     deconv_resolved <- as.vector(combined_standard %*% deconv_coef)
     names(deconv_resolved) <- rownames(combined_standard)
 
-    # Sum of RF per batch
     sum_deconv_RF <- as.numeric(as.matrix(CPs_standards_sum_RF) %*% deconv_coef)
 
-    # Goodness-of-fit on normalized vectors (avoid 0/0)
     sst <- sum((df_vector - mean(df_vector))^2)
 
     pred_norm_den <- sum(deconv_resolved)
@@ -454,8 +518,10 @@ perform_deconvolution <- function(df, combined_standard, CPs_standards_sum_RF) {
 
     list(
         sum_deconv_RF   = sum_deconv_RF,
-        deconv_coef     = deconv_coef,         # named vector (Batch_Name)
-        deconv_resolved = deconv_resolved,     # named vector (Molecule)
+        deconv_coef     = deconv_coef,
+        deconv_resolved = deconv_resolved,
         deconv_rsquared = deconv_rsquared
     )
 }
+
+
