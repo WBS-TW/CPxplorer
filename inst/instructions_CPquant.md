@@ -80,7 +80,7 @@ If the R-squared of the goodness of calibration fit for a homologue group for a 
 ## Input summary    
 ### Choose tab  
 The display might take some time before results show up here so be patient.  
-__Std Calibration Curves__: The calibration curves for different standards will be shown. Only those with rsquared above the initial cutoff will be shown.  
+__Included Standards__: A table showing standards and homologue groups that are included in the quantification. Only those with a positive RF and rsquared above the initial cutoff will be included.  
 __Removed from Calibration__: A table showing individual homologue groups from specific standards that are removed from the quantification process, due to negative RF or calibration curve R2 values below limit.   
 __Quan to Qual ratio__: Violin plots showing the ratio Quan/Qual area to detect outliers and thus help in assessing quality of data.  
 __Measured vs Theor Quan/Qual ratio__: Plot showing the measured Quan/Qual ratio divided by the theoretical Quan/Qual ratio. Ideally, the ratio should be around 1. Outlier ratios (<0.3 or >3) are marked in red.  
@@ -98,7 +98,7 @@ This plot shows how much each standard contributes to the reconstructed homologu
   
 Plots the relative distribution (relative area) of the samples.  
 __All Samples Overview__: gives a quick overview on homologue group patterns of all samples in a static plot.  
-__Samples Overlay__: overlays all selected samples in one plot.
+__Samples Overlay__: overlays all selected samples in one plot.  
 __Samples Panels__: plots one panel for each selected sample. Also compares the relative distribution of homologue groups of the sample with the reconstructed pattern 
 by the deconvolution process (as scatter lines in the Deconvoluted Distribution legend group).  
 
