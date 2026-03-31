@@ -29,7 +29,7 @@ Example A: C10-C13_StandardA. This standard will then be used to quantify carbon
 This belongs to the StandardA which can be at different Analyte Concentration for the same calibration series. These can be inserted in the Document Grid in Skyline.  
 
 Example B: C14_52%Cl. This standard will only be used to quantify C14 carbon chains. It specifies 52% chlorine content (although this information is not needed for quantification).  
-ISSUE: quantification currently only work if the `Batch Name` covers all carbon groups that are in the transition list. For example, if the transition list covers C10 to C30 carbons, and any of the standards do not cover C30, then CPquant will fail. This will be fixed later.  
+__ISSUE:__ quantification currently only work if the `Batch Name` covers all carbon groups that are in the transition list. For example, if the transition list covers C10 to C30 carbons, and any of the standards do not cover C30, then CPquant will fail. This will be fixed later.  
 
 `Molecule List`: compounds used internal standards are denoted `IS`, recovery standards as `RS` (also called volumetric standard).  
 `Molecule`: PCA homologue group.  
@@ -80,7 +80,7 @@ If the R-squared of the goodness of calibration fit for a homologue group for a 
 ## Input summary    
 ### Choose tab  
 The display might take some time before results show up here so be patient.  
-__Std Calibration Curves__: The calibration curves for different standards will be shown. Only those with rsquared above the initial cutoff will be shown.  
+__Included Standards__: A table showing standards and homologue groups that are included in the quantification. Only those with a positive RF and rsquared above the initial cutoff will be included.  
 __Removed from Calibration__: A table showing individual homologue groups from specific standards that are removed from the quantification process, due to negative RF or calibration curve R2 values below limit.   
 __Quan to Qual ratio__: Violin plots showing the ratio Quan/Qual area to detect outliers and thus help in assessing quality of data.  
 __Measured vs Theor Quan/Qual ratio__: Plot showing the measured Quan/Qual ratio divided by the theoretical Quan/Qual ratio. Ideally, the ratio should be around 1. Outlier ratios (<0.3 or >3) are marked in red.  
@@ -98,13 +98,13 @@ This plot shows how much each standard contributes to the reconstructed homologu
   
 Plots the relative distribution (relative area) of the samples.  
 __All Samples Overview__: gives a quick overview on homologue group patterns of all samples in a static plot.  
-__Samples Overlay__: overlays all selected samples in one plot.
+__Samples Overlay__: overlays all selected samples in one plot.  
 __Samples Panels__: plots one panel for each selected sample. Also compares the relative distribution of homologue groups of the sample with the reconstructed pattern 
-by the deconvolution process (as scatter lines in the Deconvoluted Distribution legend group).  
+by the deconvolution process (as lines in the Deconvoluted Distribution legend group).  
 
-BE AWARE: CURRENTLY THE COLORS OF THE CARBON CHAIN GROUPS DOES NOT MATCH BETWEEN DIFFERENT SAMPLES  
+__ISSUE__: CURRENTLY THE COLORS OF THE CARBON CHAIN GROUPS DOES NOT MATCH BETWEEN DIFFERENT SAMPLES  
   
-  
+
 ## QA/QC  
 Various QA/QC results will show depending on the choices in the input tab. These include recovery and MDL calculations.  
   
