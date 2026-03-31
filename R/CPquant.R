@@ -20,13 +20,13 @@
 
 
 CPquant <- function(...){
-    options(shiny.maxRequestSize = 500 * 1024^2)
 
 
     # =========================================================
     # UI
     # =========================================================
 
+    options(shiny.maxRequestSize = 500 * 1024^2)
 
     ui <- shiny::navbarPage(
         "CPquant",
@@ -83,11 +83,11 @@ CPquant <- function(...){
             shiny::sidebarPanel(
                 width = 2,
                 shiny::radioButtons("navSummary", "Choose tab:",
-                                    choices = c("Std Calibration Curves",
+                                    choices = c("Included Standards",
                                                 "Removed from Calibration",
                                                 "Quan to Qual ratio",
                                                 "Measured vs Theor Quan/Qual ratio"),
-                                    selected = "Std Calibration Curves"),
+                                    selected = "Included Standards"),
                 shiny::tags$hr(),
                 shiny::tags$p("'Quan to Qual ratio' and 'Measured vs Theor Quan/Qual ratio' only works for Quan only option",
                               style = "font-style: italic;")
@@ -95,9 +95,9 @@ CPquant <- function(...){
             shiny::mainPanel(
                 width = 10,
                 shiny::conditionalPanel(
-                    condition = "input.navSummary == 'Std Calibration Curves'",
-                    shiny::tags$h3("Standard calibration curves"),
-                    plotly::plotlyOutput("CalibrationCurves")
+                    condition = "input.navSummary == 'Included Standards'",
+                    shiny::tags$h3("Standards included in calibration curves"),
+                    DT::DTOutput("CalibrationIncluded")
                 ),
                 shiny::conditionalPanel(
                     condition = "input.navSummary == 'Removed from Calibration'",
@@ -121,17 +121,15 @@ CPquant <- function(...){
             shiny::fluidPage(
                 downloadButton("downloadResults", "Export all results to Excel"),
                 shiny::tags$br(), shiny::tags$br(),
-                DT::DTOutput("quantTable"),
-                # shiny::tags$br(),
-                # plotly::plotlyOutput("sampleContributionPlot")
+                DT::DTOutput("quantTable")
             )
         ),
         shiny::tabPanel(
             "Standard contributions",
             shiny::fluidPage(
                 plotly::plotlyOutput("sampleContributionPlot")
-                )
-            ),
+            )
+        ),
         shiny::tabPanel(
             "Homologue Group Patterns",
             shiny::fluidRow(
@@ -212,6 +210,8 @@ CPquant <- function(...){
 
     server <- function(input, output, session) {
 
+
+
         # ---------------
         # In-memory console sink setup
         # ---------------
@@ -243,7 +243,8 @@ CPquant <- function(...){
             )
 
             df <- df |>
-                dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName"))) |>
+                #make sure to update any_of() if Skyline changes the variable names in future versions
+                dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName", "Replicate"))) |>
                 dplyr::rename(Sample_Type = tidyr::any_of(c("Sample Type", "SampleType"))) |>
                 dplyr::rename(Molecule_List = tidyr::any_of(c("Molecule List", "MoleculeList"))) |>
                 dplyr::rename(Mass_Error_PPM = tidyr::any_of(c("Mass Error PPM", "MassErrorPPM"))) |>
@@ -395,11 +396,14 @@ CPquant <- function(...){
             # Skyline_output already reflects sample removals
             Skyline_output_filt <- Skyline_output()
 
+
+            #######################################
             ##### PREPARE FOR DECONVOLUTION #######
+            #######################################
             progress$set(value = 0.2, detail = "Preparing standards data")
 
             if (input$standardTypes == "Group Mixtures") {
-
+                # All Molecule that does not meet RF, cal_rsquared criteria will be mutated to RF=0 (not included into calibration)
                 CPs_standards <- Skyline_output_filt |>
                     dplyr::filter(Sample_Type == "Standard",
                                   !Molecule_List %in% c("IS", "RS"),
@@ -450,10 +454,35 @@ CPquant <- function(...){
                     tidyr::nest() |>
                     dplyr::ungroup()
 
-                ###### Plots: Calibration Curves & Removed ######
-                output$CalibrationCurves <- plotly::renderPlotly({
-                    plot_calibration_curves(CPs_standards, quantUnit())
+                ###### Table for Calibration Curves ######
+                output$CalibrationIncluded <- DT::renderDT({
+                    req(CPs_standards)
+
+                    # Fully flatten CPs_standards (removes list-cols, ensures every column is atomic)
+                    CPs_standards |>
+                        dplyr::ungroup() |>
+                        filter(RF > 0) |>
+                        dplyr::select(
+                            Batch_Name,
+                            Quantification_Group,
+                            Molecule_List,
+                            Molecule,
+                            C_number,
+                            Cl_number,
+                            PCA,
+                            RF,
+                            intercept,
+                            cal_rsquared
+                        ) |>
+                        dplyr::mutate(
+                            RF = round(as.numeric(RF), 7),
+                            intercept = round(as.numeric(intercept), 3),
+                            cal_rsquared = round(as.numeric(cal_rsquared), 3)
+                        ) |>
+                        DT::datatable(options = list(pageLength = 40))
+
                 })
+
 
                 output$CalibrationRemoved <- DT::renderDT({
                     CPs_standards |>
@@ -495,33 +524,64 @@ CPquant <- function(...){
                     tibble::column_to_rownames(var = "Molecule") |>
                     as.matrix()
 
-                # This performs deconvolution on each sample
-                deconvolution <- combined_sample |>
-                    dplyr::mutate(result = purrr::map(
-                        data,
-                        ~ perform_deconvolution(dplyr::select(.x, Relative_Area), combined_standard, CPs_standards_sum_RF)
-                    )) |>
-                    dplyr::mutate(sum_Area = purrr::map_dbl(data, ~ sum(.x$Area))) |>
-                    dplyr::mutate(sum_deconv_RF = as.numeric(purrr::map(result, purrr::pluck("sum_deconv_RF")))) |>
-                    dplyr::mutate(Sample_Dilution_Factor = purrr::map_dbl(data, ~ dplyr::first(.x$Sample_Dilution_Factor))) |>
-                    dplyr::mutate(
-                        Concentration = dplyr::if_else(sum_deconv_RF > 0,
-                                                       sum_Area / sum_deconv_RF * Sample_Dilution_Factor,
-                                                       NA_real_)
-                    ) |>
-                    dplyr::mutate(Unit = quantUnit()) |>
-                    dplyr::mutate(
-                        deconv_coef = purrr::map(result, ~ tibble::tibble(
-                            Batch_Name  = names(.x$deconv_coef),
-                            deconv_coef = as.numeric(.x$deconv_coef)
-                        )),
-                        deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared"))),
-                        deconv_resolved = purrr::map(result, ~ tibble::tibble(
-                            Molecule         = names(.x$deconv_resolved),
-                            deconv_resolved  = as.numeric(.x$deconv_resolved)
-                        ))
-                    ) |>
-                    dplyr::select(-result)
+                # ---- DECONVOLUTION with UI error popup ----
+                deconvolution <- tryCatch({
+
+                    combined_sample |>
+                        dplyr::mutate(result = purrr::map(
+                            data,
+                            ~ perform_deconvolution(
+                                dplyr::select(.x, Relative_Area),
+                                combined_standard,
+                                CPs_standards_sum_RF
+                            )
+                        )) |>
+                        dplyr::mutate(sum_Area = purrr::map_dbl(data, ~ sum(.x$Area))) |>
+                        dplyr::mutate(sum_deconv_RF = as.numeric(purrr::map(result, purrr::pluck("sum_deconv_RF")))) |>
+                        dplyr::mutate(Sample_Dilution_Factor = purrr::map_dbl(data, ~ dplyr::first(.x$Sample_Dilution_Factor))) |>
+                        dplyr::mutate(
+                            Concentration = dplyr::if_else(sum_deconv_RF > 0,
+                                                           sum_Area / sum_deconv_RF * Sample_Dilution_Factor,
+                                                           NA_real_)
+                        ) |>
+                        dplyr::mutate(Unit = quantUnit()) |>
+                        dplyr::mutate(
+                            deconv_coef = purrr::map(result, ~ tibble::tibble(
+                                Batch_Name  = names(.x$deconv_coef),
+                                deconv_coef = as.numeric(.x$deconv_coef)
+                            )),
+                            deconv_rsquared = as.numeric(purrr::map(result, purrr::pluck("deconv_rsquared"))),
+                            deconv_resolved = purrr::map(result, ~ tibble::tibble(
+                                Molecule         = names(.x$deconv_resolved),
+                                deconv_resolved  = as.numeric(.x$deconv_resolved)
+                            ))
+                        ) |>
+                        dplyr::select(-result)
+
+                }, error = function(e) {
+
+                    # Show the error as a popup in the Shiny UI
+                    showModal(
+                        modalDialog(
+                            title = "Error during quantification / deconvolution",
+                            tagList(
+                                p("The quantification stopped due to an error in the deconvolution step."),
+                                p("Details:"),
+                                tags$pre(conditionMessage(e))
+                            ),
+                            easyClose = TRUE,
+                            footer = modalButton("OK")
+                        )
+                    )
+
+                    # Return NULL so we can handle it gracefully outside
+                    return(NULL)
+                })
+
+                # If deconvolution failed, stop the rest of this observer
+                if (is.null(deconvolution)) {
+                    return()
+                }
 
                 progress$set(value = 0.9, detail = "Calculating final results")
 
@@ -555,6 +615,7 @@ CPquant <- function(...){
                         openxlsx::writeData(
                             wb, "StandardsContribution",
                             deconvolution |>
+                                dplyr::select(Replicate_Name, deconv_coef) |>
                                 tidyr::unnest(deconv_coef) |>
                                 dplyr::mutate(deconv_coef = deconv_coef * 100) |>
                                 tidyr::pivot_wider(names_from = Batch_Name, values_from = deconv_coef)
@@ -716,8 +777,21 @@ CPquant <- function(...){
                         NULL
                     }
                 })
-            }
-        })
+
+
+                # --- success popup when everything is done ---
+                showModal(
+                    modalDialog(
+                        title = "Quantification successful",
+                        "Quantification successful.",
+                        easyClose = TRUE,
+                        footer = modalButton("OK")
+                    )
+                )
+
+
+            } # end if (input$standardTypes == "Group Mixtures")
+        })  # end observeEvent(input$go)
 
         # ---- Homologue Group Patterns tab ----
         output$sampleSelectionUIOverlay <- renderUI({
@@ -825,6 +899,8 @@ CPquant <- function(...){
     # Run the application
     # =========================================================
     shinyApp(ui = ui, server = server)
+
+
 
 
 }
