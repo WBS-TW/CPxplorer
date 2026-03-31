@@ -121,9 +121,7 @@ CPquant <- function(...){
             shiny::fluidPage(
                 downloadButton("downloadResults", "Export all results to Excel"),
                 shiny::tags$br(), shiny::tags$br(),
-                DT::DTOutput("quantTable"),
-                # shiny::tags$br(),
-                # plotly::plotlyOutput("sampleContributionPlot")
+                DT::DTOutput("quantTable")
             )
         ),
         shiny::tabPanel(
@@ -245,6 +243,7 @@ CPquant <- function(...){
             )
 
             df <- df |>
+                #make sure to update any_of() if Skyline changes the variable names in future versions
                 dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName", "Replicate"))) |>
                 dplyr::rename(Sample_Type = tidyr::any_of(c("Sample Type", "SampleType"))) |>
                 dplyr::rename(Molecule_List = tidyr::any_of(c("Molecule List", "MoleculeList"))) |>

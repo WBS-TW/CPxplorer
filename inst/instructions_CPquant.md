@@ -89,7 +89,9 @@ __Measured vs Theor Quan/Qual ratio__: Plot showing the measured Quan/Qual ratio
 ## Quantification summary  
 __Export all results to Excel__: export all results from the quantification to an excel file with different sheets.  
 __Quantification table__: this shows the quantification results directly in a table. The unit of the quantification depends on the design of concentration or weight amount specified by the user.  
-__Contributions from standards to deconvoluted homologue pattern__: this plot shows how much each standard contributes to the reconstructed homologue group pattern.  
+
+## Standard contributions  
+This plot shows how much each standard contributes to the reconstructed homologue group pattern.  
   
   
 ## Homologue Group Patterns  
