@@ -26,8 +26,8 @@ includes important QA/QC features.
 For details, please read our publication:  
 Beloki Ezker I, Yuan B, Borgen A, Liu J, Wang Y, Wang T. Streamlining
 Quantification and Data Harmonization of Polychlorinated Alkanes Using a
-Platform-Independent Workflow. Environmental Science & Technology, DOI:
-10.1021/acs.est.5c04928.
+Platform-Independent Workflow. Environmental Science & Technology, 2025,
+DOI: 10.1021/acs.est.5c04928.
 
 ### Installation
 
@@ -35,6 +35,9 @@ Platform-Independent Workflow. Environmental Science & Technology, DOI:
 <!-- ``` r -->
 <!-- install.packages("CPxplorer") -->
 <!-- ``` -->
+
+Example files and raw data can be found here:
+<https://zenodo.org/records/19428486>
 
 To install this R package directly from Github:
 
@@ -58,6 +61,10 @@ Server versions is available at shinyapp.io (this is a free tier account
 and therefore subjected to monthly limit for the server calculations):  
 CPions: <https://wbs-tw.shinyapps.io/CPions/>  
 CPquant: <https://wbs-tw.shinyapps.io/CPquant/>
+
+NOTE: the latest version is always installed using the
+devtools::install_github() function while the server and shinylive
+versions might not be up to date with the latest version.
 
 The apps can also be opened directly in a web browser of the local
 computer from these sites (no need to install the R package and verified
