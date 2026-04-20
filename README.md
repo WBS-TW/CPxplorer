@@ -29,6 +29,9 @@ Quantification and Data Harmonization of Polychlorinated Alkanes Using a
 Platform-Independent Workflow. Environmental Science & Technology, 2025,
 DOI: 10.1021/acs.est.5c04928.
 
+Detailed instructions on the quantifiation workflow can be found in the
+file: CPxplorer_Manual.pdf
+
 ### Installation
 
 <!-- You can install the released version of CPxplorer from [CRAN](https://CRAN.R-project.org) with: -->
