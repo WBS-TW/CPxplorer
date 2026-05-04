@@ -79,6 +79,7 @@ __reslag__, __reslead__: internal calculations for the MS resolution needed to s
   
 __interference__: indicate whether or not the m/z two nearest ions can interfere with each other at the set MS resolution value. _"false"_ means no interference and _"true"_ means there is interference (and therefore the MS resolution cannot resolve these peaks).  
 
+If the legend _"Interference at MS res?"_ does not appear in the plots then it means that there are no interfering ions among the chosen compounds.  
 
   
   
