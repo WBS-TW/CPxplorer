@@ -173,52 +173,10 @@ CPquant <- function(...){
         ),
         shiny::tabPanel(
             "QA/QC",
-            shiny::sidebarLayout(
-                shiny::sidebarPanel(
-                    width = 2,
-                    shiny::radioButtons(
-                        "navQAQC",
-                        "Choose tab:",
-                        choices = c(
-                            "Recovery and MDL",
-                            "Isotope QC Summary",
-                            "Isotope Pattern Overlay",
-                            "Isotope Similarity Heatmap",
-                            "Isotope Ratio Residuals"
-                        ),
-                        selected = "Recovery and MDL"
-                    ),
-                    shiny::conditionalPanel(
-                        condition = "input.navQAQC == 'Isotope Pattern Overlay'",
-                        shiny::uiOutput("isotopeQCSampleUI"),
-                        shiny::uiOutput("isotopeQCMoleculeUI")
-                    )
-                ),
-                shiny::mainPanel(
-                    width = 10,
-                    shiny::conditionalPanel(
-                        condition = "input.navQAQC == 'Recovery and MDL'",
-                        DT::DTOutput("table_recovery"),
-                        shiny::br(),
-                        DT::DTOutput("table_MDL")
-                    ),
-                    shiny::conditionalPanel(
-                        condition = "input.navQAQC == 'Isotope QC Summary'",
-                        DT::DTOutput("table_isotope_qc")
-                    ),
-                    shiny::conditionalPanel(
-                        condition = "input.navQAQC == 'Isotope Pattern Overlay'",
-                        plotly::plotlyOutput("plotIsotopePatternOverlay", height = "80vh", width = "100%")
-                    ),
-                    shiny::conditionalPanel(
-                        condition = "input.navQAQC == 'Isotope Similarity Heatmap'",
-                        plotly::plotlyOutput("plotIsotopeSimilarityHeatmap", height = "80vh", width = "100%")
-                    ),
-                    shiny::conditionalPanel(
-                        condition = "input.navQAQC == 'Isotope Ratio Residuals'",
-                        plotly::plotlyOutput("plotIsotopeRatioResiduals", height = "80vh", width = "100%")
-                    )
-                )
+            shiny::mainPanel(
+                DT::DTOutput("table_recovery"),
+                shiny::br(),
+                DT::DTOutput("table_MDL")
             )
         ),
         shiny::tabPanel(
@@ -278,7 +236,45 @@ CPquant <- function(...){
         base_df <- reactive({
             req(input$fileInput)
 
-            df <- read_cpquant_skyline(input$fileInput$datapath, input$standardTypes)
+            df <- readxl::read_excel(
+                input$fileInput$datapath,
+                guess_max = 5000,
+                na = c("", "NA", "#N/A", "N/A")
+            )
+
+            df <- df |>
+                #make sure to update any_of() if Skyline changes the variable names in future versions
+                dplyr::rename(Replicate_Name = tidyr::any_of(c("Replicate Name", "ReplicateName", "Replicate"))) |>
+                dplyr::rename(Sample_Type = tidyr::any_of(c("Sample Type", "SampleType"))) |>
+                dplyr::rename(Molecule_List = tidyr::any_of(c("Molecule List", "MoleculeList"))) |>
+                dplyr::rename(Mass_Error_PPM = tidyr::any_of(c("Mass Error PPM", "MassErrorPPM"))) |>
+                dplyr::rename(Isotope_Label_Type = tidyr::any_of(c("Isotope Label Type", "IsotopeLabelType"))) |>
+                dplyr::rename(Chromatogram_Precursor_MZ = tidyr::any_of(c("Chromatogram Precursor M/Z", "ChromatogramPrecursorMz"))) |>
+                dplyr::rename(Analyte_Concentration = tidyr::any_of(c("Analyte Concentration", "AnalyteConcentration"))) |>
+                dplyr::rename(Batch_Name = tidyr::any_of(c("Batch Name", "BatchName"))) |>
+                dplyr::rename(Transition_Note = tidyr::any_of(c("Transition Note", "TransitionNote"))) |>
+                dplyr::rename(Sample_Dilution_Factor = tidyr::any_of(c("Sample Dilution Factor", "SampleDilutionFactor"))) |>
+                dplyr::mutate(
+                    Analyte_Concentration = as.numeric(Analyte_Concentration),
+                    Area = as.numeric(Area),
+                    Area = tidyr::replace_na(Area, 0),
+                    C_homologue = stringr::str_extract(Molecule, "C\\d+"),
+                    Cl_homologue = stringr::str_extract(Molecule, "Cl\\d+"),
+                    C_number = as.numeric(stringr::str_extract(C_homologue, "\\d+")),
+                    Cl_number = as.numeric(stringr::str_extract(Cl_homologue, "\\d+")),
+                    PCA = stringr::str_c(C_homologue, Cl_homologue, sep = ""),
+                    Rel_Ab = as.numeric(purrr::map_chr(
+                        Transition_Note, ~ {
+                            matches <- stringr::str_match_all(.x, "\\{([^}]*)\\}")[[1]]
+                            if (nrow(matches) >= 2) matches[2, 2] else NA_character_
+                        }
+                    ))
+                )
+
+            if (identical(input$standardTypes, "Group Mixtures")) {
+                df <- df |>
+                    dplyr::mutate(Quantification_Group = stringr::str_extract(Batch_Name, "^[^_]+"))
+            }
 
             df
         })
@@ -376,7 +372,6 @@ CPquant <- function(...){
         # ---- Event-gated input (for R^2) ----
         removeRsquared <- shiny::eventReactive(input$go, { as.numeric(input$removeRsquared) })
         Samples_Concentration <- reactiveVal() # store deconvolution for other tabs
-        Isotope_QC <- reactiveVal(NULL)
 
         # ---- Raw table & plot (reflect auto removal) ----
         output$table_Skyline_output <- DT::renderDT({
@@ -507,86 +502,6 @@ CPquant <- function(...){
                 })
                 output$MeasVSTheor <- plotly::renderPlotly({
                     plot_meas_vs_theor_ratio(Skyline_output_filt)
-                })
-
-                isotope_qc_input <- base_df()
-                rmv_qc <- input$removeSamples
-                if (!is.null(rmv_qc) && length(rmv_qc) > 0) {
-                    isotope_qc_input <- isotope_qc_input |>
-                        dplyr::filter(!Replicate_Name %in% rmv_qc)
-                }
-
-                isotope_qc <- prepare_isotope_pattern_qc(isotope_qc_input)
-                Isotope_QC(isotope_qc)
-
-                output$table_isotope_qc <- DT::renderDT({
-                    Isotope_QC()$summary_qc |>
-                        dplyr::mutate(
-                            cosine_similarity = round(cosine_similarity, 3),
-                            pearson_r = round(pearson_r, 3),
-                            weighted_abs_percent_error = round(weighted_abs_percent_error, 2),
-                            max_ion_ratio_error = round(max_ion_ratio_error, 2),
-                            total_area = round(total_area, 0)
-                        ) |>
-                        DT::datatable(
-                            filter = "top",
-                            extensions = c("Buttons", "Scroller"),
-                            options = list(
-                                scrollY = 650, scrollX = 500, deferRender = TRUE, scroller = TRUE,
-                                buttons = list(
-                                    list(extend = "excel", filename = "Isotope_pattern_QC", title = NULL,
-                                         exportOptions = list(modifier = list(page = "all"))),
-                                    list(extend = "csv", filename = "Isotope_pattern_QC", title = NULL,
-                                         exportOptions = list(modifier = list(page = "all"))),
-                                    list(extend = "colvis", targets = 0, visible = FALSE)
-                                ),
-                                dom = "lBfrtip",
-                                fixedColumns = TRUE
-                            ),
-                            rownames = FALSE
-                        ) |>
-                        DT::formatStyle(
-                            "qc_flag",
-                            backgroundColor = DT::styleEqual(c("Pass", "Review", "Fail", "No signal"),
-                                                             c("#d1e7dd", "#fff3cd", "#f8d7da", "#e2e3e5")),
-                            fontWeight = "600"
-                        )
-                })
-
-                output$isotopeQCSampleUI <- shiny::renderUI({
-                    req(Isotope_QC())
-                    samples <- unique(Isotope_QC()$ion_qc$Replicate_Name)
-                    req(length(samples) > 0)
-                    shiny::selectInput("selectedIsotopeQCSample", "Sample:", choices = samples, selected = samples[[1]])
-                })
-
-                output$isotopeQCMoleculeUI <- shiny::renderUI({
-                    req(Isotope_QC(), input$selectedIsotopeQCSample)
-                    molecules <- Isotope_QC()$ion_qc |>
-                        dplyr::filter(Replicate_Name == input$selectedIsotopeQCSample) |>
-                        dplyr::pull(Molecule) |>
-                        unique()
-                    req(length(molecules) > 0)
-                    shiny::selectInput("selectedIsotopeQCMolecule", "Molecule:", choices = molecules, selected = molecules[[1]])
-                })
-
-                output$plotIsotopePatternOverlay <- plotly::renderPlotly({
-                    req(Isotope_QC(), input$selectedIsotopeQCSample, input$selectedIsotopeQCMolecule)
-                    plot_isotope_pattern_overlay(
-                        Isotope_QC()$ion_qc,
-                        input$selectedIsotopeQCSample,
-                        input$selectedIsotopeQCMolecule
-                    )
-                })
-
-                output$plotIsotopeSimilarityHeatmap <- plotly::renderPlotly({
-                    req(Isotope_QC())
-                    plot_isotope_similarity_heatmap(Isotope_QC()$summary_qc)
-                })
-
-                output$plotIsotopeRatioResiduals <- plotly::renderPlotly({
-                    req(Isotope_QC())
-                    plot_isotope_ratio_residuals(Isotope_QC()$ion_qc)
                 })
 
                 # ---- DECONVOLUTION ----

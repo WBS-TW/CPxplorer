@@ -1,7 +1,7 @@
 
 # CPquant
   
-If you are using CPxplorer, please cite our paper:  
+For more information, please check our paper:  
 Beloki Ezker et al. Streamlining Quantification and Data Harmonization of Polychlorinated Alkanes Using a Platform-Independent Workflow. Environ. Sci. Technol. 2025, doi/10.1021/acs.est.5c04928.  
   
 
@@ -41,7 +41,6 @@ This column could be in concentration or weight/amount unit depending on the use
 `Chromatogram Precursor M/Z`: the m/z values of the ion (not used by CPquant).  
 `Sample Dilution Factor`: indicate the dilution (>1) or concentration factor (<1). Default from Skyline is 1 (no dilution).  
 `Transition Note`: internal information transferred from CPions used for calculating the correct isotope ratio.  
-`Transition Note` can include [INTERFERENCE] if the ion was flagged during CPions Skyline export.  
   
 ## Quantification Inputs tab  
 __Import excel file from Skyline__: This is the excel file from the Report export function of Skyline.  
@@ -50,7 +49,6 @@ After loading the excel, allow for the Area plot to show up before pressing the 
 
 After loading the data, the user can choose the options:  
 __Choose ion for quantification__: "Quan only" only uses the signal from quantification ion, and "Sum Quan+Qual" use the sum of the Quan and all Qual ions for quantification.  
-The Quan ion depends on the Skyline strategy selected in CPions, such as highest abundance or least interference.  
 __Subtraction by blank?__: If "Yes, by avg area of blanks", then the area for each Molecule will be subtracted with the average area of all blank samples.  
 __Correct with RS area?__: If "Yes", then the area of each Molecule will the normalized to the recovery standard (RS) area for each sample.  
 ISSUE: currently it is not possible to choose different RS and CPquant keeps choosing the first variable even if the user select another. The user should use only one RS until this issue is fixed.  
@@ -109,11 +107,9 @@ __ISSUE__: CURRENTLY THE COLORS OF THE CARBON CHAIN GROUPS DOES NOT MATCH BETWEE
 
 ## QA/QC  
 Various QA/QC results will show depending on the choices in the input tab. These include recovery and MDL calculations.  
-
-The isotope-pattern QC views compare normalized observed Skyline peak areas with the theoretical relative abundances exported by CPions in the `Transition Note` column. The summary table reports the number of observed and expected ions, total area, cosine similarity, Pearson correlation, weighted absolute percent error, maximum ion ratio error, and a QC flag. A cosine similarity of 1 means the measured isotope pattern matches the theoretical pattern exactly after normalization. By default, cosine similarity >=0.95 is flagged as _Pass_, 0.85-0.95 as _Review_, and <0.85 as _Fail_.  
-
-The isotope QC plots include an observed/theoretical pattern overlay for one molecule and sample, a heatmap of cosine similarity across samples and molecules, and observed/theoretical ion-ratio residuals where ratios >3 or <0.3 are highlighted as outliers.  
   
+
+
 
 
 

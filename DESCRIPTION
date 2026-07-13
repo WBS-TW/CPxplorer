@@ -32,8 +32,3 @@ Imports:
     stringr,
     tibble,
     tidyr
-Suggests:
-    shinytest2,
-    testthat (>= 3.0.0),
-    waldo
-Config/testthat/edition: 3
