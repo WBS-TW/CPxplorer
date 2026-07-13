@@ -21,6 +21,14 @@
 
 CPions <- function(...){
 
+table_download_controls <- function(csv_id, xlsx_id) {
+    shiny::div(
+        style = "margin-bottom: 10px; display: flex; gap: 8px; flex-wrap: wrap;",
+        shiny::downloadButton(csv_id, "Download CSV"),
+        shiny::downloadButton(xlsx_id, "Download Excel")
+    )
+}
+
 #--------------------------------UI function----------------------------------#
 ui <- shiny::navbarPage(
     "CPions",
@@ -65,6 +73,7 @@ ui <- shiny::navbarPage(
                             shiny::actionButton("go1", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
+                            table_download_controls("download_norm_csv", "download_norm_xlsx"),
                             DT::DTOutput("Table_norm", width = "100%")
                         )
                     )
@@ -114,6 +123,7 @@ ui <- shiny::navbarPage(
                             shiny::actionButton("go_adv", "Submit", width = "100%"),
                             width = 3),
                         shiny::mainPanel(
+                            table_download_controls("download_adv_csv", "download_adv_xlsx"),
                             DT::DTOutput("Table_adv", width = "100%")
                         )
                     )
@@ -129,6 +139,7 @@ ui <- shiny::navbarPage(
                         shiny::mainPanel(
                             plotly::plotlyOutput("Plotly"),
                             plotly::plotlyOutput("Plotly2"),
+                            table_download_controls("download_interference_csv", "download_interference_xlsx"),
                             DT::DTOutput("Table2", width = "100%")
 
                         )
@@ -137,15 +148,47 @@ ui <- shiny::navbarPage(
     shiny::tabPanel("Skyline",
                     shiny::fluidPage(shiny::sidebarLayout(
                         shiny::sidebarPanel(
-                            shiny::radioButtons("QuantIon", label = "Use as Quant Ion", choices = c("Most intense", "Most intense after interference filtering"),
-                                                selected = "Most intense"),
                             #shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz", "IonFormula")),
                             shiny::radioButtons("skylineoutput", label = "Output table", choices = c("mz")),
                             shiny::radioButtons("skyline_mode", label = "From Normal or Advanced settings", choices = c("normal", "advanced"), selected = "normal"),
+                             shiny::radioButtons("QuantIon", label = "Use as Quant Ion", choices = c("Most intense", "Interference-filtered"),
+                                                 selected = "Most intense"),
+                             shiny::conditionalPanel(
+                                 condition = "input.QuantIon == 'Interference-filtered'",
+                                 shiny::helpText("When using interference filtering, choose a strategy to select the Quant ion and set the preferred number of Qual ions."),
+                                 shiny::selectInput(
+                                     "skyline_strategy",
+                                     label = "Selection strategy",
+                                     choices = c(
+                                        "Highest abundance Quan" = "abundance",
+                                        "Balanced" = "balanced",
+                                        "Least interference Quan" = "interference"
+                                     ),
+                                     selected = "abundance"
+                                 ),
+                                 shiny::numericInput(
+                                     "skyline_qual_n",
+                                     label = "Preferred number of Qual ions",
+                                     value = 2,
+                                     min = 0,
+                                     max = 20,
+                                     step = 1
+                                 )
+                             ),
                             shiny::actionButton("go3", "Transition List", width = "100%"),
                             width = 4
                         ),
                         shiny::mainPanel(
+                            shiny::div(
+                                style = "margin-bottom: 10px; display: flex; gap: 8px; flex-wrap: wrap;",
+                                shiny::downloadButton("download_iontable_csv", "Download Full Ion Table CSV"),
+                                shiny::downloadButton("download_iontable_xlsx", "Download Full Ion Table Excel")
+                            ),
+                            shiny::div(
+                                style = "margin-bottom: 10px; display: flex; gap: 8px; flex-wrap: wrap;",
+                                shiny::downloadButton("download_skyline_csv", "Download Skyline Transition List CSV"),
+                                shiny::downloadButton("download_skyline_xlsx", "Download Skyline Transition List Excel")
+                            ),
                             DT::DTOutput("Table3", width = "100%")
 
                         )
@@ -170,12 +213,58 @@ ui <- shiny::navbarPage(
 
 
 server = function(input, output, session) {
+    CPions_server(input, output, session)
+    # Close the app when the session ends
+    if(!interactive()) {
+        session$onSessionEnded(function() {
+            stopApp()
+            q("no")
+        })
+    }
+
+}
+
+shiny::shinyApp(ui, server)
+
+}
+
+CPions_server <- function(input, output, session) {
+    suppress_dt_size_warning <- function(expr) {
+        old_options <- options(DT.warn.size = FALSE)
+        on.exit(options(old_options), add = TRUE)
+        force(expr)
+    }
+
+    register_table_downloads <- function(data_reactive, csv_output_id, xlsx_output_id, file_stub) {
+        output[[csv_output_id]] <- shiny::downloadHandler(
+            filename = function() {
+                paste0(file_stub, ".csv")
+            },
+            content = function(file) {
+                data <- data_reactive()
+                shiny::req(data)
+                readr::write_csv(data, file)
+            }
+        )
+
+        output[[xlsx_output_id]] <- shiny::downloadHandler(
+            filename = function() {
+                paste0(file_stub, ".xlsx")
+            },
+            content = function(file) {
+                data <- data_reactive()
+                shiny::req(data)
+                openxlsx::write.xlsx(data, file = file, overwrite = TRUE)
+            }
+        )
+    }
 
     # Set reactive values from user input
 
     # GENERAL
     MSresolution <- shiny::eventReactive(input$go2, {as.integer(input$MSresolution)})
     CP_allions_compl2 <- shiny::reactiveVal(NULL) # save as global object after calculate the interfering ions for skyline
+    CP_allions_skyline_reactive <- shiny::reactiveVal(NULL)
 
     # NORMAL
     selectedAdducts <- shiny::eventReactive(input$go1, {as.character(input$Adducts)})
@@ -224,17 +313,19 @@ server = function(input, output, session) {
         Adducts <- as.character(selectedAdducts())
 
         # function to get adducts or fragments
-        CP_allions <- data.frame(Molecule_Formula = character(), Halo_perc = double())
+        CP_allions_template <- data.frame(Molecule_Formula = character(), Halo_perc = double())
+        CP_allions_inputs <- vector("list", length(Adducts))
         for (i in seq_along(Adducts)) {
             progress$inc(1/length(Adducts), detail = paste0("Adduct: ", Adducts[i], " . Please wait.."))
             if(stringr::str_detect(Adducts[i], "\\bBCA\\b")){
-                input <- getAdduct_BCA(adduct_ions = Adducts[i], C = C(), Cl = Cl(), Clmax = Clmax(),
+                CP_allions_inputs[[i]] <- getAdduct_BCA(adduct_ions = Adducts[i], C = C(), Cl = Cl(), Clmax = Clmax(),
                                        Br = Br(), Brmax = Brmax(), threshold = threshold())
             } else {
-                input <- getAdduct_normal(adduct_ions = Adducts[i], C = C(), Cl = Cl(), Clmax = Clmax(), threshold = threshold())
+                CP_allions_inputs[[i]] <- getAdduct_normal(adduct_ions = Adducts[i], C = C(), Cl = Cl(), Clmax = Clmax(), threshold = threshold())
             }
-            CP_allions <- dplyr::full_join(CP_allions, input)
         }
+
+        CP_allions <- combine_cpions_tables(CP_allions_inputs, CP_allions_template)
 
 
         # Add ISRS if textinput is not empty ""
@@ -247,29 +338,23 @@ server = function(input, output, session) {
     })
 
     shiny::observeEvent(input$go1, {
-        output$Table_norm <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherwise excel download the visible rows of the table, but this will also give warning about large tables
-            # Show data
-            DT::datatable(CP_allions_glob(),
-                          filter = "top", extensions = c("Buttons", "Scroller"),
-                          options = list(scrollY = 650,
-                                         scrollX = 500,
-                                         deferRender = TRUE,
-                                         scroller = TRUE,
-                                         buttons = list(list(extend = "excel", title = NULL,
-                                                             exportOptions = list(
-                                                                 modifier = list(page = "all")
-                                                             )),
-                                                        list(extend = "csv", title = NULL,
-                                                             exportOptions = list(
-                                                                 modifier = list(page = "all")
-                                                             )),
-                                                        list(extend = "colvis", targets = 0, visible = FALSE)),
-                                         dom = "lBfrtip",
-                                         fixedColumns = TRUE),
-                          rownames = FALSE)
-        })
+        output$Table_norm <- DT::renderDT({
+            suppress_dt_size_warning(
+                DT::datatable(CP_allions_glob(),
+                              filter = "top", extensions = c("Buttons", "Scroller"),
+                              options = list(scrollY = 650,
+                                             scrollX = 500,
+                                             deferRender = TRUE,
+                                             scroller = TRUE,
+                                             buttons = list(list(extend = "colvis", targets = 0, visible = FALSE)),
+                                             dom = "lBfrtip",
+                                             fixedColumns = TRUE),
+                              rownames = FALSE)
+            )
+        }, server = TRUE)
     })
     # go1 end
+    register_table_downloads(CP_allions_glob, "download_norm_csv", "download_norm_xlsx", "CPions_normal_settings")
 
 
     # ADVANCED
@@ -288,7 +373,9 @@ server = function(input, output, session) {
         TP <- as.character(selectedTP_adv())
 
         # function to get adducts or fragments
-        CP_allions <- data.frame(Molecule_Formula = character(), Molecule_Halo_perc = double())
+        CP_allions_template <- data.frame(Molecule_Formula = character(), Molecule_Halo_perc = double())
+        CP_allions_inputs <- vector("list", length(Class) * length(Adducts) * length(TP))
+        input_idx <- 0L
 
         # nested for loop to get all combinations of Class, Adducts, TP
         for (i in seq_along(Class)) {
@@ -297,13 +384,15 @@ server = function(input, output, session) {
             for (j in seq_along(Adducts)) {
 
                 for (k in seq_along(TP)) {
-                    input <- getAdduct_advanced(Class = Class[i], Adduct_Ion = Adducts[j], TP = TP[k], Charge = Charge,
+                    input_idx <- input_idx + 1L
+                    CP_allions_inputs[[input_idx]] <- getAdduct_advanced(Class = Class[i], Adduct_Ion = Adducts[j], TP = TP[k], Charge = Charge,
                                                 C = C_adv(), Cl = Cl_adv(), Clmax = Clmax_adv(), Br = Br_adv(), Brmax = Brmax_adv(),
                                                 threshold = threshold_adv())
-                    CP_allions <- dplyr::full_join(CP_allions, input)
                 }
             }
         }
+
+        CP_allions <- combine_cpions_tables(CP_allions_inputs, CP_allions_template)
 
         # Add ISRS if textinput is not empty ""
         if(ISRS_input_adv() != ""){
@@ -316,29 +405,23 @@ server = function(input, output, session) {
 
     ### go_adv: Calculate the isotopes from initial settings tab ###
     shiny::observeEvent(input$go_adv, {
-        output$Table_adv <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherwise excel download the visible rows of the table, but this will also give warning about large tables
-            # Show data
-            DT::datatable(CP_allions_glob_adv(),
-                          filter = "top", extensions = c("Buttons", "Scroller"),
-                          options = list(scrollY = 650,
-                                         scrollX = 500,
-                                         deferRender = TRUE,
-                                         scroller = TRUE,
-                                         buttons = list(list(extend = "excel", title = NULL,
-                                                             exportOptions = list(
-                                                                 modifier = list(page = "all")
-                                                             )),
-                                                        list(extend = "csv", title = NULL,
-                                                             exportOptions = list(
-                                                                 modifier = list(page = "all")
-                                                             )),
-                                                        list(extend = "colvis", targets = 0, visible = FALSE)),
-                                         dom = "lBfrtip",
-                                         fixedColumns = TRUE),
-                          rownames = FALSE)
-        })
+        output$Table_adv <- DT::renderDT({
+            suppress_dt_size_warning(
+                DT::datatable(CP_allions_glob_adv(),
+                              filter = "top", extensions = c("Buttons", "Scroller"),
+                              options = list(scrollY = 650,
+                                             scrollX = 500,
+                                             deferRender = TRUE,
+                                             scroller = TRUE,
+                                             buttons = list(list(extend = "colvis", targets = 0, visible = FALSE)),
+                                             dom = "lBfrtip",
+                                             fixedColumns = TRUE),
+                              rownames = FALSE)
+            )
+        }, server = TRUE)
     })
     # go_adv end
+    register_table_downloads(CP_allions_glob_adv, "download_adv_csv", "download_adv_xlsx", "CPions_advanced_settings")
 
     ##################################################################
     ############ go2: Calculates the interfering ions tab ############
@@ -353,23 +436,7 @@ server = function(input, output, session) {
         }
 
 
-        CP_allions_interfere  <- CP_allions_interfere |>
-            dplyr::arrange(`m/z`) |>
-            dplyr::mutate(difflag = round(abs(`m/z` - lag(`m/z`, default = first(`m/z`))),6)) |>
-            dplyr::mutate(difflead = round(abs(`m/z` - lead(`m/z`, default = last(`m/z`))), 6)) |>
-            dplyr::mutate(reslag = round(`m/z`/difflag, 0)) |>
-            dplyr::mutate(reslead = round(`m/z`/difflead, 0)) |>
-            dplyr::mutate(interference = dplyr::case_when(
-                # Edge rows:
-                row_number() == 1 ~ reslead > as.integer(MSresolution()),
-                row_number() == n() ~ reslag > as.integer(MSresolution()),
-
-                # Original logic for the middle rows:
-                difflag == 0 | difflead == 0 ~ TRUE,  # keep same-mass ions TRUE
-                reslag >= as.integer(MSresolution()) | reslead >= as.integer(MSresolution()) ~ TRUE,
-                reslag <  as.integer(MSresolution()) &  reslead <  as.integer(MSresolution()) ~ FALSE,
-                # Fallback (optional): if none of the above match
-                TRUE ~ FALSE))
+        CP_allions_interfere <- compute_interference(CP_allions_interfere, MSresolution())
 
         # populates CP_allions_compl2 so it can be use for skyline tab
         CP_allions_compl2(CP_allions_interfere)
@@ -487,29 +554,24 @@ server = function(input, output, session) {
 
         }
 
-        output$Table2 <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherwise excel download only part of rows
+        output$Table2 <- DT::renderDT({
             # Show data
-            DT::datatable(CP_allions_interfere,
-                          filter = "top", extensions = c("Buttons", "Scroller"),
-                          options = list(scrollY = 650,
-                                         scrollX = 500,
-                                         deferRender = TRUE,
-                                         scroller = TRUE,
-                                         buttons = list(list(extend = "excel", title = NULL,
-                                                             exportOptions = list(
-                                                                 modifier = list(page = "all")
-                                                             )),
-                                                        list(extend = "csv", title = NULL,
-                                                             exportOptions = list(
-                                                                 modifier = list(page = "all")
-                                                             )),
-                                                        list(extend = "colvis", targets = 0, visible = FALSE)),
-                                         dom = "lBfrtip",
-                                         fixedColumns = TRUE),
-                          rownames = FALSE)
-        })
+            suppress_dt_size_warning(
+                DT::datatable(CP_allions_interfere,
+                              filter = "top", extensions = c("Buttons", "Scroller"),
+                              options = list(scrollY = 650,
+                                             scrollX = 500,
+                                             deferRender = TRUE,
+                                             scroller = TRUE,
+                                             buttons = list(list(extend = "colvis", targets = 0, visible = FALSE)),
+                                             dom = "lBfrtip",
+                                             fixedColumns = TRUE),
+                              rownames = FALSE)
+            )
+        }, server = TRUE)
     })
     # go2 end
+    register_table_downloads(CP_allions_compl2, "download_interference_csv", "download_interference_xlsx", "CPions_interfering_ions")
 
     ##################################################################
     ############ go3: Skyline tab ############
@@ -521,199 +583,72 @@ server = function(input, output, session) {
 if(input$skylineoutput == "mz"){ #Removed  skylineoutput==IonFormula since not compatible with [M-Cl]- (adduct not available in current skyline)
 
     if (input$QuantIon == "Most intense" & input$skyline_mode == "advanced") {
-        CP_allions_skyline <- CP_allions_glob_adv() |>
-            dplyr::mutate(`Molecule List Name` = dplyr::case_when(
-                Compound_Class == "PCA" & TP == "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                Compound_Class == "PCA" & TP != "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                Compound_Class == "PCO"  & TP == "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                Compound_Class == "PCO" & TP != "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                Compound_Class == "BCA"  & TP == "None" ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                Compound_Class == "BCA" & TP != "None"  ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
-                stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
-            dplyr::rename(`Molecule Name` = Molecule_Formula) |>
-            dplyr::mutate(`Precursor m/z` = `m/z`) |>
-            dplyr::mutate(Note = paste0("{", Adduct_Annotation, "}", "{", Rel_ab, "}")) |>
-            dplyr::rename(`Precursor Charge` = Charge) |>
-            tibble::add_column(`Explicit Retention Time` = NA) |>
-            tibble::add_column(`Explicit Retention Time Window` = NA) |>
-            dplyr::group_by(`Molecule Name`) |>
-            dplyr::mutate(`Label Type` = dplyr::if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
-            dplyr::ungroup() |>
-            dplyr::select(`Molecule List Name`,
-                          `Molecule Name`,
-                          `Precursor Charge`,
-                          `Label Type`,
-                          `Precursor m/z`,
-                          `Explicit Retention Time`,
-                          `Explicit Retention Time Window`,
-                          Note)
+        CP_allions_skyline <- build_skyline_transition_list(
+            CP_allions = CP_allions_glob_adv(),
+            mode = "advanced",
+            quant_ion = "Most intense",
+            ms_resolution = input$MSresolution,
+            strategy = input$skyline_strategy,
+            preferred_qual_n = as.integer(input$skyline_qual_n)
+        )
     } else if (input$QuantIon == "Most intense" & input$skyline_mode == "normal") {
-        CP_allions_skyline <- CP_allions_glob() |>
-            dplyr::mutate(`Molecule List Name` = dplyr::case_when(
-                stringr::str_detect(Adduct, "(?<=.)PCA(?=.)") == TRUE ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                stringr::str_detect(Adduct, "(?<=.)PCO(?=.)") == TRUE ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                stringr::str_detect(Adduct, "(?<=.)BCA(?=.)") == TRUE ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
-                stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
-            dplyr::rename(`Molecule Name` = Molecule_Formula) |>
-            dplyr::mutate(`Precursor m/z` = `m/z`) |>
-            dplyr::mutate(Note = paste0("{", Adduct, "}", "{", Rel_ab, "}")) |>
-            dplyr::rename(`Precursor Charge` = Charge) |>
-            tibble::add_column(`Explicit Retention Time` = NA) |>
-            tibble::add_column(`Explicit Retention Time Window` = NA) |>
-            dplyr::group_by(`Molecule Name`) |>
-            dplyr::mutate(`Label Type` = dplyr::if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
-            dplyr::ungroup() |>
-            dplyr::select(`Molecule List Name`,
-                          `Molecule Name`,
-                          `Precursor Charge`,
-                          `Label Type`,
-                          `Precursor m/z`,
-                          `Explicit Retention Time`,
-                          `Explicit Retention Time Window`,
-                          Note)
-    } else if (input$QuantIon == "Most intense after interference filtering" & input$skyline_mode == "advanced") {
+        CP_allions_skyline <- build_skyline_transition_list(
+            CP_allions = CP_allions_glob(),
+            mode = "normal",
+            quant_ion = "Most intense",
+            ms_resolution = input$MSresolution,
+            strategy = input$skyline_strategy,
+            preferred_qual_n = as.integer(input$skyline_qual_n)
+        )
+    } else if (input$QuantIon == "Interference-filtered" & input$skyline_mode == "advanced") {
 
         req(CP_allions_compl2())
-        CP_allions_skyline <- CP_allions_compl2() |>
-            dplyr::mutate(`Molecule List Name` = dplyr::case_when(
-                Compound_Class == "PCA" & TP == "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                Compound_Class == "PCA" & TP != "None" ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                Compound_Class == "PCO"  & TP == "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                Compound_Class == "PCO" & TP != "None" ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                Compound_Class == "BCA"  & TP == "None" ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                Compound_Class == "BCA" & TP != "None"  ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)"), "_", TP),
-                stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
-                stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
-            dplyr::rename(`Molecule Name` = Molecule_Formula) |>
-            dplyr::mutate(`Precursor m/z` = `m/z`) |>
-            dplyr::rename(`Precursor Charge` = Charge) |>
-            tibble::add_column(`Explicit Retention Time` = NA) |>
-            tibble::add_column(`Explicit Retention Time Window` = NA) |>
-            dplyr::group_by(`Molecule Name`, Adduct_Annotation) |>
-            # Apply filtering and fallback logic
-            dplyr::group_modify(~ {
-                filtered <- dplyr::filter(.x, interference == FALSE)
-                if (nrow(filtered) == 0) {
-                    # If no rows remain, take top 10 by Rel_ab
-                    dplyr::slice_max(.x, Rel_ab, n = 10)
-                } else {
-                    filtered
-                }
-            }) %>%
-            dplyr::mutate(`Label Type` = dplyr::if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
-            dplyr::ungroup() |>
-            dplyr::arrange(`Precursor m/z`) |>
-            dplyr::mutate(difflag = round(abs(`Precursor m/z` - lag(`Precursor m/z`, default = first(`Precursor m/z`))),6)) |>
-            dplyr::mutate(difflead = round(abs(`Precursor m/z` - lead(`Precursor m/z`, default = last(`Precursor m/z`))), 6)) |>
-            dplyr::mutate(reslag = round(`Precursor m/z`/difflag, 0)) |>
-            dplyr::mutate(reslead = round(`Precursor m/z`/difflead, 0)) |>
-            mutate(interference = dplyr::case_when(
-                # Edge rows:
-                row_number() == 1 ~ reslead > as.integer(MSresolution()),
-                row_number() == n() ~ reslag > as.integer(MSresolution()),
-
-                # Original logic for the middle rows:
-                difflag == 0 | difflead == 0 ~ TRUE,  # keep same-mass ions TRUE
-                reslag >= as.integer(MSresolution()) | reslead >= as.integer(MSresolution()) ~ TRUE,
-                reslag <  as.integer(MSresolution()) &  reslead <  as.integer(MSresolution()) ~ FALSE,
-
-                # Fallback (optional): if none of the above match
-                TRUE ~ FALSE)) |>
-            dplyr::mutate(Note = dplyr::case_when(interference == FALSE ~ paste0("{", Adduct_Annotation, "}", "{", Rel_ab, "}"),
-                                           interference == TRUE ~ paste0("{", Adduct_Annotation, "}", "{", Rel_ab, "}", "[INTERFERENCE]")))|>
-            dplyr::arrange(`Molecule List Name`, `Molecule Name`, `Precursor m/z`) |>
-            dplyr::select(`Molecule List Name`,
-                          `Molecule Name`,
-                          `Precursor Charge`,
-                          `Label Type`,
-                          `Precursor m/z`,
-                          `Explicit Retention Time`,
-                          `Explicit Retention Time Window`,
-                          Note)
-    } else if (input$QuantIon == "Most intense after interference filtering" & input$skyline_mode == "normal") {
+        CP_allions_skyline <- build_skyline_transition_list(
+            CP_allions = CP_allions_compl2(),
+            mode = "advanced",
+            quant_ion = "Interference-filtered",
+            ms_resolution = MSresolution(),
+            strategy = input$skyline_strategy,
+            preferred_qual_n = as.integer(input$skyline_qual_n)
+        )
+    } else if (input$QuantIon == "Interference-filtered" & input$skyline_mode == "normal") {
 
         req(CP_allions_compl2())
-        CP_allions_skyline <- CP_allions_compl2() |>
-            dplyr::mutate(`Molecule List Name` = dplyr::case_when(
-                stringr::str_detect(Adduct, "(?<=.)PCA(?=.)") == TRUE ~ paste0("PCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                stringr::str_detect(Adduct, "(?<=.)PCO(?=.)") == TRUE ~ paste0("PCO-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                stringr::str_detect(Adduct, "(?<=.)BCA(?=.)") == TRUE ~ paste0("BCA-C", stringr::str_extract(Molecule_Formula, "(?<=C)\\d+(?=H)")),
-                stringr::str_detect(Compound_Class, "^IS$") == TRUE ~ Compound_Class,
-                stringr::str_detect(Compound_Class, "^RS$") == TRUE ~ Compound_Class)) |>
-            dplyr::rename(`Molecule Name` = Molecule_Formula) |>
-            dplyr::mutate(`Precursor m/z` = `m/z`) |>
-            tibble::add_column(`Explicit Retention Time` = NA) |>
-            tibble::add_column(`Explicit Retention Time Window` = NA) |>
-            dplyr::rename(`Precursor Charge` = Charge) |>
-            dplyr::group_by(`Molecule Name`, Adduct) |>
-            # Apply filtering and fallback logic
-            dplyr::group_modify(~ {
-                filtered <- dplyr::filter(.x, interference == FALSE)
-                if (nrow(filtered) == 0) {
-                    # If no rows remain, take top 10 by Rel_ab
-                    dplyr::slice_max(.x, Rel_ab, n = 10)
-                } else {
-                    filtered
-                }
-            }) %>%
-            dplyr::mutate(`Label Type` = dplyr::if_else(Rel_ab == max(Rel_ab), "Quan", "Qual")) |> # choose the highest rel_ab ion as quan ion and the rest will be qual
-            dplyr::ungroup() |>
-            #new calculation of reslag and reslead since some m/z might be removed
-            dplyr::arrange(`Precursor m/z`) |>
-            dplyr::mutate(difflag = round(abs(`Precursor m/z` - lag(`Precursor m/z`, default = first(`Precursor m/z`))),6)) |>
-            dplyr::mutate(difflead = round(abs(`Precursor m/z` - lead(`Precursor m/z`, default = last(`Precursor m/z`))), 6)) |>
-            dplyr::mutate(reslag = round(`Precursor m/z`/difflag, 0)) |>
-            dplyr::mutate(reslead = round(`Precursor m/z`/difflead, 0)) |>
-            mutate(interference = dplyr::case_when(
-                # Edge rows:
-                row_number() == 1 ~ reslead > as.integer(MSresolution()),
-                row_number() == n() ~ reslag > as.integer(MSresolution()),
-
-                # Original logic for the middle rows:
-                difflag == 0 | difflead == 0 ~ TRUE,  # keep same-mass ions TRUE
-                reslag >= as.integer(MSresolution()) | reslead >= as.integer(MSresolution()) ~ TRUE,
-                reslag <  as.integer(MSresolution()) &  reslead <  as.integer(MSresolution()) ~ FALSE,
-
-                # Fallback (optional): if none of the above match
-                TRUE ~ FALSE)) |>
-            dplyr::mutate(Note = dplyr::case_when(interference == FALSE ~ paste0("{", Adduct, "}", "{", Rel_ab, "}"),
-                                           interference == TRUE ~ paste0("{", Adduct, "}", "{", Rel_ab, "}", "[INTERFERENCE]")))|>
-            dplyr::arrange(`Molecule List Name`, `Molecule Name`, `Precursor m/z`) |>
-            dplyr::select(`Molecule List Name`,
-                          `Molecule Name`,
-                          `Precursor Charge`,
-                          `Label Type`,
-                          `Precursor m/z`,
-                          `Explicit Retention Time`,
-                          `Explicit Retention Time Window`,
-                          Note)
+        CP_allions_skyline <- build_skyline_transition_list(
+            CP_allions = CP_allions_compl2(),
+            mode = "normal",
+            quant_ion = "Interference-filtered",
+            ms_resolution = MSresolution(),
+            strategy = input$skyline_strategy,
+            preferred_qual_n = as.integer(input$skyline_qual_n)
+        )
     }
+
+    CP_allions_skyline_reactive(CP_allions_skyline)
 }
 
 
-output$Table3 <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherwise excel download the visible rows of the table, but this will also give warning about large tables
+output$Table3 <- DT::renderDT({
     # Show data
-    DT::datatable(CP_allions_skyline,
-                  filter = "top", extensions = c("Buttons", "Scroller"),
-                  options = list(scrollY = 650,
-                                 scrollX = 500,
-                                 deferRender = TRUE,
-                                 scroller = TRUE,
-                                 buttons = list(list(extend = "excel", filename = "Skyline_transition_list", title = NULL,
-                                                     exportOptions = list(
-                                                         modifier = list(page = "all")
-                                                     )),
-                                                list(extend = "csv", filename = "Skyline_transition_list", title = NULL,
-                                                     exportOptions = list(
-                                                         modifier = list(page = "all")
-                                                     )),
-                                                list(extend = "colvis", targets = 0, visible = FALSE)),
-                                 dom = "lBfrtip",
-                                 fixedColumns = TRUE),
-                  rownames = FALSE)
-})
+    suppress_dt_size_warning(
+        DT::datatable(CP_allions_skyline_reactive(),
+                      filter = "top", extensions = c("Buttons", "Scroller"),
+                      options = list(scrollY = 650,
+                                     scrollX = 500,
+                                     deferRender = TRUE,
+                                     scroller = TRUE,
+                                     buttons = list(list(extend = "colvis", targets = 0, visible = FALSE)),
+                                     dom = "lBfrtip",
+                                     fixedColumns = TRUE),
+                      rownames = FALSE)
+    ) |>
+        DT::formatStyle(
+            "Interference at MS Res?",
+            target = "row",
+            backgroundColor = DT::styleEqual(c("YES", "NO"), c("#fff3cd", NA)),
+            fontWeight = DT::styleEqual(c("YES", "NO"), c("600", NA))
+        )
+}, server = TRUE)
 
 
 })
@@ -723,21 +658,48 @@ output$Table3 <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherw
 
 #----Outputs_End
 
+    register_table_downloads(CP_allions_skyline_reactive, "download_iontable_csv", "download_iontable_xlsx", "Skyline_full_table")
 
+    output[["download_skyline_csv"]] <- shiny::downloadHandler(
+        filename = function() {
+            "Skyline_transition_list_skyline.csv"
+        },
+        content = function(file) {
+            data <- CP_allions_skyline_reactive()
+            shiny::req(data)
+            skyline_cols <- c(
+                "Molecule List Name",
+                "Molecule Name",
+                "Precursor Charge",
+                "Label Type",
+                "Precursor m/z",
+                "Explicit Retention Time",
+                "Explicit Retention Time Window",
+                "Note"
+            )
+            readr::write_csv(data[, intersect(skyline_cols, names(data))], file)
+        }
+    )
 
-
-
-
-# Close the app when the session ends
-if(!interactive()) {
-    session$onSessionEnded(function() {
-        stopApp()
-        q("no")
-    })
-}
-
-}
-
-shiny::shinyApp(ui, server)
+    output[["download_skyline_xlsx"]] <- shiny::downloadHandler(
+        filename = function() {
+            "Skyline_transition_list_skyline.xlsx"
+        },
+        content = function(file) {
+            data <- CP_allions_skyline_reactive()
+            shiny::req(data)
+            skyline_cols <- c(
+                "Molecule List Name",
+                "Molecule Name",
+                "Precursor Charge",
+                "Label Type",
+                "Precursor m/z",
+                "Explicit Retention Time",
+                "Explicit Retention Time Window",
+                "Note"
+            )
+            openxlsx::write.xlsx(data[, intersect(skyline_cols, names(data))], file = file, overwrite = TRUE)
+        }
+    )
 
 }
