@@ -248,7 +248,6 @@ server = function(input, output, session) {
 
     shiny::observeEvent(input$go1, {
         output$Table_norm <- DT::renderDT(server=FALSE,{ #need to keep server = FALSE otherwise excel download the visible rows of the table, but this will also give warning about large tables
-            # Show data
             DT::datatable(CP_allions_glob(),
                           filter = "top", extensions = c("Buttons", "Scroller"),
                           options = list(scrollY = 650,
